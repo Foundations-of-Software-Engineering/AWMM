@@ -8,7 +8,18 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+/**
+ * Class representing a simple game server.
+ * @author AWMM
+ */
 public class GameServer {
+
+    /**
+     * The main method to start the game server.
+     *
+     * @param args Command-line arguments (not used).
+     * @throws IOException If an I/O error occurs while handling the server socket.
+     */
     public static void main(String[] args) throws IOException{
         final int port = 5555;
         final int backlog = 4;
