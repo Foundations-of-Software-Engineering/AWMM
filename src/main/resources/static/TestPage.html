@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Client</title>
+    <style>
+        /* Basic styling for the display and input box */
+        #message-display {
+            width: 900px;
+            height: 400px;
+            border: 1px solid #ccc;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+<p>Test page for Clue-Less Skeletal</p>
+<div id="message-display"></div>
+<input type="text" id="gameID" placeholder="Game ID">
+<input type="text" id="userID" placeholder="User ID">
+<input type="text" id="action" placeholder="Action">
+<input type="text" id="location" placeholder="Location">
+<input type="text" id="weapon" placeholder="Weapon">
+<input type="text" id="suspect" placeholder="Suspect">
+<button onclick="sendMessage()">Send</button>
+
+<script>
+    function appendMessage(message) {
+        // Append a new message to the display area
+        let display = document.getElementById("message-display");
+        display.innerHTML += message + "<br>";
+        // Scroll to the bottom to show the latest message
+        display.scrollTop = display.scrollHeight;
+    }
+
+    function sendMessage() {
+        let gameID = Number(document.getElementById("gameID").value);
+        let userID = Number(document.getElementById("userID").value);
+        let action = document.getElementById("action").value;
+        let location = document.getElementById("location").value;
+        let weapon = document.getElementById("weapon").value;
+        let suspect = document.getElementById("suspect").value;
+
+        // Construct the request body{
+        let requestBody = {
+            gameID: gameID,
+            userID: userID,
+            action: action,
+            location: location,
+            suspect: suspect
+        };
+
+        if (action === "Accuse"){
+            requestBody.weapon = weapon;
+        }
+
+        console.log("JSON sent to server: " + JSON.stringify(requestBody));
+
+        // Make a fetch request to send the user input to the server
+        fetch("/api/userInput", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(requestBody)
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Handle successful response from server
+                    return response.json();
+                } else {
+                    // Handle error response from server
+                    throw new Error("Error: " + response.statusText);
+                }
+            })
+            .then(data => {
+                // For example, you might display the response message
+                console.log("JSON from server:" + JSON.stringify(data))
+                appendMessage("Server: " + data.action + "d");
+            })
+            .catch(error => {
+                // Handle fetch error
+                appendMessage("Error: " + error.message);
+            });
+    }
+</script>
+</body>
+</html>
