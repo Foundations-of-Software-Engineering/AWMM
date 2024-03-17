@@ -55,3 +55,11 @@ build/
 *.log
 *.tmp
 *.temp
+*.bin
+gc.properties
+*.lock
+*.js
+
+# Do not ignore package manager lock Files
+!package-lock.json
+!yarn.lock

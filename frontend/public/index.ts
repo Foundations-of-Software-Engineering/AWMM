@@ -1,5 +1,7 @@
 import { sendMessage } from "./sendMessage.js";
 
+console.log("TEST");
+
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById('messageForm') as HTMLFormElement;
 
@@ -15,12 +17,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             await sendMessage({ GAMEID, USERID, action })
-            console.log('Message received from ${data.USERID}: ${data.action}')
-            alert('Message sent successfully!');
+            console.log(`Message received from ${USERID}: ${action}`)
+            alert(`Message sent successfully!`);
             form.reset()
         } catch (error) {
-            console.error('Error sending message: ', error);
-            alert('Failed to send message.');
+            console.error(`Error sending message: `, error);
+            alert(`Failed to send message.`);
         }
     });
 });
