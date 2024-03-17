@@ -58,6 +58,7 @@ build/
 *.bin
 gc.properties
 *.lock
+*.js
 
 # Do not ignore package manager lock Files
 !package-lock.json
