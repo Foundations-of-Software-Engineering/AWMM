@@ -33,6 +33,17 @@ public class ClientController {
 
         System.out.println("Finished communication with Game server.");
 
+        System.out.println("Querying database.");
+
+        String dbResponse = null;
+        try{
+            dbResponse = DBController.run("2");
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+
+        System.out.println("DB returned: " + dbResponse);
+
         Message returnMessage = new Message(requestBody.gameID(), requestBody.userID(),
                 requestBody.action(), requestBody.location(), requestBody.weapon(), response);
 
