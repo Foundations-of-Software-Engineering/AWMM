@@ -1,9 +1,9 @@
 
 async function sendMessage(data: { GAMEID: number; USERID: number; action: string; location?: string; weapon?: string; suspect?: string; }): Promise<void> {
 	const response = await fetch('<---server name--->', {
-		method: 'POST',
+		method: "POST",
 		headers: {
-			'Content-Type': 'application/json',
+			"Content-Type": "application/json",
 		},
 		body: JSON.stringify(data),
 	});
