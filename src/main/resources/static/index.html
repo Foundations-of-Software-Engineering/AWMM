@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clue-Less</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #chatbox {
+            width: 800px;
+            margin: 0 auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 400px;
+            overflow-y: auto;
+        }
+        #inputBoxes {
+            width: 400px;
+            margin: 0 auto;
+        }
+        input[type="text"] {
+            width: 100%;
+            margin-bottom: 5px;
+            margin-top: 5px;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<h1>Clue-Less</h1>
+<div id="chatbox"></div>
+<div id="inputBoxes">
+    <input type="text" id="suspectInput" placeholder="Suspect"><br>
+    <input type="text" id="weaponInput" placeholder="Weapon"><br>
+    <input type="text" id="locationInput" placeholder="Location"><br>
+    <input type="text" id="actionInput" placeholder="Action"><br>
+    <input type="text" id="gameIdInput" placeholder="GAMEID"><br>
+    <input type="text" id="userIdInput" placeholder="USERID"><br>
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+<script>
+    const socket = new WebSocket("ws://localhost:8080/api/userInput");
+
+    socket.onopen = function(event) {
+        console.log("WebSocket connection opened.");
+    };
+
+    socket.onmessage = function(event) {
+        console.log("Message received:", event.data);
+        const message = JSON.parse(event.data);
+        displayMessage(message.suspect, JSON.stringify(message));
+    };
+
+    socket.onclose = function(event) {
+        console.log("WebSocket connection closed.");
+    };
+
+    function sendMessage() {
+        const suspect = document.getElementById("suspectInput").value;
+        const weapon = document.getElementById("weaponInput").value;
+        const location = document.getElementById("locationInput").value;
+        const action = document.getElementById("actionInput").value;
+        const gameId = document.getElementById("gameIdInput").value;
+        const userId = document.getElementById("userIdInput").value;
+
+        const message = {
+            suspect: suspect,
+            weapon: weapon,
+            location: location,
+            action: action,
+            GAMEID: gameId,
+            USERID: userId
+        };
+        socket.send(JSON.stringify(message));
+
+        // Clear input fields after sending
+        document.getElementById("suspectInput").value = "";
+        document.getElementById("weaponInput").value = "";
+        document.getElementById("locationInput").value = "";
+        document.getElementById("actionInput").value = "";
+        //document.getElementById("gameIdInput").value = "";
+        //document.getElementById("userIdInput").value = "";
+    }
+
+    function displayMessage(name, message) {
+        const chatbox = document.getElementById("chatbox");
+        const p = document.createElement("p");
+        p.textContent = (name + ": " + message);
+        chatbox.appendChild(p);
+    }
+</script>
+</body>
+</html>
