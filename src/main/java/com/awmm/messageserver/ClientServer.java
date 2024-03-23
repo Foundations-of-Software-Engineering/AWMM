@@ -18,7 +18,7 @@ public class ClientServer {
      */
     @RequestMapping(path="/")
     public String getHomePage(){
-        return "TestPage.html";
+        return "index.html";
     }
 
 }
