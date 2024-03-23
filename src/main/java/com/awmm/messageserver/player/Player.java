@@ -1,6 +1,6 @@
 package com.awmm.messageserver.player;
 
-import com.awmm.messageserver.location.Location;
+import com.awmm.messageserver.board.Location;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -17,12 +17,28 @@ public class Player {
 	public Player() {
 	}
 
+	public Player(long id, long gameId, String name) {
+		super();
+		this.id = id;
+		this.gameId = gameId;
+		this.name = name;
+
+	}
+	
 	public Player(long id, long gameId, String name, Location location) {
 		super();
 		this.id = id;
 		this.gameId = gameId;
 		this.name = name;
 		this.location = location;
+	}
+	
+	public Player(Player player) {
+		super();
+		this.id = player.getId();
+		this.gameId = player.getGameId();
+		this.name = player.getName();
+		
 	}
 
 	public long getId() {

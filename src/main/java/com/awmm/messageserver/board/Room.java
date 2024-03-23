@@ -1,15 +1,28 @@
-package com.awmm.messageserver.location;
+package com.awmm.messageserver.board;
 
 import java.util.ArrayList;
 
 import com.awmm.messageserver.player.Player;
 
-public class Room extends Location {
+public class Room implements Location{
 
 	private String name;
 	private ArrayList<Player> players;
 	private ArrayList<Hallway> hallways;
 	
+	public Room(String name) {
+		super();
+		this.name = name;
+		this.hallways = hallways;
+	}
+	
+	public Room(String name, ArrayList<Player> players, ArrayList<Hallway> hallways) {
+		super();
+		this.name = name;
+		this.players = players;
+		this.hallways = hallways;
+	}
+
 	public boolean contains(Player player) {
 		for (Player it : players) {
 			if (it.equals(player)) {
@@ -61,6 +74,36 @@ public class Room extends Location {
 	
 	public void addPlayer(Player player) {
 		players.add(player);
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public ArrayList<Player> getPlayers() {
+		return players;
+	}
+
+	public void setPlayers(ArrayList<Player> players) {
+		this.players = players;
+	}
+
+	public ArrayList<Hallway> getHallways() {
+		return hallways;
+	}
+
+	public void setHallways(ArrayList<Hallway> hallways) {
+		this.hallways = hallways;
+	}
+
+	@Override
+	public boolean setPlayer(Player player) {
+		return true;
+		
 	}
 	
 }

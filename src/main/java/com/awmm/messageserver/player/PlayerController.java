@@ -1,6 +1,6 @@
 package com.awmm.messageserver.player;
 
-import com.awmm.messageserver.location.Location;
+import com.awmm.messageserver.board.Location;
 
 public class PlayerController {
 
