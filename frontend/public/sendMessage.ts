@@ -1,18 +1,15 @@
+const socket = new WebSocket('ws://localhost:8080/');
 
 async function sendMessage(data: { GAMEID: number; USERID: number; action: string; location?: string; weapon?: string; suspect?: string; }): Promise<void> {
-	const response = await fetch('<---server name--->', {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify(data),
+	return new Promise((resolve, reject) => {
+		socket.addEventListener('open', () => {
+			socket.send(JSON.stringify(data));
+			resolve();
+		});
+		socket.addEventListener('error', (error) => {
+			reject(error);
+		});
 	});
-
-	if (!response.ok) {
-		throw new Error('Failed to send message');
-	}
-
-	console.log("Message sent successfully:", await response.json());
 }
 
 export { sendMessage };
