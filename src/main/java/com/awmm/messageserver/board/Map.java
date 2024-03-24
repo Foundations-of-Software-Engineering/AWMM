@@ -4,6 +4,9 @@ import com.awmm.messageserver.player.Player;
 
 public class Map {
 	
+	public static final int ROW_SIZE = 5;
+	public static final int COL_SIZE = 5;
+	
 	private long gameId;
 
 	public enum PlayerName {
@@ -27,19 +30,26 @@ public class Map {
 		Kitchen
 	}
 	
+	public enum Direction {
+		UP,
+		DOWN,
+		LEFT,
+		RIGHT,
+		DIAGONAL
+	}
+	
 	private class Position {
 		private int row = -1;
 		private int col = -1;
 	}
 	
-	private Location[][] grid = new Location[5][5];
+	private Location[][] grid = new Location[ROW_SIZE][COL_SIZE];
 	private Position plum   ;
 	private Position scarlet;
 	private Position mustard;
 	private Position peacock;
 	private Position green  ;
 	private Position white  ;
-	
 	
 	public Map() {
 		super();
@@ -54,8 +64,8 @@ public class Map {
 		grid[4][2] = new Room("Ballroom");      
 		grid[4][4] = new Room("Kitchen");       
 		//Hallways
-		for (int i = 1; i < 5; i+=2) {
-			for (int j = 1; j < 5; j+=2) {
+		for (int i = 1; i < ROW_SIZE; i+=2) {
+			for (int j = 1; j < COL_SIZE; j+=2) {
 				grid[i][j] = new Hallway();
 			}
 		}
@@ -115,10 +125,11 @@ public class Map {
 		return null;
 	}
 	
-	public boolean movePlayerUp(PlayerName playerName) {
+	public boolean movePlayer(PlayerName playerName, Direction direction) {
 		boolean ret = false;
 		Position newPosition;
 		Position oldPosition;
+		
 		switch(playerName) {
 			case ProfessorPlum:
 			{
@@ -137,35 +148,89 @@ public class Map {
 			}
 			case MrsPeacock   :
 			{
-				if (grid[peacock.row-1][peacock.col].setPlayer(grid[peacock.row][peacock.col].getPlayer())) {
-					--peacock.row;
-					ret = true;
-				}
+				oldPosition = peacock;
 				break;
 			}
 			case MrGreen      :
 			{
-				if (grid[green.row-1][green.col].setPlayer(grid[green.row][green.col].getPlayer())) {
-					--green.row;
-					ret = true;
-				}
+				oldPosition = green;
 				break;
 			}
 			case MrsWhite     :
 			{
-				if (grid[white.row-1][white.col].setPlayer(grid[white.row][white.col].getPlayer())) {
-					--white.row;
-					ret = true;
-				}
+				oldPosition = white;
 				break;
 			} 
 			default: 
 			{
 				/*Log Bad PlayerName Enum*/
+				return false;
 			}
 		}
-		return ret;
 		
+		newPosition = oldPosition;
+		Player player = null;
+		
+		switch (direction) {
+			case UP:
+			{
+				if (oldPosition.row-1 >= 0) {
+					--newPosition.row;
+					player = grid[oldPosition.row][oldPosition.col].getPlayer();					
+				}
+				break;
+			}
+			case DOWN:
+			{
+				if (oldPosition.row+1 < ROW_SIZE) {
+					++newPosition.row;
+					player = grid[oldPosition.row][oldPosition.col].getPlayer();
+				}
+			}
+			case LEFT:
+			{
+				if (oldPosition.col-1 >= 0) {
+					--newPosition.col;
+					player = grid[oldPosition.row][oldPosition.col].getPlayer();
+				}
+			}
+			case RIGHT:
+			{
+				if (oldPosition.col+1 < COL_SIZE) {
+					++newPosition.col;
+					player = grid[oldPosition.row][oldPosition.col].getPlayer(); 
+				}
+			}
+			case DIAGONAL:
+			{
+				if (oldPosition.row == 0 && oldPosition.col == 0) {
+					newPosition.row = 4;
+					newPosition.col = 4;
+				}
+				else if (oldPosition.row == 0 && oldPosition.col == 4) {
+					newPosition.row = 4;
+					newPosition.col = 0;
+				}
+				else if (oldPosition.row == 4 && oldPosition.col == 0) {
+					newPosition.row = 0;
+					newPosition.col = 4;
+				}
+				else if (oldPosition.row == 4 && oldPosition.col == 4) {
+					newPosition.row = 0;
+					newPosition.col = 0;
+				}
+				if (oldPosition != newPosition) {
+					player = grid[oldPosition.row][oldPosition.col].getPlayer(); 
+				}
+			}
+		}
+		
+		if (player != null && grid[newPosition.row][newPosition.col].setPlayer(player)) {
+			grid[oldPosition.row][oldPosition.col].removePlayer(player);
+			ret = true;
+		}
+		
+		return ret;
 	}
 	
 }

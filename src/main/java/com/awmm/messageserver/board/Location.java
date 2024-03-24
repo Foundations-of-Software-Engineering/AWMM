@@ -16,5 +16,6 @@ public interface Location {
 	
 	public boolean setPlayer(Player player);
 	public Player getPlayer();
+	public Player removePlayer(Player player);
 	
 }
