@@ -24,6 +24,7 @@ class WebSocketManager {
 
     sendMessage(message: Record<string, unknown>): void {
         if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+            console.log(message);
             this.socket.send(JSON.stringify(message));
         } else {
             console.error('WebSocket is not open.');

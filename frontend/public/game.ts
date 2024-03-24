@@ -1,7 +1,11 @@
 import { sendMessage } from "./sendMessage.js";
+import { wsManager } from './websocketManager.js';
 
 
 document.addEventListener("DOMContentLoaded", () => {
+    wsManager.connect();
+
+
     const form = document.getElementById('messageForm') as HTMLFormElement;
     form.addEventListener("submit", async (event) => {
         event.preventDefault();
@@ -13,8 +17,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const suspect = (document.getElementById('suspect') as HTMLInputElement).value;
 
         try {
-            await sendMessage({ GAMEID, USERID, action, location, weapon, suspect });
-            console.log(`Message received from ${USERID}: ${action}`);
+            const message = await sendMessage({ GAMEID, USERID, action, location, weapon, suspect });
+            console.log('Message received: ', message);
             form.reset();
         } catch (error) {
             console.error(`Error sending message: `, error);
