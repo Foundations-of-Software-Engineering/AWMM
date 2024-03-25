@@ -10,17 +10,24 @@ public class Player {
 	private long id;
 	private long gameId;
 	private String name;
-	private String location;
 	
 	public Player() {
 	}
 
-	public Player(long id, long gameId, String name, String location) {
+	public Player(long id, long gameId, String name) {
 		super();
 		this.id = id;
 		this.gameId = gameId;
 		this.name = name;
-		this.location = location;
+
+	}
+	
+	public Player(Player player) {
+		super();
+		this.id = player.getId();
+		this.gameId = player.getGameId();
+		this.name = player.getName();
+		
 	}
 
 	public long getId() {
@@ -47,17 +54,9 @@ public class Player {
 		this.name = name;
 	}
 
-	public String getLocation() {
-		return location;
-	}
-
-	public void setLocation(String location) {
-		this.location = location;
-	}
-
 	@Override
 	public String toString() {
-		return "Player [id=" + id + ", gameId=" + gameId + ", name=" + name + ", location=" + location + "]";
+		return "Player [id=" + id + ", gameId=" + gameId + ", name=" + name + "]";
 	}
 	
 }
