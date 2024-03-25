@@ -1,27 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>Send Data to Server</title>
+	<meta charset="UTF-8">
+	<title>Clue-Less</title>
 </head>
 <body>
-    <h2>Send Message</h2>
-    <form id="messageForm">
-        <label for="GAMEID">GAMEID:</label><br />
-        <input type="text" id="GAMEID" name="GAMEID" /> <br />
-        <label for="USERID">USERID:</label><br />
-        <input type="text" id="USERID" name="USERID" /> <br />
-        <label for="action">Action:</label><br />
-        <textarea id="action" name="action"></textarea><br />
-        <label for="location">Location:</label><br />
-        <textarea id="location" name="location"></textarea><br />
-        <label for="weapon">Weapon:</label><br />
-        <textarea id="weapon" name="weapon"></textarea><br />
-        <label for="suspect">Suspect:</label><br />
-        <textarea id="suspect" name="suspect"></textarea><br />
-        <button type="submit">Send Message</button>
-    </form>
+	<h1>Welcome to Clue-Less</h1>
+	<button id="hostGame">Host a Game</button>
+	<button id="quickJoin">Quick Join</button>
+	<div>
+		<input type="text" id="gameIdInput" placeholder="Enter Game ID">
+		<button id="joinPrivateGame">Join Private Game</button>
+	</div>
 
-    <script src="index.js" type="module"></script>
+	<script src="index.js" type="module"></script>
 </body>
 </html>

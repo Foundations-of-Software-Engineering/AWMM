@@ -1,0 +1,10 @@
+{
+	"extends": "../tsconfig.json",
+	"compilerOptions": {
+		// Override or add specific compiler options for this subdirectory here
+		// If "esModuleInterop" is set correctly at the root level, you don't need to redefine it here
+	},
+	"include": [
+		"./**/*"
+	]
+}

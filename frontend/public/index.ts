@@ -1,28 +1,33 @@
-import { sendMessage } from "./sendMessage.js";
+import { wsManager } from './websocketManager.js';
 
-console.log("TEST");
+document.addEventListener('DOMContentLoaded', () => {
+    wsManager.connect();
 
-document.addEventListener("DOMContentLoaded", () => {
-    const form = document.getElementById('messageForm') as HTMLFormElement;
+    // Set up an event listener for when messages are received
+    wsManager.onMessage((event: MessageEvent) => {
+        console.log('Message from server:', event.data);
+        // Here, you can add logic to handle incoming messages
+    });
 
-    form.addEventListener("submit", async (event) => {
-        event.preventDefault();
+    // Event listener for "Host a Game" button
+    document.getElementById('hostGame')?.addEventListener('click', () => {
+        const message = { action: 'hostGame' };
+        console.log("TEST", message);
+        wsManager.sendMessage({ message });
+    });
 
-        const GAMEID = Number((document.getElementById('GAMEID') as HTMLInputElement).value);
-        const USERID = Number((document.getElementById('USERID') as HTMLInputElement).value);
-        const action = (document.getElementById('action') as HTMLInputElement).value;
-        const location = (document.getElementById('location') as HTMLInputElement).value;
-        const weapon = (document.getElementById('weapon') as HTMLInputElement).value;
-        const suspect = (document.getElementById('suspect') as HTMLInputElement).value;
+    // Event listener for "Quick Join" button
+    document.getElementById('quickJoin')?.addEventListener('click', () => {
+        wsManager.sendMessage({ action: 'quickJoin' });
+    });
 
-        try {
-            await sendMessage({ GAMEID, USERID, action })
-            console.log(`Message received from ${USERID}: ${action}`)
-            alert(`Message sent successfully!`);
-            form.reset()
-        } catch (error) {
-            console.error(`Error sending message: `, error);
-            alert(`Failed to send message.`);
+    // Event listener for "Join Private Game" button
+    document.getElementById('joinPrivateGame')?.addEventListener('click', () => {
+        const gameId = (document.getElementById('gameIdInput') as HTMLInputElement).value;
+        if (gameId) {
+            wsManager.sendMessage({ action: 'joinPrivateGame', gameId });
+        } else {
+            console.error('Game ID is required for joining a private game.');
         }
     });
 });
