@@ -37,4 +37,4 @@ class WebSocketManager {
 }
 
 // Place game server below
-export const wsManager = new WebSocketManager('ws://localhost:8081/');
+export const wsManager = new WebSocketManager('ws://localhost:8080/api/userInput');

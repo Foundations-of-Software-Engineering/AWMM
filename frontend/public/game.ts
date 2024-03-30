@@ -9,8 +9,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById('messageForm') as HTMLFormElement;
     form.addEventListener("submit", async (event) => {
         event.preventDefault();
-        const GAMEID = Number((document.getElementById('GAMEID') as HTMLInputElement).value);
-        const USERID = Number((document.getElementById('USERID') as HTMLInputElement).value);
+        const GAMEID = (document.getElementById('GAMEID') as HTMLInputElement).value;
+        const USERID = (document.getElementById('USERID') as HTMLInputElement).value;
         const action = (document.getElementById('action') as HTMLInputElement).value;
         const location = (document.getElementById('location') as HTMLInputElement).value;
         const weapon = (document.getElementById('weapon') as HTMLInputElement).value;
