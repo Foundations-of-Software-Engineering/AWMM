@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import com.awmm.messageserver.board.Board;
 
 /**
  * Class for handling WebSocket connections and messages from clients.
@@ -29,7 +30,8 @@ public class ClientController extends TextWebSocketHandler {
     private final Logger logger = LoggerFactory.getLogger(ClientController.class);
     private final Map<String, WebSocketSession> userIdSessionMap = new ConcurrentHashMap<>();
     private final Map<WebSocketSession, String> sessionToUserIdMap = new ConcurrentHashMap<>();
-
+    private final GameController gameController = new GameController();
+    
     /**
      * Handles incoming text messages from WebSocket clients.
      * This method is called when a client sends a text message over WebSocket.
@@ -45,6 +47,21 @@ public class ClientController extends TextWebSocketHandler {
                 case "LOGIN":
                     handleLoginAction(session, clientMessage);
                     break;
+                case "MOVE":
+                	// TODO
+                	gameController.handleMove(clientMessage);
+                	break;
+                case "SUGGEST":
+                	// TODO 
+                	gameController.handleSuggest(clientMessage);
+                	break;
+                case "ACCUSE":
+                	// TODO
+                	break;
+                case "DISPROVE":
+                	// TODO
+                	break;
+                	
                 // Add other actions
                 default:
                     logger.error("Unknown action received: {}", clientMessage.action());
@@ -54,7 +71,7 @@ public class ClientController extends TextWebSocketHandler {
         }
     }
 
-    /**
+	/**
      * Called after a WebSocket connection has been closed.
      * @param session The WebSocket session that has been closed.
      * @param closeStatus The status code indicating the reason for closure.
@@ -101,26 +118,44 @@ public class ClientController extends TextWebSocketHandler {
 
     /**
      * Handles the LOGIN action from a WebSocket client.
-     * If the client does not provide a USERID, generates a new one and assigns it to the client.
+     * Client must provide a valid userID between 0 and 5.
+     * If gameID is not null or empty, it is a returning user.
+     * Otherwise, it is a new user 
      * @param session The WebSocket session representing the client connection.
      * @param clientMessage The message received from the client.
      */
     public void handleLoginAction(WebSocketSession session, Message clientMessage) {
-        String userID = clientMessage.USERID();
-
-        // If user ID is default value, assign new user ID
-        if (clientMessage.USERID().equals("0")){
-            UUID uuid = UUID.randomUUID();
-            userID = uuid.toString();
-
-            // Create login message assigning userID to client, all other fields null
-            Message responseMessage = new Message(null, userID,"LOGIN",null,null,null);
-            sendMessageToClient(session, responseMessage);
+    	String gameID = clientMessage.GAMEID();
+    	int userID = clientMessage.USERID();
+    	Message responseMessage;
+    	boolean success = false;
+        if (userID < 0 || userID > 5) return;
+    	if (gameID != null && !gameID.isBlank()) {
+    		// when gameid is not null, it is an old user trying to regain access
+    		if (!userIdSessionMap.containsKey(gameID + userID)) {
+    			// if no session exists, we create a new session for old user
+    			responseMessage = new Message(gameID, userID, "SUCCESS", null, null, null);
+    			success = true;
+    		}
+    		else {
+    			// if a session does exist for this user, fail 
+    			responseMessage = new Message(gameID, userID, "FAIL", null, null, null);
+    		}
         }
+        else {
+        	// new user
+        	gameID = UUID.randomUUID().toString();
+        	responseMessage = new Message(gameID, userID, "SUCCESS", null, null, null);
+        	success = true;
+        }
+    	
+        sendMessageToClient(session, responseMessage);
 
         // Save userID mapped to session
-        userIdSessionMap.put(userID, session);
-        sessionToUserIdMap.put(session, userID);
+        if (success) {        	
+        	userIdSessionMap.put(gameID + userID, session);
+        	sessionToUserIdMap.put(session, gameID + userID);
+        }
     }
 
     /**

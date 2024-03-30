@@ -14,7 +14,7 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
  * @author AWMM
  */
 public record Message (@DefaultValue("0") String GAMEID,
-                       @DefaultValue("0") String USERID,
+                       @DefaultValue("0") Integer USERID,
                        @DefaultValue("none") String action,
                        @DefaultValue("none") String location,
                        @DefaultValue("none") String weapon,
