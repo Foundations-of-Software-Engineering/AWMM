@@ -56,7 +56,8 @@ public class Player {
 
 	@Override
 	public String toString() {
-		return "Player [id=" + id + ", gameId=" + gameId + ", name=" + name + "]";
+		return name;
+//		return "Player [id=" + id + ", gameId=" + gameId + ", name=" + name + "]";
 	}
 	
 }

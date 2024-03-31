@@ -1,18 +1,10 @@
 package com.awmm.messageserver;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.InetAddress;
-import java.net.Socket;
 import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.socket.WebSocketSession;
-
 import com.awmm.messageserver.board.Board;
 import com.awmm.messageserver.board.Board.PlayerEnum;
 
@@ -37,6 +29,10 @@ public class GameController {
 	
 	public GameController() {
 		boardStates = new HashMap<String, Board>();
+	}
+	
+	public void createBoardState(String gameID) {
+		boardStates.put(gameID, new Board(gameID));
 	}
 	
 	public void handleMove(Message clientMessage) {
@@ -102,6 +98,14 @@ public class GameController {
 	
 	private boolean isValid(String gameId, int userId) {
 		return boardStates.containsKey(gameId) && userId >= 0 && userId <= 5;
+	}
+	
+	public String getBoardState(String gameID) {
+		Board board = boardStates.get(gameID);
+		if (board != null) {
+			return board.toString();
+		}
+		else return "";
 	}
     
 }

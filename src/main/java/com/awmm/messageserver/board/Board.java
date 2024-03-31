@@ -1,12 +1,10 @@
 package com.awmm.messageserver.board;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.awmm.messageserver.GameController;
 import com.awmm.messageserver.player.Player;
 
 public class Board {
@@ -196,7 +194,51 @@ public class Board {
 	public boolean movePlayer(PlayerEnum playerEnum, Direction direction) {
 		Position newPosition = null;
 		Position oldPosition = null;
+		
+		if (playerEnum == null || direction == null) {
+            logger.error("Error: playerEnum or direction is null");
+            return false;
+		}
+		
 		String   key         = playerEnum.name;
+		
+		switch(playerEnum) {
+		case ProfessorPlum:
+		{
+			oldPosition = plum;
+			break;
+		}
+		case MissScarlet  :
+		{
+			oldPosition = scarlet;
+			break;
+		}
+		case ColMustard   :
+		{
+			oldPosition = mustard;
+			break;
+		}
+		case MrsPeacock   :
+		{
+			oldPosition = peacock;
+			break;
+		}
+		case MrGreen      :
+		{
+			oldPosition = green;
+			break;
+		}
+		case MrsWhite     :
+		{
+			oldPosition = white;
+			break;
+		} 
+	}
+		
+		if (oldPosition.row == -1 || oldPosition.col == -1) { // if first move
+			addPlayer(playerEnum);
+			return true;
+		}
 		
 		newPosition = new Position(oldPosition.row, oldPosition.col);
 		
@@ -257,9 +299,28 @@ public class Board {
 	
 	/* To be used for suggestions and accusations */
 	public boolean movePlayer(PlayerEnum playerEnum, RoomEnum roomEnum) {
+		if (playerEnum == null || roomEnum == null) {
+            logger.error("Error: playerEnum or roomEnum is null");
+            return false;
+		}
+		
 		Position oldPosition = null             ;
 		Position newPosition = new Position(roomEnum.position.row, roomEnum.position.col);
 		String   key         = playerEnum.name  ;
+		
+		switch(playerEnum) {
+		case ProfessorPlum:{oldPosition = plum   ; break;}
+		case MissScarlet  :{oldPosition = scarlet; break;}
+		case ColMustard   :{oldPosition = mustard; break;}
+		case MrsPeacock   :{oldPosition = peacock; break;}
+		case MrGreen      :{oldPosition = green  ; break;}
+		case MrsWhite     :{oldPosition = white  ; break;}
+		}
+		
+		if (oldPosition.row == -1 || oldPosition.col == -1) {
+			addPlayer(playerEnum);
+			return true;
+		}
 		
 		return move(key, oldPosition, newPosition);
 	}
@@ -289,12 +350,13 @@ public class Board {
 
 	@Override
 	public String toString() {
-		String toString = "Map [gameId=" + gameId + ", grid=" + Arrays.toString(grid) + ", plum=" + plum + ", scarlet=" + scarlet
-				+ ", mustard=" + mustard + ", peacock=" + peacock + ", green=" + green + ", white=" + white + "]";
-		toString += "\n";
+		String toString = "";
+//		String toString = "Map [gameId=" + gameId + ", grid=" + Arrays.toString(grid) + ", plum=" + plum + ", scarlet=" + scarlet
+//				+ ", mustard=" + mustard + ", peacock=" + peacock + ", green=" + green + ", white=" + white + "]";
+//		toString += "\n";
 		for (int row = 0; row < ROW_SIZE; ++row) {
 			for (int col = 0; col < COL_SIZE; ++col) {
-				toString += grid[row][col].toString();
+				toString += String.format("%-50s", grid[row][col].toString());  ;
 			}
 			toString += "\n";
 		}
@@ -311,7 +373,7 @@ public class Board {
 		case MrGreen      : position = green  ; break;
 		case MrsWhite     : position = white  ; break;
 		default: {
-            logger.error("Error processing playerEnum: ", playerEnum.name);                     
+            logger.error("Error processing playerEnum");                     
 			return null;
 		}
 		}

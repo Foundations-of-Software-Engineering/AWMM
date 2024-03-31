@@ -14,11 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.http.WebSocket;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import com.awmm.messageserver.board.Board;
 
 /**
  * Class for handling WebSocket connections and messages from clients.
@@ -47,10 +45,6 @@ public class ClientController extends TextWebSocketHandler {
     	public WebSocketSession[] getSessions() {
     		return this.sessions;
     	}
-    	
-//    	public void setSessions(WebSocketSession[] sessions) {
-//    		this.sessions = sessions;
-//    	}
     	
     	public void remove(WebSocketSession session) {
     		for (WebSocketSession it : sessions) {
@@ -144,9 +138,11 @@ public class ClientController extends TextWebSocketHandler {
 
     public void broadcastMessage(Message message, String gameID) {
     	String jsonMessage = convertToJson(message);
-    	for (WebSocketSession session: gameID2UserID2Session.get(gameID).getSessions()) {
+    	for (WebSocketSession session : gameID2UserID2Session.get(gameID).getSessions()) {
             try {
-                session.sendMessage(new TextMessage(jsonMessage));
+            	if (session != null) {            		
+            		session.sendMessage(new TextMessage(jsonMessage));
+            	}
             } catch (IOException e) {
                 logger.error("Error broadcasting message to session: {}", session.getId(), e);
             }
@@ -207,6 +203,7 @@ public class ClientController extends TextWebSocketHandler {
         		// create and join new game
         		gameID = UUID.randomUUID().toString();
         		gameID2UserID2Session.put(gameID, new Sessions());
+        		gameController.createBoardState(gameID);
         		success = true;
         	}
         }
@@ -215,9 +212,9 @@ public class ClientController extends TextWebSocketHandler {
     	Message failureResponseMessage = new Message(gameID, userID, "FAIL", null, null, null);
             
         if (success) {
-        	broadcastMessage(successResponseMessage, gameID); // tell all users about new user
         	gameID2UserID2Session.get(gameID).put(userID, session);
         	session2GameID.put(session, gameID);        
+        	broadcastMessage(successResponseMessage, gameID); // tell all users about new user
     	}
         else {
         	sendMessageToClient(session, failureResponseMessage);
@@ -237,5 +234,9 @@ public class ClientController extends TextWebSocketHandler {
             logger.error("Error converting message to JSON", e);
             return null;
         }
+    }
+    
+    public String getGameState(String gameID) {
+    	return gameController.getBoardState(gameID);
     }
 }

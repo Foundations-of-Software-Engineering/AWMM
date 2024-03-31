@@ -43,7 +43,7 @@ public class Room implements Location{
 
 	@Override
 	public String toString() {
-		return "Room [name=" + name + ", players=" + players + "]";
+		return "[" + name + ", players=" + players.values() + "]";
 //		for (String key : players.keySet()) {
 //			toString += key + ", ";
 //		}
