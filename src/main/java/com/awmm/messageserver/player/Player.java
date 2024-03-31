@@ -7,14 +7,14 @@ import jakarta.persistence.Id;
 public class Player {
 
 	@Id
-	private long id;
-	private long gameId;
+	private int id;
+	private String gameId;
 	private String name;
 	
 	public Player() {
 	}
 
-	public Player(long id, long gameId, String name) {
+	public Player(int id, String gameId, String name) {
 		super();
 		this.id = id;
 		this.gameId = gameId;
@@ -30,19 +30,19 @@ public class Player {
 		
 	}
 
-	public long getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 
-	public long getGameId() {
+	public String getGameId() {
 		return gameId;
 	}
 
-	public void setGameId(long gameId) {
+	public void setGameId(String gameId) {
 		this.gameId = gameId;
 	}
 

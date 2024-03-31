@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.http.WebSocket;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,9 +29,53 @@ public class ClientController extends TextWebSocketHandler {
 
     private final ObjectMapper mapper = new ObjectMapper();
     private final Logger logger = LoggerFactory.getLogger(ClientController.class);
-    private final Map<String, WebSocketSession> userIdSessionMap = new ConcurrentHashMap<>();
-    private final Map<WebSocketSession, String> sessionToUserIdMap = new ConcurrentHashMap<>();
+//    private final Map<String, WebSocketSession> userIdSessionMap = new ConcurrentHashMap<>();
+//    private final Map<WebSocketSession, String> sessionToUserIdMap = new ConcurrentHashMap<>();
+   
+    private final Map<String, Sessions> gameID2UserID2Session = new ConcurrentHashMap<String, Sessions>();
+    private final Map<WebSocketSession, String> session2GameID = new ConcurrentHashMap<WebSocketSession, String>();
     private final GameController gameController = new GameController();
+    
+    private class Sessions {
+    	
+    	private WebSocketSession[] sessions;
+    	
+    	public Sessions() {
+    		this.sessions = new WebSocketSession[6];
+    	}
+    	
+    	public WebSocketSession[] getSessions() {
+    		return this.sessions;
+    	}
+    	
+//    	public void setSessions(WebSocketSession[] sessions) {
+//    		this.sessions = sessions;
+//    	}
+    	
+    	public void remove(WebSocketSession session) {
+    		for (WebSocketSession it : sessions) {
+    			if (it.equals(session)) {
+    				it = null;
+    				return;
+    			}
+    		}
+    	}
+    	
+    	public void put(int pos, WebSocketSession session) {
+    		if (pos >= 0 && pos < 6) {
+    			sessions[pos] = session;
+    		}
+    	}
+    	
+    	public WebSocketSession get(int pos) {
+    		if (pos >= 0 && pos < 6) {
+    			return sessions[pos];
+    		}
+    		else {
+    			return null;
+    		}
+    	}
+    }
     
     /**
      * Handles incoming text messages from WebSocket clients.
@@ -49,11 +94,11 @@ public class ClientController extends TextWebSocketHandler {
                     break;
                 case "MOVE":
                 	// TODO
-                	gameController.handleMove(clientMessage);
+                	handleMoveAction(session, clientMessage);
                 	break;
                 case "SUGGEST":
                 	// TODO 
-                	gameController.handleSuggest(clientMessage);
+                	handleSuggest(session, clientMessage);
                 	break;
                 case "ACCUSE":
                 	// TODO
@@ -71,6 +116,17 @@ public class ClientController extends TextWebSocketHandler {
         }
     }
 
+	private void handleSuggest(WebSocketSession session, Message clientMessage) {
+		gameController.handleSuggest(clientMessage);
+		broadcastMessage(clientMessage, clientMessage.GAMEID());
+		
+	}
+
+	private void handleMoveAction(WebSocketSession session, Message clientMessage) {
+		gameController.handleMove(clientMessage);
+		broadcastMessage(clientMessage, clientMessage.GAMEID());
+	}
+
 	/**
      * Called after a WebSocket connection has been closed.
      * @param session The WebSocket session that has been closed.
@@ -80,27 +136,37 @@ public class ClientController extends TextWebSocketHandler {
     public void afterConnectionClosed(@NonNull WebSocketSession session, CloseStatus closeStatus) {
         logger.info("Connection closed with session: {} status {}", session.getId(), closeStatus.getCode());
 
-        // 1 Map in each direction to avoid looping through the map
-        String userId = sessionToUserIdMap.remove(session);
-        if (userId != null) {
-            userIdSessionMap.remove(userId);
+        String gameID = session2GameID.remove(session);
+        if (gameID != null) {
+        	gameID2UserID2Session.get(gameID).remove(session);
         }
     }
 
-    /**
-     * Broadcasts a message to all connected WebSocket clients.
-     * @param message The message to broadcast.
-     */
-    public void broadcastMessage(Message message) {
-        String jsonMessage = convertToJson(message);
-        for (WebSocketSession session: userIdSessionMap.values()) {
+    public void broadcastMessage(Message message, String gameID) {
+    	String jsonMessage = convertToJson(message);
+    	for (WebSocketSession session: gameID2UserID2Session.get(gameID).getSessions()) {
             try {
                 session.sendMessage(new TextMessage(jsonMessage));
             } catch (IOException e) {
                 logger.error("Error broadcasting message to session: {}", session.getId(), e);
             }
-        }
+    	}
     }
+    
+//    /**
+//     * Broadcasts a message to all connected WebSocket clients.
+//     * @param message The message to broadcast.
+//     */
+//    public void broadcastMessage(Message message) {
+//        String jsonMessage = convertToJson(message);
+//        for (WebSocketSession session: userIdSessionMap.values()) {
+//            try {
+//                session.sendMessage(new TextMessage(jsonMessage));
+//            } catch (IOException e) {
+//                logger.error("Error broadcasting message to session: {}", session.getId(), e);
+//            }
+//        }
+//    }
 
     /**
      * Sends a message to a specific WebSocket client.
@@ -117,45 +183,46 @@ public class ClientController extends TextWebSocketHandler {
     }
 
     /**
-     * Handles the LOGIN action from a WebSocket client.
-     * Client must provide a valid userID between 0 and 5.
-     * If gameID is not null or empty, it is a returning user.
-     * Otherwise, it is a new user 
+     * Handles the LOGIN action from a WebSocket client for new and returning users.
+     * If gameID is set, the user is trying to join an existing game.
+     * If gameID is not set, a new game is created.
      * @param session The WebSocket session representing the client connection.
      * @param clientMessage The message received from the client.
      */
     public void handleLoginAction(WebSocketSession session, Message clientMessage) {
     	String gameID = clientMessage.GAMEID();
     	int userID = clientMessage.USERID();
-    	Message responseMessage;
+   	
     	boolean success = false;
-        if (userID < 0 || userID > 5) return;
-    	if (gameID != null && !gameID.isBlank()) {
-    		// when gameid is not null, it is an old user trying to regain access
-    		if (!userIdSessionMap.containsKey(gameID + userID)) {
-    			// if no session exists, we create a new session for old user
-    			responseMessage = new Message(gameID, userID, "SUCCESS", null, null, null);
-    			success = true;
-    		}
-    		else {
-    			// if a session does exist for this user, fail 
-    			responseMessage = new Message(gameID, userID, "FAIL", null, null, null);
-    		}
-        }
-        else {
-        	// new user
-        	gameID = UUID.randomUUID().toString();
-        	responseMessage = new Message(gameID, userID, "SUCCESS", null, null, null);
-        	success = true;
+    	
+        if (userID >= 0 && userID < 6) {        	
+        	if (gameID != null && 
+    			!gameID.isBlank() &&
+    			gameID2UserID2Session.containsKey(gameID) && 
+    			gameID2UserID2Session.get(gameID).get(userID) == null) { 
+    			// join existing game
+        		success = true;
+        	}
+        	else {
+        		// create and join new game
+        		gameID = UUID.randomUUID().toString();
+        		gameID2UserID2Session.put(gameID, new Sessions());
+        		success = true;
+        	}
         }
     	
-        sendMessageToClient(session, responseMessage);
-
-        // Save userID mapped to session
-        if (success) {        	
-        	userIdSessionMap.put(gameID + userID, session);
-        	sessionToUserIdMap.put(session, gameID + userID);
+     	Message successResponseMessage = new Message(gameID, userID, "SUCCESS", null, null, null);
+    	Message failureResponseMessage = new Message(gameID, userID, "FAIL", null, null, null);
+            
+        if (success) {
+        	broadcastMessage(successResponseMessage, gameID); // tell all users about new user
+        	gameID2UserID2Session.get(gameID).put(userID, session);
+        	session2GameID.put(session, gameID);        
+    	}
+        else {
+        	sendMessageToClient(session, failureResponseMessage);
         }
+        
     }
 
     /**

@@ -1,43 +1,67 @@
 package com.awmm.messageserver.board;
 
 import java.util.Arrays;
+import java.util.Objects;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.awmm.messageserver.GameController;
 import com.awmm.messageserver.player.Player;
 
-public class Map {
+public class Board {
 	
 	public static final int ROW_SIZE = 5;
 	public static final int COL_SIZE = 5;
 	
-	public static final String PLUM_NAME    = "Professor Plum";
-	public static final String SCARLET_NAME = "Miss Scarlet";
-	public static final String MUSTARD_NAME = "Col. Mustard";
-	public static final String PEACOCK_NAME = "Mrs. Peacock";
-	public static final String GREEN_NAME   = "Mrs. Green";
-	public static final String WHITE_NAME   = "Mrs. White";
-	
-	private long gameId;
+	private String gameId;
 
-	public enum PlayerName {
-		ProfessorPlum,
-		MissScarlet  ,
-		ColMustard   ,
-		MrsPeacock   ,
-		MrGreen      ,
-		MrsWhite   	
+	public enum PlayerEnum {
+		ProfessorPlum(0, "Professor Plum"),
+		MissScarlet  (1, "Miss Scarlet"  ),
+		ColMustard   (2, "Col. Mustard"  ),
+		MrsPeacock   (3, "Mrs. Peacock"  ),
+		MrGreen      (4, "Mrs. Green"    ),
+		MrsWhite   	 (5, "Mrs. White"    );
+		
+		public final String name;
+		public final int    id  ;
+		
+		PlayerEnum(int id, String name) { 
+			this.id = id; 
+			this.name = name; 
+		}
 	}
 	
-	public enum RoomName {
-		Study       ,
-		Hall        ,
-		Lounge      ,
-		Library     ,
-		BilliardRoom,
-		DiningRoom  ,
-		Conservatory,
-		Ballroom    , 
-		Kitchen
+	public enum RoomEnum {
+		Study       (0,0),
+		Hall        (0,2),
+		Lounge      (0,4),
+		Library     (2,0),
+		BilliardRoom(2,2),
+		DiningRoom  (2,4),
+		Conservatory(4,0),
+		Ballroom    (4,2), 
+		Kitchen     (4,3);
+		
+		private final Position position;
+		
+		RoomEnum(int row, int col) {
+			this.position = new Position(row, col);
+		}
 	}
+	
+	RoomEnum[] roomEnums = {
+			Board.RoomEnum.Study        ,       
+			Board.RoomEnum.Hall         ,
+			Board.RoomEnum.Lounge       ,
+			Board.RoomEnum.Library      ,
+			Board.RoomEnum.BilliardRoom ,
+			Board.RoomEnum.DiningRoom   ,
+			Board.RoomEnum.Conservatory ,
+			Board.RoomEnum.Ballroom     ,
+			Board.RoomEnum.Kitchen      
+	};
 	
 	public enum Direction {
 		UP,
@@ -52,6 +76,21 @@ public class Map {
 			row = -1;
 			col = -1;
 		}
+		@Override
+		public int hashCode() {
+			return Objects.hash(col, row);
+		}
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			Position other = (Position) obj;
+			return col == other.col && row == other.row;
+		}
 		Position(int row, int col) {
 			this.row = row;
 			this.col = col;
@@ -61,15 +100,6 @@ public class Map {
 	}
 	
 	private Location[][] grid = new Location[ROW_SIZE][COL_SIZE];
-	static private final Position STUDY         = new Position(0,0);
-	static private final Position HALL          = new Position(0,2);
-	static private final Position LOUNGE        = new Position(0,4);
-	static private final Position LIBRARY       = new Position(2,0);
-	static private final Position BILLIARD_ROOM = new Position(2,2);
-	static private final Position DINING_ROOM   = new Position(2,4);
-	static private final Position CONSERVATORY  = new Position(4,0);
-	static private final Position BALLROOM      = new Position(4,2);
-	static private final Position KITCHEN       = new Position(4,3);
 	
 	private Position plum   ;
 	private Position scarlet;
@@ -78,15 +108,20 @@ public class Map {
 	private Position green  ;
 	private Position white  ;
 	
-	public Map(long gameId) {
+	private final Logger logger = LoggerFactory.getLogger(Board.class);
+
+	public Board(String gameId) {
 		super();
+		
 		this.gameId = gameId;
+		
 		plum    = new Position();
 		scarlet = new Position();
 		mustard = new Position();
 		peacock = new Position();
 		green   = new Position();
 		white   = new Position();
+		
 		//Rooms
 		grid[0][0] = new Room("Study");        
 		grid[0][2] = new Room("Hall");         
@@ -107,109 +142,61 @@ public class Map {
 		}
 	}
 	
-	public Player addPlayer(PlayerName playerName) {
-		switch(playerName) {
+	private Player addPlayer(PlayerEnum playerEnum) {
+		Player player = new Player(playerEnum.id, gameId, playerEnum.name);
+		switch(playerEnum) {
 			case ProfessorPlum: 
 			{
-				Player player = new Player(0l, gameId, "Professor Plum");
 				plum.row = 1;
 				plum.col = 0;
 				grid[1][0].setPlayer(player); 
-				return player;
+				break;
 			}
 			case MissScarlet  : 
 			{
-				Player player = new Player(1l, gameId, "Miss Scarlet"); 
 				scarlet.row = 0;
 				scarlet.col = 3;
 				grid[0][3].setPlayer(player); 
-				return player;
+				break;
 			}
 			case ColMustard   : 
 			{
-				Player player = new Player(2l, gameId, "Col. Mustard");
 				mustard.row = 1;
 				mustard.col = 4;
 				grid[1][4].setPlayer(player);
-				return player;
+				break;
 			}
 			case MrsPeacock   : 
 			{
-				Player player = new Player(3l, gameId, "Mrs. Peacock");
 				peacock.row = 3;
 				peacock.col = 0;
-				grid[3][0].setPlayer(player); 
-				return player;
+				grid[3][0].setPlayer(player);
+				break;
 			}
 			case MrGreen      : 
 			{
-				Player player = new Player(4l, gameId, "Mrs. Green");
 				green.row = 4;
 				green.col = 1;
-				grid[4][1].setPlayer(player); 
-				return player;
+				grid[4][1].setPlayer(player);
+				break; 
 			}
 			case MrsWhite     : 
 			{
-				Player player = new Player(5l, gameId, "Mrs. White");
 				white.row = 4;
 				white.col = 3;
-				grid[4][3].setPlayer(player); 
-				return player;}
-			default: {/*Log Bad PlayerName Enum*/}	
+				grid[4][3].setPlayer(player);
+				break;
+			}
+			default: {/*Log Bad Enum*/}	
 		}
-		return null;
+		return player;
 	}
-	
+		
 	/* To be used for normal movement */
-	public boolean movePlayer(PlayerName playerName, Direction direction) {
-		boolean  ret = false;
+	public boolean movePlayer(PlayerEnum playerEnum, Direction direction) {
 		Position newPosition = null;
 		Position oldPosition = null;
-		String key = null;
-		switch(playerName) {
-			case ProfessorPlum:
-			{
-				oldPosition = plum;
-				key = PLUM_NAME;
-				break;
-			}
-			case MissScarlet  :
-			{
-				oldPosition = scarlet;
-				key = SCARLET_NAME;
-				break;
-			}
-			case ColMustard   :
-			{
-				oldPosition = mustard;
-				key = MUSTARD_NAME;
-				break;
-			}
-			case MrsPeacock   :
-			{
-				oldPosition = peacock;
-				key = PEACOCK_NAME;
-				break;
-			}
-			case MrGreen      :
-			{
-				oldPosition = green;
-				key = GREEN_NAME;
-				break;
-			}
-			case MrsWhite     :
-			{
-				oldPosition = white;
-				key = WHITE_NAME;
-				break;
-			} 
-			default: 
-			{
-				/*Log Bad PlayerName Enum*/
-				return false;
-			}
-		}
+		String   key         = playerEnum.name;
 		
 		newPosition = new Position(oldPosition.row, oldPosition.col);
 		
@@ -269,33 +256,11 @@ public class Map {
 	}
 	
 	/* To be used for suggestions and accusations */
-	public boolean movePlayer(PlayerName playerName, RoomName roomName) {
-		Position oldPosition = null;
-		Position newPosition = null;
-		String   key         = null;
+	public boolean movePlayer(PlayerEnum playerEnum, RoomEnum roomEnum) {
+		Position oldPosition = null             ;
+		Position newPosition = new Position(roomEnum.position.row, roomEnum.position.col);
+		String   key         = playerEnum.name  ;
 		
-		switch(playerName) {
-		case ProfessorPlum:{oldPosition = plum   ; key = PLUM_NAME   ; break;}
-		case MissScarlet  :{oldPosition = scarlet; key = SCARLET_NAME; break;}
-		case ColMustard   :{oldPosition = mustard; key = MUSTARD_NAME; break;}
-		case MrsPeacock   :{oldPosition = peacock; key = PEACOCK_NAME; break;}
-		case MrGreen      :{oldPosition = green  ; key = GREEN_NAME  ; break;}
-		case MrsWhite     :{oldPosition = white  ; key = WHITE_NAME  ; break;}
-		default: {return false;}
-		}
-		
-		switch(roomName) {
-		case Study       : {newPosition = STUDY        ; break;}
-		case Hall        : {newPosition = HALL         ; break;}
-		case Lounge      : {newPosition = LOUNGE       ; break;}
-		case Library     : {newPosition = LIBRARY      ; break;}
-		case BilliardRoom: {newPosition = BILLIARD_ROOM; break;}
-		case DiningRoom  : {newPosition = DINING_ROOM  ; break;}
-		case Conservatory: {newPosition = CONSERVATORY ; break;}
-		case Ballroom    : {newPosition = BALLROOM     ; break;}
-		case Kitchen     : {newPosition = KITCHEN      ; break;}
-		default: {return false;}
-		}
 		return move(key, oldPosition, newPosition);
 	}
 	
@@ -336,5 +301,28 @@ public class Map {
 		return toString;
 	}
 	
+	public RoomEnum getRoomEnum(PlayerEnum playerEnum) {
+		Position position;
+		switch(playerEnum) {
+		case ProfessorPlum: position = plum   ; break;
+		case MissScarlet  : position = scarlet; break;
+		case ColMustard   : position = mustard; break;
+		case MrsPeacock   : position = peacock; break;
+		case MrGreen      : position = green  ; break;
+		case MrsWhite     : position = white  ; break;
+		default: {
+            logger.error("Error processing playerEnum: ", playerEnum.name);                     
+			return null;
+		}
+		}
+		
+		for (RoomEnum roomEnum : roomEnums) {
+			if (roomEnum.position.equals(position)) {
+				return roomEnum;
+			}
+		}
+		
+		return null;
+	}
 	
 }

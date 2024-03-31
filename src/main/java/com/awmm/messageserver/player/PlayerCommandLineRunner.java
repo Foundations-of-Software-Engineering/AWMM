@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.awmm.messageserver.board.Hallway;
 import com.awmm.messageserver.board.Location;
-import com.awmm.messageserver.board.Map;
+import com.awmm.messageserver.board.Board;
 import com.awmm.messageserver.board.Room;
 import com.awmm.messageserver.jpa.PlayerJpaRepository;
 
@@ -31,23 +31,23 @@ public class PlayerCommandLineRunner implements CommandLineRunner {
 		
 		System.out.println("Hello from Player Command Line Runner");
 		
-		Map map = new Map(0);
-		map.addPlayer(Map.PlayerName.ProfessorPlum);
-		map.addPlayer(Map.PlayerName.MissScarlet  );
-		map.addPlayer(Map.PlayerName.ColMustard   );
-		map.addPlayer(Map.PlayerName.MrsPeacock   );
-		map.addPlayer(Map.PlayerName.MrGreen      );
-		map.addPlayer(Map.PlayerName.MrsWhite     ); 	
+		Board map = new Board(0);
+		map.addPlayer(Board.PlayerEnum.ProfessorPlum);
+		map.addPlayer(Board.PlayerEnum.MissScarlet  );
+		map.addPlayer(Board.PlayerEnum.ColMustard   );
+		map.addPlayer(Board.PlayerEnum.MrsPeacock   );
+		map.addPlayer(Board.PlayerEnum.MrGreen      );
+		map.addPlayer(Board.PlayerEnum.MrsWhite     ); 	
 		
 		System.out.println(map);
 		
-		map.movePlayer(Map.PlayerName.ProfessorPlum, Map.Direction.UP);
-		map.movePlayer(Map.PlayerName.MissScarlet  , Map.Direction.RIGHT);
-		map.movePlayer(Map.PlayerName.ColMustard   , Map.Direction.DOWN);
-		map.movePlayer(Map.PlayerName.MrsPeacock   , Map.Direction.DOWN);
-		map.movePlayer(Map.PlayerName.MrsPeacock   , Map.Direction.DIAGONAL);
-		map.movePlayer(Map.PlayerName.MrGreen      , Map.Direction.LEFT);
-		map.movePlayer(Map.PlayerName.MrsWhite     , Map.RoomName.BilliardRoom);
+		map.movePlayer(Board.PlayerEnum.ProfessorPlum, Board.Direction.UP);
+		map.movePlayer(Board.PlayerEnum.MissScarlet  , Board.Direction.RIGHT);
+		map.movePlayer(Board.PlayerEnum.ColMustard   , Board.Direction.DOWN);
+		map.movePlayer(Board.PlayerEnum.MrsPeacock   , Board.Direction.DOWN);
+		map.movePlayer(Board.PlayerEnum.MrsPeacock   , Board.Direction.DIAGONAL);
+		map.movePlayer(Board.PlayerEnum.MrGreen      , Board.Direction.LEFT);
+		map.movePlayer(Board.PlayerEnum.MrsWhite     , Board.RoomName.BilliardRoom);
 	
 		System.out.println(map);
 		
