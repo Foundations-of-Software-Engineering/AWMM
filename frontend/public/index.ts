@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('hostGame')?.addEventListener('click', () => {
         const message = { action: 'hostGame' };
         console.log("TEST", message);
-        wsManager.sendMessage( message );
+        wsManager.sendMessage({ message });
     });
 
     // Event listener for "Quick Join" button
