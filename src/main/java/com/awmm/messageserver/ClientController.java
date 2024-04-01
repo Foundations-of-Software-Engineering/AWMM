@@ -45,9 +45,6 @@ public class ClientController extends TextWebSocketHandler {
                 case "LOGIN":
                     handleLoginAction(session, clientMessage);
                     break;
-                case "HOSTGAME":
-                    handleHostAction(session, clientMessage);
-                    break;
                 // Add other actions
                 default:
                     logger.error("Unknown action received: {}", clientMessage.action());
@@ -119,25 +116,11 @@ public class ClientController extends TextWebSocketHandler {
             // Create login message assigning userID to client, all other fields null
             Message responseMessage = new Message(null, userID,"LOGIN",null,null,null);
             sendMessageToClient(session, responseMessage);
-        } else {
-            Message responseMessage = new Message(null, userID,"LOGIN",null,null,null);
-            sendMessageToClient(session, responseMessage);
         }
 
         // Save userID mapped to session
         userIdSessionMap.put(userID, session);
         sessionToUserIdMap.put(session, userID);
-    }
-
-    public void handleHostAction(WebSocketSession session, Message clientMessage) {
-        UUID uuid = UUID.randomUUID();
-        String gameID = uuid.toString().substring(0, 8);
-
-        // Logic for starting the game with the game backend with new gameid
-
-        // Send gameid to client
-        Message responseMessage = new Message(gameID, null, "HOSTGAME", null, null, null);
-        sendMessageToClient(session, responseMessage);
     }
 
     /**
