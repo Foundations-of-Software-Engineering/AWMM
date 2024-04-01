@@ -1,5 +1,7 @@
 package com.awmm.messageserver.player;
 
+import java.util.ArrayList;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
@@ -11,6 +13,8 @@ public class Player {
 	private String gameId;
 	private String name;
 	
+	private ArrayList<String> hand;
+	
 	public Player() {
 	}
 
@@ -19,6 +23,7 @@ public class Player {
 		this.id = id;
 		this.gameId = gameId;
 		this.name = name;
+		this.hand = new ArrayList<>();
 
 	}
 	
@@ -56,8 +61,24 @@ public class Player {
 
 	@Override
 	public String toString() {
-		return name;
-//		return "Player [id=" + id + ", gameId=" + gameId + ", name=" + name + "]";
+		String toString = name;
+		toString += " [";
+		if (hand.size() == 0) {
+			toString += "]";
+		}
+		else {			
+			for (String card : hand) {
+				if (card != null) {
+					toString += card + ",";
+				}
+			}
+			toString = toString.substring(0, toString.length()-1) + "]";
+		}
+		return toString;	
+	}
+
+	public void receiveCard(String card) {
+		hand.add(card);
 	}
 	
 }

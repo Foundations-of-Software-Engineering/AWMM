@@ -164,26 +164,31 @@ public class PlayerCommandLineRunner implements CommandLineRunner {
 		TestWebSocketSession session = new TestWebSocketSession();
 		ClientController clientController = new ClientController();
 		
+		// Test LOGIN
 		Message newUserMessage = new Message(null, 0, "LOGIN", null, null, null);
 		String jsonMessage = clientController.convertToJson(newUserMessage);
 		TextMessage textMessage = new TextMessage(jsonMessage);
-		
 		clientController.handleTextMessage(session, textMessage);
-		
 		String gameID = session.getGameID();
-		
-		System.out.println("gameID generated: " + gameID);
-		
-		System.out.println("gameState for gameID " + gameID + " is\n" + clientController.getGameState(gameID));
-		
-		Message moveMessage = new Message(gameID, 0, "MOVE", "RIGHT", null, null);
-		
-		textMessage = new TextMessage(clientController.convertToJson(moveMessage));
-		
+		newUserMessage = new Message(gameID, 1, "LOGIN", null, null, null);
+		textMessage = new TextMessage(clientController.convertToJson(newUserMessage));
 		clientController.handleTextMessage(session, textMessage);
-		
 		System.out.println("gameState for gameID " + gameID + " is\n" + clientController.getGameState(gameID));
-
+		
+		// Test MOVE
+		Message moveMessage = new Message(gameID, 0, "MOVE", "RIGHT", null, null);
+		textMessage = new TextMessage(clientController.convertToJson(moveMessage));
+		clientController.handleTextMessage(session, textMessage);
+		moveMessage = new Message(gameID, 1, "MOVE", "DOWN", null, null);
+		textMessage = new TextMessage(clientController.convertToJson(moveMessage));
+		clientController.handleTextMessage(session, textMessage);
+		System.out.println("gameState for gameID " + gameID + " is\n" + clientController.getGameState(gameID));
+		
+		// Test START
+		Message startMessage = new Message(gameID, 0, "START", null, null, null);
+		textMessage = new TextMessage(clientController.convertToJson(startMessage));
+		clientController.handleTextMessage(session, textMessage);
+		System.out.println("gameState for gameID " + gameID + " is\n" + clientController.getGameState(gameID));
 		
 		/**
 		 * Create a new Board and move every player.

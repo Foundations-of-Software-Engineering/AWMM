@@ -83,11 +83,13 @@ public class ClientController extends TextWebSocketHandler {
             String jsonText = message.getPayload();
             Message clientMessage = mapper.readValue(jsonText, Message.class);
             switch (clientMessage.action().toUpperCase()) {
+            	case "START":
+            		handleStartAction(session, clientMessage);
+            		break;
                 case "LOGIN":
                     handleLoginAction(session, clientMessage);
                     break;
                 case "MOVE":
-                	// TODO
                 	handleMoveAction(session, clientMessage);
                 	break;
                 case "SUGGEST":
@@ -109,6 +111,11 @@ public class ClientController extends TextWebSocketHandler {
             logger.error("Error processing incoming message from session: {}",session.getId(), e);
         }
     }
+
+	private void handleStartAction(WebSocketSession session, Message clientMessage) {
+		gameController.handleStart(clientMessage);
+		broadcastMessage(clientMessage, clientMessage.GAMEID());
+	}
 
 	private void handleSuggest(WebSocketSession session, Message clientMessage) {
 		gameController.handleSuggest(clientMessage);
@@ -185,7 +192,7 @@ public class ClientController extends TextWebSocketHandler {
      * @param session The WebSocket session representing the client connection.
      * @param clientMessage The message received from the client.
      */
-    public void handleLoginAction(WebSocketSession session, Message clientMessage) {
+    private void handleLoginAction(WebSocketSession session, Message clientMessage) {
     	String gameID = clientMessage.GAMEID();
     	int userID = clientMessage.USERID();
    	

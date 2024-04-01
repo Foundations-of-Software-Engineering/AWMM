@@ -15,20 +15,15 @@ import com.awmm.messageserver.board.Board.PlayerEnum;
 @Controller
 public class GameController {
 
-	HashMap<String, Board> boardStates;
+	private HashMap<String, Board> boardStates;
 
-	private final Logger logger = LoggerFactory.getLogger(GameController.class);
-	private final Board.PlayerEnum[] playerEnums = {
-			Board.PlayerEnum.ProfessorPlum,
-			Board.PlayerEnum.MissScarlet  ,  
-			Board.PlayerEnum.ColMustard   ,  
-			Board.PlayerEnum.MrsPeacock   ,  
-			Board.PlayerEnum.MrGreen      ,  
-			Board.PlayerEnum.MrsWhite     	 
-			};
+	private final Logger logger;
+	private final Board.PlayerEnum[] playerEnums; 
 	
 	public GameController() {
-		boardStates = new HashMap<String, Board>();
+		this.boardStates = new HashMap<String, Board>();
+		this.logger = LoggerFactory.getLogger(GameController.class);
+		this.playerEnums = PlayerEnum.values();
 	}
 	
 	public void createBoardState(String gameID) {
@@ -106,6 +101,16 @@ public class GameController {
 			return board.toString();
 		}
 		else return "";
+	}
+
+	public void handleStart(Message clientMessage) {
+		// TODO Auto-generated method stub
+		String gameID = clientMessage.GAMEID();
+		Board board = boardStates.get(gameID);
+		if (board != null) {
+			board.start();
+		}
+		
 	}
     
 }

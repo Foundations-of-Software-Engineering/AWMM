@@ -1,10 +1,12 @@
 package com.awmm.messageserver.board;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.awmm.messageserver.deck.Deck;
 import com.awmm.messageserver.player.Player;
 
 public class Board {
@@ -13,6 +15,9 @@ public class Board {
 	public static final int COL_SIZE = 5;
 	
 	private String gameId;
+	private boolean started;
+	
+	private ArrayList<Player> players;
 
 	public enum PlayerEnum {
 		ProfessorPlum(0, "Professor Plum"),
@@ -47,6 +52,15 @@ public class Board {
 		RoomEnum(int row, int col) {
 			this.position = new Position(row, col);
 		}
+	}
+	
+	public enum WeaponEnum {
+		Rope,
+		LeadPipe,
+		Knife,
+		Wrench,
+		Candlestick,
+		Revolver
 	}
 	
 	RoomEnum[] roomEnums = {
@@ -105,13 +119,18 @@ public class Board {
 	private Position peacock;
 	private Position green  ;
 	private Position white  ;
+
+	private String suspectSolution;
+	private String weaponSolution ;
+	private String roomSolution   ;
 	
 	private final Logger logger = LoggerFactory.getLogger(Board.class);
 
 	public Board(String gameId) {
 		super();
-		
+		this.started = false;
 		this.gameId = gameId;
+		this.players = new ArrayList<Player>();
 		
 		plum    = new Position();
 		scarlet = new Position();
@@ -138,9 +157,13 @@ public class Board {
 				}
 			}
 		}
+		suspectSolution = null;
+		weaponSolution  = null;
+		roomSolution    = null;
 	}
 	
-	private Player addPlayer(PlayerEnum playerEnum) {
+	private void addPlayer(PlayerEnum playerEnum) {
+		if (started) return;
 		Player player = new Player(playerEnum.id, gameId, playerEnum.name);
 		switch(playerEnum) {
 			case ProfessorPlum: 
@@ -187,7 +210,7 @@ public class Board {
 			}
 			default: {/*Log Bad Enum*/}	
 		}
-		return player;
+		players.add(player);
 	}
 		
 	/* To be used for normal movement */
@@ -350,7 +373,7 @@ public class Board {
 
 	@Override
 	public String toString() {
-		String toString = "";
+		String toString = "Game Answers: " + suspectSolution + ", " + weaponSolution + ", " + roomSolution + "\n";
 //		String toString = "Map [gameId=" + gameId + ", grid=" + Arrays.toString(grid) + ", plum=" + plum + ", scarlet=" + scarlet
 //				+ ", mustard=" + mustard + ", peacock=" + peacock + ", green=" + green + ", white=" + white + "]";
 //		toString += "\n";
@@ -386,5 +409,13 @@ public class Board {
 		
 		return null;
 	}
-	
+
+	public void start() {
+		started = true;
+		String[] winningCards = Deck.dealCards(players);
+		suspectSolution = winningCards[0];
+		weaponSolution = winningCards[1];
+		roomSolution = winningCards[2];
+	}
+
 }
