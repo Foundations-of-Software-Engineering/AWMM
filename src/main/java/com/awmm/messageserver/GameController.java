@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import com.awmm.messageserver.board.Board;
-import com.awmm.messageserver.board.Board.PlayerEnum;
 
 /**
  * Controller class for communicating with the game server.
@@ -18,12 +17,18 @@ public class GameController {
 	private HashMap<String, Board> boardStates;
 
 	private final Logger logger;
-	private final Board.PlayerEnum[] playerEnums; 
+	private static final String[] playerNames = {
+		Board.ProfessorPlumName,
+		Board.MissScarletName,
+		Board. ColMustardName,
+		Board. MrsPeacockName,
+		Board.    MrGreenName,
+		Board.   MrsWhiteName
+	}; 
 	
 	public GameController() {
 		this.boardStates = new HashMap<String, Board>();
 		this.logger = LoggerFactory.getLogger(GameController.class);
-		this.playerEnums = PlayerEnum.values();
 	}
 	
 	public void createBoardState(String gameID) {
@@ -33,31 +38,13 @@ public class GameController {
 	public void handleMove(Message clientMessage) {
 		String gameID   = clientMessage.GAMEID();
 		int    userID   = clientMessage.USERID();
-		String location = clientMessage.location().toUpperCase();
-		Board.Direction direction;
-		if (isValid(gameID, userID)) {
-			switch(location) {
-			case "UP":
-				direction = Board.Direction.UP;
-				break;
-			case "DOWN":
-				direction = Board.Direction.DOWN;
-				break;
-			case "LEFT":
-				direction = Board.Direction.LEFT;
-				break;
-			case "RIGHT":
-				direction = Board.Direction.RIGHT;
-				break;
-			default: {
-	            logger.error("Error processing direction: direction received: {0}", location);
-				return;
-			}
-			}
-			boardStates.get(gameID).movePlayer(playerEnums[userID], direction);
+		String location = clientMessage.location();
+		
+		if (isValid(gameID, userID) && location != null) {
+			boardStates.get(gameID).movePlayer(playerNames[userID], location.toUpperCase());
 		}
 		else {
-			logger.error("Invalid gameId: {0} or userID{1}", gameID, userID);
+			logger.error("Invalid gameId: {0} or userID: {1} or location: {2}", gameID, userID, location);
 		}
 	}
 	
@@ -71,24 +58,13 @@ public class GameController {
 			return;
 		}
 		
-		Board board = boardStates.get(gameId);
+		if (suspect == null) {
+            logger.error("Suspect is null");
+			return;
+		}
+		
+		boardStates.get(gameId).handleSuggest(playerNames[userId], suspect);
 
-		Board.PlayerEnum playerEnum = null;
-		
-		for (PlayerEnum findPlayerEnum : playerEnums) {
-			if (suspect.equals(findPlayerEnum.name)) {
-				playerEnum = findPlayerEnum;
-				break;
-			}
-		}
-		
-		if (playerEnum == null) {
-            logger.error("Error: could not find playerEnum from suspect: {0}", suspect);
-		}
-		
-		Board.RoomEnum roomEnum = board.getRoomEnum(playerEnums[userId]);
-		
-		board.movePlayer(playerEnum, roomEnum);
 	}
 	
 	private boolean isValid(String gameId, int userId) {

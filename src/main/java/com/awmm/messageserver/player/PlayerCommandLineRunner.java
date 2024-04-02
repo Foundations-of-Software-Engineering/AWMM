@@ -196,22 +196,22 @@ public class PlayerCommandLineRunner implements CommandLineRunner {
 		 * respective starting positions
 		 */
 		Board map = new Board("0");
-		map.movePlayer(Board.PlayerEnum.ProfessorPlum, Board.RoomEnum.Ballroom);
-		map.movePlayer(Board.PlayerEnum.MissScarlet  , Board.RoomEnum.Ballroom);
-		map.movePlayer(Board.PlayerEnum.ColMustard   , Board.RoomEnum.Ballroom);
-		map.movePlayer(Board.PlayerEnum.MrsPeacock   , Board.RoomEnum.Ballroom);
-		map.movePlayer(Board.PlayerEnum.MrGreen      , Board.RoomEnum.Ballroom);
-		map.movePlayer(Board.PlayerEnum.MrsWhite     , Board.RoomEnum.Ballroom); 	
+		map.movePlayer(Board. ProfessorPlumName, Board. Down);
+		map.movePlayer(Board.   MissScarletName, Board. Down);
+		map.movePlayer(Board.    ColMustardName, Board. Down);
+		map.movePlayer(Board.    MrsPeacockName, Board. Down);
+		map.movePlayer(Board.       MrGreenName, Board. Down);
+		map.movePlayer(Board.      MrsWhiteName, Board. Down); 	
 		
 		System.out.println(map);
 		
-		map.movePlayer(Board.PlayerEnum.ProfessorPlum, Board.Direction.UP);
-		map.movePlayer(Board.PlayerEnum.MissScarlet  , Board.Direction.RIGHT);
-		map.movePlayer(Board.PlayerEnum.ColMustard   , Board.Direction.DOWN);
-		map.movePlayer(Board.PlayerEnum.MrsPeacock   , Board.Direction.DOWN);
-		map.movePlayer(Board.PlayerEnum.MrsPeacock   , Board.Direction.DIAGONAL);
-		map.movePlayer(Board.PlayerEnum.MrGreen      , Board.Direction.LEFT);
-		map.movePlayer(Board.PlayerEnum.MrsWhite     , Board.RoomEnum.BilliardRoom);
+		map.movePlayer(Board.ProfessorPlumName, Board . Up      );
+		map.movePlayer(Board.  MissScarletName, Board . Right   );
+		map.movePlayer(Board.   ColMustardName, Board . Down    );
+		map.movePlayer(Board.   MrsPeacockName, Board . Down    );
+		map.movePlayer(Board.   MrsPeacockName, Board . Diagonal);
+		map.movePlayer(Board.      MrGreenName, Board . Left    );
+		map.movePlayer(Board.     MrsWhiteName, Board.BilliardRoomName);
 	
 		System.out.println(map);
 		

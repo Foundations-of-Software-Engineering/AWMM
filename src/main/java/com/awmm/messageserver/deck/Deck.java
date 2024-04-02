@@ -4,34 +4,35 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
+import com.awmm.messageserver.board.Board;
 import com.awmm.messageserver.player.Player;
 
 public class Deck {
 	final private static String[] cards = {
 	//	 6 Suspects
-	"Professor Plum",
-	"Col. Mustard",
-	"Miss Scarlet",
-	"Mrs. Green",
-	"Mrs. White",
-	"Mrs. Peacock",
+	Board.ProfessorPlumName,
+	Board.  MissScarletName,
+	Board.   ColMustardName,
+	Board.   MrsPeacockName,
+	Board.      MrGreenName,
+	Board.     MrsWhiteName,
 	// 6 Weapons
-	"Rope",
-	"LeadPipe",
-	"Knife",
-	"Wrench",
-	"Candlestick",
-	"Revolver",
+	Board.       RopeName,
+	Board.   LeadPipeName,
+	Board.      KnifeName,
+	Board.     WrenchName,
+	Board.CandlestickName,
+	Board.   RevolverName,
 	// 9 Rooms
-	"Study",
-	"Hall",
-	"Lounge",
-	"Library",
-	"BilliardRoom",
-	"DiningRoom",
-	"Conservatory",
-	"Ballroom",
-	"Kitchen"
+	Board.       StudyName,
+	Board.        HallName,
+	Board.      LoungeName,
+	Board.     LibraryName,
+	Board.BilliardRoomName,
+	Board.  DiningRoomName,
+	Board.ConservatoryName,
+	Board.    BallroomName,
+	Board.     KitchenName,
 	// 6 + 6 + 9 - 3 = 18
 	};
 	
