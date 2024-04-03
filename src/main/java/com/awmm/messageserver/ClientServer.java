@@ -21,4 +21,9 @@ public class ClientServer {
         return "index.html";
     }
 
+    @RequestMapping(path="/game")
+    public String getGamePage(){
+        return "game.html";
+    }
+
 }
