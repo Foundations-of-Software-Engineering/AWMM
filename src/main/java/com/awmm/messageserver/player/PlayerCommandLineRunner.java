@@ -1,21 +1,33 @@
 package com.awmm.messageserver.player;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URI;
+import java.security.Principal;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketExtension;
+import org.springframework.web.socket.WebSocketMessage;
+import org.springframework.web.socket.WebSocketSession;
 
-import com.awmm.messageserver.board.Hallway;
-import com.awmm.messageserver.board.Location;
-import com.awmm.messageserver.board.Map;
-import com.awmm.messageserver.board.Room;
+import com.awmm.messageserver.ClientController;
+import com.awmm.messageserver.Message;
+import com.awmm.messageserver.board.Board;
 import com.awmm.messageserver.jpa.PlayerJpaRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
 public class PlayerCommandLineRunner implements CommandLineRunner {
@@ -26,28 +38,180 @@ public class PlayerCommandLineRunner implements CommandLineRunner {
 	@Autowired
 	private PlayerJpaRepository repository;
 	
+    private final ObjectMapper mapper = new ObjectMapper();
+
 	@Override
 	public void run(String... args) throws Exception {
 		
 		System.out.println("Hello from Player Command Line Runner");
+
+		class TestWebSocketSession implements WebSocketSession {
+			
+			String gameID;
+			
+			public String getGameID() {
+				return gameID;
+			}
+			
+			@Override
+			public String getId() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public URI getUri() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public HttpHeaders getHandshakeHeaders() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Map<String, Object> getAttributes() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Principal getPrincipal() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public InetSocketAddress getLocalAddress() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public InetSocketAddress getRemoteAddress() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public String getAcceptedProtocol() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public void setTextMessageSizeLimit(int messageSizeLimit) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public int getTextMessageSizeLimit() {
+				// TODO Auto-generated method stub
+				return 0;
+			}
+
+			@Override
+			public void setBinaryMessageSizeLimit(int messageSizeLimit) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public int getBinaryMessageSizeLimit() {
+				// TODO Auto-generated method stub
+				return 0;
+			}
+
+			@Override
+			public List<WebSocketExtension> getExtensions() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public void sendMessage(WebSocketMessage<?> message) throws IOException {
+				// TODO Auto-generated method stub
+				String jsonText = (String) message.getPayload();
+				System.out.println("jsonText = " + jsonText);
+				Message msg = mapper.readValue(jsonText, Message.class);
+				gameID = msg.GAMEID();
+			}
+
+			@Override
+			public boolean isOpen() {
+				// TODO Auto-generated method stub
+				return false;
+			}
+
+			@Override
+			public void close() throws IOException {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void close(CloseStatus status) throws IOException {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		}
 		
-		Map map = new Map(0);
-		map.addPlayer(Map.PlayerName.ProfessorPlum);
-		map.addPlayer(Map.PlayerName.MissScarlet  );
-		map.addPlayer(Map.PlayerName.ColMustard   );
-		map.addPlayer(Map.PlayerName.MrsPeacock   );
-		map.addPlayer(Map.PlayerName.MrGreen      );
-		map.addPlayer(Map.PlayerName.MrsWhite     ); 	
+		
+		TestWebSocketSession session = new TestWebSocketSession();
+		ClientController clientController = new ClientController();
+		
+		// Test LOGIN
+		Message newUserMessage = new Message(null, 0, "LOGIN", null, null, null);
+		String jsonMessage = clientController.convertToJson(newUserMessage);
+		TextMessage textMessage = new TextMessage(jsonMessage);
+		clientController.handleTextMessage(session, textMessage);
+		String gameID = session.getGameID();
+		newUserMessage = new Message(gameID, 1, "LOGIN", null, null, null);
+		textMessage = new TextMessage(clientController.convertToJson(newUserMessage));
+		clientController.handleTextMessage(session, textMessage);
+		System.out.println("gameState for gameID " + gameID + " is\n" + clientController.getGameState(gameID));
+		
+		// Test MOVE
+		Message moveMessage = new Message(gameID, 0, "MOVE", "RIGHT", null, null);
+		textMessage = new TextMessage(clientController.convertToJson(moveMessage));
+		clientController.handleTextMessage(session, textMessage);
+		moveMessage = new Message(gameID, 1, "MOVE", "DOWN", null, null);
+		textMessage = new TextMessage(clientController.convertToJson(moveMessage));
+		clientController.handleTextMessage(session, textMessage);
+		System.out.println("gameState for gameID " + gameID + " is\n" + clientController.getGameState(gameID));
+		
+		// Test START
+		Message startMessage = new Message(gameID, 0, "START", null, null, null);
+		textMessage = new TextMessage(clientController.convertToJson(startMessage));
+		clientController.handleTextMessage(session, textMessage);
+		System.out.println("gameState for gameID " + gameID + " is\n" + clientController.getGameState(gameID));
+		
+		/**
+		 * Create a new Board and move every player.
+		 * Because it is the first time each player is moving, they will move to their
+		 * respective starting positions
+		 */
+		Board map = new Board("0");
+		map.movePlayer(Board. ProfessorPlumName, Board. Down);
+		map.movePlayer(Board.   MissScarletName, Board. Down);
+		map.movePlayer(Board.    ColMustardName, Board. Down);
+		map.movePlayer(Board.    MrsPeacockName, Board. Down);
+		map.movePlayer(Board.       MrGreenName, Board. Down);
+		map.movePlayer(Board.      MrsWhiteName, Board. Down); 	
 		
 		System.out.println(map);
 		
-		map.movePlayer(Map.PlayerName.ProfessorPlum, Map.Direction.UP);
-		map.movePlayer(Map.PlayerName.MissScarlet  , Map.Direction.RIGHT);
-		map.movePlayer(Map.PlayerName.ColMustard   , Map.Direction.DOWN);
-		map.movePlayer(Map.PlayerName.MrsPeacock   , Map.Direction.DOWN);
-		map.movePlayer(Map.PlayerName.MrsPeacock   , Map.Direction.DIAGONAL);
-		map.movePlayer(Map.PlayerName.MrGreen      , Map.Direction.LEFT);
-		map.movePlayer(Map.PlayerName.MrsWhite     , Map.RoomName.BilliardRoom);
+		map.movePlayer(Board.ProfessorPlumName, Board . Up      );
+		map.movePlayer(Board.  MissScarletName, Board . Right   );
+		map.movePlayer(Board.   ColMustardName, Board . Down    );
+		map.movePlayer(Board.   MrsPeacockName, Board . Down    );
+		map.movePlayer(Board.   MrsPeacockName, Board . Diagonal);
+		map.movePlayer(Board.      MrGreenName, Board . Left    );
+		map.movePlayer(Board.     MrsWhiteName, Board.BilliardRoomName);
 	
 		System.out.println(map);
 		

@@ -1,5 +1,7 @@
 package com.awmm.messageserver.player;
 
+import java.util.ArrayList;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
@@ -7,18 +9,21 @@ import jakarta.persistence.Id;
 public class Player {
 
 	@Id
-	private long id;
-	private long gameId;
+	private int id;
+	private String gameId;
 	private String name;
+	
+	private ArrayList<String> hand;
 	
 	public Player() {
 	}
 
-	public Player(long id, long gameId, String name) {
+	public Player(int id, String gameId, String name) {
 		super();
 		this.id = id;
 		this.gameId = gameId;
 		this.name = name;
+		this.hand = new ArrayList<>();
 
 	}
 	
@@ -30,19 +35,19 @@ public class Player {
 		
 	}
 
-	public long getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 
-	public long getGameId() {
+	public String getGameId() {
 		return gameId;
 	}
 
-	public void setGameId(long gameId) {
+	public void setGameId(String gameId) {
 		this.gameId = gameId;
 	}
 
@@ -56,7 +61,24 @@ public class Player {
 
 	@Override
 	public String toString() {
-		return "Player [id=" + id + ", gameId=" + gameId + ", name=" + name + "]";
+		String toString = name;
+		toString += " [";
+		if (hand.size() == 0) {
+			toString += "]";
+		}
+		else {			
+			for (String card : hand) {
+				if (card != null) {
+					toString += card + ",";
+				}
+			}
+			toString = toString.substring(0, toString.length()-1) + "]";
+		}
+		return toString;	
+	}
+
+	public void receiveCard(String card) {
+		hand.add(card);
 	}
 	
 }

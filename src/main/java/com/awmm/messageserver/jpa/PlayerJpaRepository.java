@@ -27,6 +27,7 @@ public class PlayerJpaRepository {
 	public void deleteById(long id) {
 		Player player = entityManager.find(Player.class, id);
 		entityManager.remove(player);
+		
 	}
 	
 	

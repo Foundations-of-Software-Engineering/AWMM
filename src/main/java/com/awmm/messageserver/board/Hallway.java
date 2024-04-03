@@ -35,7 +35,7 @@ public class Hallway implements Location {
 
 	@Override
 	public String toString() {
-		return "Hallway [player=" + player + "]";
+		return "[Hallway: " + player + "]";
 	}
 	
 }
