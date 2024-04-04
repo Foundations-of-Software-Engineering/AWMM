@@ -109,6 +109,9 @@ public class ClientController extends TextWebSocketHandler {
                 	// Maybe automatically check for who can disprove and ask that player in order
                 	
                 	break;
+				case "HOSTGAME":
+					handleHostAction(session, clientMessage);
+					break;
                 	
                 // Add other actions
                 default:
@@ -122,6 +125,11 @@ public class ClientController extends TextWebSocketHandler {
 	private void handleStartAction(WebSocketSession session, Message clientMessage) {
 		gameController.handleStart(clientMessage);
 		broadcastMessage(clientMessage, clientMessage.GAMEID());
+	}
+
+	private void handleHostAction(WebSocketSession session, Message clientMessage) {
+		Message response = new Message ("10", 6, "host", null, null, null);
+		sendMessageToClient(session, response);
 	}
 
 	private void handleSuggest(WebSocketSession session, Message clientMessage) {

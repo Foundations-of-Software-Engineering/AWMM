@@ -6,14 +6,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set up an event listener for when messages are received
     wsManager.onMessage((event: MessageEvent) => {
         console.log('Message from server:', event.data);
-        // Here, you can add logic to handle incoming messages
+        const message = JSON.parse(event.data)
+        console.log("Message received:", JSON.stringify(message))
     });
 
     // Event listener for "Host a Game" button
     document.getElementById('hostGame')?.addEventListener('click', () => {
         const message = { action: 'hostGame' };
         console.log("TEST", message);
-        wsManager.sendMessage({ message });
+        wsManager.sendMessage( message );
     });
 
     // Event listener for "Quick Join" button
