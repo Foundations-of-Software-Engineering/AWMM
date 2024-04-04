@@ -26,7 +26,11 @@ import org.springframework.web.socket.WebSocketSession;
 import com.awmm.messageserver.ClientController;
 import com.awmm.messageserver.Message;
 import com.awmm.messageserver.board.Board;
+import com.awmm.messageserver.cards.Cards;
+import com.awmm.messageserver.cards.CardsRepository;
 import com.awmm.messageserver.jpa.PlayerJpaRepository;
+import com.awmm.messageserver.positions.Positions;
+import com.awmm.messageserver.positions.PositionsRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
@@ -35,8 +39,14 @@ public class PlayerCommandLineRunner implements CommandLineRunner {
 //	@Autowired 
 //	private PlayerJdbcRepository repository;
 
-	@Autowired
-	private PlayerJpaRepository repository;
+//	@Autowired
+//	private PlayerJpaRepository repository;
+	
+	@Autowired 
+	private CardsRepository cardsRepository;
+	
+	@Autowired 
+	private PositionsRepository positionsRepository;
 	
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -184,6 +194,38 @@ public class PlayerCommandLineRunner implements CommandLineRunner {
 		clientController.handleTextMessage(session, textMessage);
 		System.out.println("gameState for gameID " + gameID + " is\n" + clientController.getGameState(gameID));
 		
+		// Test Cards Database
+		System.out.println("Test Cards Database");
+		System.out.println("Game ID = " + gameID);
+		cardsRepository.insert(new Cards(
+				gameID, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName,
+				Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName,
+				Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName,
+				Board.ProfessorPlumName, Board.ProfessorPlumName));
+		Cards cards = cardsRepository.findById(gameID);
+		System.out.println(cards);
+		if (cards != null) {
+			clientController.getGameController().setCards(cards);
+		}
+		System.out.println(clientController.getGameState(gameID));
+		
+		// Test Positions Database
+		System.out.println("Test Positions Database");
+		System.out.println("Game ID = " + gameID);
+		positionsRepository.insert(new Positions(gameID, 
+				2, 2, // plum
+				1, 1, // scarlet
+				3, 3, // mustard
+				4, 4, // peacock
+				3, 1, // green
+				1, 3 // white
+				));
+		Positions positions = positionsRepository.findById(gameID);
+		System.out.println(positions);
+		clientController.getGameController().setPositions(positions);
+		System.out.println(clientController.getGameState(gameID));
+		
+		
 		// Test START
 		Message startMessage = new Message(gameID, 0, "START", null, null, null);
 		textMessage = new TextMessage(clientController.convertToJson(startMessage));
@@ -215,6 +257,10 @@ public class PlayerCommandLineRunner implements CommandLineRunner {
 	
 		System.out.println(map);
 		
+
+		
+		
+		
 //		repository.insert(new Player(1l, 1l, "Miss Scarlet", new Room()));
 //		repository.insert(new Player(2l, 1l, "Colonel Mustard", "Study"));
 //		repository.insert(new Player(3l, 1l, "Chef White", "Dining Room"));
@@ -227,28 +273,28 @@ public class PlayerCommandLineRunner implements CommandLineRunner {
 		
 		
 
-		final int port = 8888;
-		final int backlog = 4;
-		final InetAddress bindAddress = InetAddress.getByName("127.0.0.1");
-
-		try (ServerSocket serverSocket = new ServerSocket(port, backlog, bindAddress)){
-			System.out.println("Server is listening on port: " + port);
-
-			while (true){
-				Socket socket = serverSocket.accept();
-
-				System.out.println("Client connected");
-				BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-				long searchTerm = Long.parseLong(reader.readLine());
-
-				String response = repository.findById(searchTerm).toString();
-
-				System.out.println("Message returned: " + response);
-				PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
-				writer.println(response);
-				socket.close();
-			}
-		}
+//		final int port = 8888;
+//		final int backlog = 4;
+//		final InetAddress bindAddress = InetAddress.getByName("127.0.0.1");
+//
+//		try (ServerSocket serverSocket = new ServerSocket(port, backlog, bindAddress)){
+//			System.out.println("Server is listening on port: " + port);
+//
+//			while (true){
+//				Socket socket = serverSocket.accept();
+//
+//				System.out.println("Client connected");
+//				BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+//				long searchTerm = Long.parseLong(reader.readLine());
+//
+//				String response = repository.findById(searchTerm).toString();
+//
+//				System.out.println("Message returned: " + response);
+//				PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+//				writer.println(response);
+//				socket.close();
+//			}
+//		}
 	}
 	
 	

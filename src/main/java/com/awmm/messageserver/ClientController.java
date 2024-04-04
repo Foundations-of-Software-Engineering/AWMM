@@ -34,7 +34,11 @@ public class ClientController extends TextWebSocketHandler {
     private final Map<WebSocketSession, String> session2GameID = new ConcurrentHashMap<WebSocketSession, String>();
     private final GameController gameController = new GameController();
     
-    private class Sessions {
+    public GameController getGameController() {
+		return gameController;
+	}
+
+	private class Sessions {
     	
     	private WebSocketSession[] sessions;
     	
@@ -86,7 +90,7 @@ public class ClientController extends TextWebSocketHandler {
             	case "START":
             		handleStartAction(session, clientMessage);
             		break;
-                case "LOGIN":
+                case "LOGIN": // this adds player to board
                     handleLoginAction(session, clientMessage);
                     break;
                 case "MOVE":
@@ -101,6 +105,9 @@ public class ClientController extends TextWebSocketHandler {
                 	break;
                 case "DISPROVE":
                 	// TODO
+                	// Send Message to a Player to Disprove if it's his/her turn
+                	// Maybe automatically check for who can disprove and ask that player in order
+                	
                 	break;
 				case "HOSTGAME":
 					handleHostAction(session, clientMessage);
@@ -132,7 +139,8 @@ public class ClientController extends TextWebSocketHandler {
 	}
 
 	private void handleMoveAction(WebSocketSession session, Message clientMessage) {
-		gameController.handleMove(clientMessage);
+		/*boolean success = */gameController.handleMove(clientMessage);
+		// if (success) { tell everyone} else {tell player move failed and to make another move}
 		broadcastMessage(clientMessage, clientMessage.GAMEID());
 	}
 
