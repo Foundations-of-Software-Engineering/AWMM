@@ -1,11 +1,14 @@
 package com.awmm.messageserver.board;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.awmm.messageserver.cards.Cards;
+import com.awmm.messageserver.cards.CardsController;
 import com.awmm.messageserver.deck.Deck;
 import com.awmm.messageserver.player.Player;
 
@@ -48,6 +51,8 @@ public class Board {
 	private boolean started;
 	
 	private ArrayList<Player> players;
+	
+	private CardsController cardsController;
 
 	private class BoardPlayer {
 		private Player player;
@@ -150,6 +155,7 @@ public class Board {
 		this.started = false;
 		this.gameId = gameId;
 		this.players = new ArrayList<Player>();
+		this.cardsController = new CardsController();
 		
 		//Rooms
 		for (RoomEnum roomEnum : RoomEnum.values()) {
@@ -303,6 +309,12 @@ public class Board {
 	
 	private boolean move(String key, Position oldPosition, Position newPosition) {
 		boolean ret = false;
+		if (oldPosition.row == -1 || oldPosition.col == -1) {
+			BoardPlayer boardPlayer = getBoardPlayerFromName(key);
+			addPlayer(boardPlayer);
+			oldPosition = boardPlayer.position;
+		}
+		
 		Location oldLocation = getLocation(oldPosition);
 		Location newLocation = getLocation(newPosition);
 		if (oldLocation != null && newLocation != null)
@@ -319,7 +331,7 @@ public class Board {
 
 	@Override
 	public String toString() {
-		String toString = "Game Answers: " + suspectSolution + ", " + weaponSolution + ", " + roomSolution + "\n";
+		String toString = "Game Answers for Game ID " + gameId +": " + suspectSolution + ", " + weaponSolution + ", " + roomSolution + "\n";
 		for (int row = 0; row < ROW_SIZE; ++row) {
 			for (int col = 0; col < COL_SIZE; ++col) {
 				toString += String.format("%-50s", grid[row][col].toString());  ;
@@ -331,11 +343,17 @@ public class Board {
 	
 
 	public void start() {
-		started = true;
+		started = true; // prevents people from joining
 		String[] winningCards = Deck.dealCards(players);
 		suspectSolution = winningCards[0];
 		weaponSolution = winningCards[1];
 		roomSolution = winningCards[2];
+	}
+	
+	public void setCards(Map<String, String> map) {
+		for (String owner : map.keySet()) {
+			getBoardPlayerFromName(map.get(owner)).player.receiveCard(owner);
+		}
 	}
 	
 	private BoardPlayer getBoardPlayerFromName(String playerName) {
@@ -369,6 +387,16 @@ public class Board {
 		Location location = getLocation(getBoardPlayerFromName(playerName).position);
 		if (location instanceof Room) {			
 			movePlayer(suspect, ((Room) location).getName());
+		}
+	}
+
+	public void setPositions(Map<String, Integer[]> map) {
+		for (String key : map.keySet()) {
+			BoardPlayer boardPlayer = getBoardPlayerFromName(key);
+			if (boardPlayer != null) {
+				Integer[] position = map.get(key);
+				move(key, boardPlayer.position, new Position(position[0], position[1]));
+			}
 		}
 	}
 	
