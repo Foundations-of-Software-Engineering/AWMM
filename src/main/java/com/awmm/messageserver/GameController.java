@@ -43,8 +43,14 @@ public class GameController {
 		this.positionsController = new PositionsController();
 	}
 	
-	public void createBoardState(String gameID) {
-		boardStates.put(gameID, new Board(gameID));
+	public boolean createBoardState(String gameID) {
+		if (boardStates.containsKey(gameID)){
+			return false;
+		}
+		else {
+			boardStates.put(gameID, new Board(gameID));
+			return true;
+		}
 	}
 	
 	// boolean 

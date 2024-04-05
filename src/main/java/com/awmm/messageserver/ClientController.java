@@ -128,7 +128,14 @@ public class ClientController extends TextWebSocketHandler {
 	}
 
 	private void handleHostAction(WebSocketSession session, Message clientMessage) {
-		Message response = new Message ("10", 6, "host", null, null, null);
+		String gameID = UUID.randomUUID().toString().substring(0,8);
+		boolean success = gameController.createBoardState(gameID);
+		Message response;
+		if (success) {
+			response = new Message(gameID, null, "HOSTGAME", null, null, null);
+		} else {
+			response = new Message(null, null, "HOSTGAME", null, null, null);
+		}
 		sendMessageToClient(session, response);
 	}
 
