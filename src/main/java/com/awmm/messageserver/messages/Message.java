@@ -1,6 +1,4 @@
-package com.awmm.messageserver;
-
-import org.springframework.boot.context.properties.bind.DefaultValue;
+package com.awmm.messageserver.messages;
 
 /**
  * Represents a message in the message server application.
@@ -13,10 +11,13 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
  * @param suspect The suspect passed in the message. Default value is "none".
  * @author AWMM
  */
-public record Message (@DefaultValue("0") String GAMEID,
-                       @DefaultValue("0") Integer USERID,
-                       @DefaultValue("none") String action,
-                       @DefaultValue("none") String location,
-                       @DefaultValue("none") String weapon,
-                       @DefaultValue("none") String suspect){
+public abstract sealed interface Message permits ExampleMessage, GameIdMessage {
+    String GAMEID = "0";
+    Integer USERID = 0;
+    String action = "none";
+    String location = "none";
+    String weapon = "none";
+    String suspect = "none";
+    String type = "none";
 }
+
