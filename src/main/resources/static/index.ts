@@ -1,5 +1,28 @@
 import { wsManager } from './websocketManager.js';
 
+function checkCookieExists() {
+    const cookieValue = document.cookie.split("; ").find((row) => row.startsWith("gameId"))?.split("=")[1];
+    if (cookieValue) return true;
+    return false;
+}
+
+function redirectToPageIfCookieExists() {
+    const checkInterval = 100
+    const maxTries = 50
+    let tries = 0
+
+    const intervalId = setInterval(function () {
+        if (checkCookieExists() || tries > maxTries) {
+            clearInterval(intervalId);
+            if (checkCookieExists()) {
+                window.location.href = 'game.html'
+            } else {
+                console.error('Cookie was not set within the expected time.');
+            }
+        }
+        tries++;
+    }, checkInterval);
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     wsManager.connect();
@@ -21,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const message = { action: 'hostGame' };
         console.log("TEST", message);
         wsManager.sendMessage( message );
-        window.location.href='game.html'
+        redirectToPageIfCookieExists();
     });
 
     // Event listener for "Quick Join" button
