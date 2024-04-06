@@ -80,6 +80,7 @@ public class GameController {
 		String     gameId   = clientMessage.GAMEID()  ;
 		int        userId   = clientMessage.USERID()  ;
 		String     suspect  = clientMessage.suspect() ;
+		String     weapon   = clientMessage.weapon()  ;
 		
 		if (!isValid(gameId, userId)) {
             logger.error("Error processing gameId: {} or userId: {}", gameId, userId);

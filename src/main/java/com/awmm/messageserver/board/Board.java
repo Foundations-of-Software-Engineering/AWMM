@@ -56,6 +56,7 @@ public class Board {
 	
     private String gameId;
 	private boolean started;
+	private boolean inSuggestion;
 	
 	private ArrayList<Player> players;
 	
@@ -489,11 +490,13 @@ public class Board {
 	 * @param playerName The name of the suggesting player.
 	 * @param suspect The name of the suggested suspect.
 	 */
-	public void handleSuggest(String playerName, String suspect) {
+	public boolean handleSuggest(String playerName, String suspect) {
 		Location location = getLocation(getBoardPlayerFromName(playerName).position);
 		if (location instanceof Room) {			
 			movePlayer(suspect, ((Room) location).getName());
+			return true;
 		}
+		return false;
 	}
 
 	/**

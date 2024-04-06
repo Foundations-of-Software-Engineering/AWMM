@@ -201,7 +201,7 @@ public class PlayerCommandLineRunner implements CommandLineRunner {
 				gameID, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName,
 				Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName,
 				Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName,
-				Board.ProfessorPlumName, Board.ProfessorPlumName));
+				Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName));
 		Cards cards = cardsRepository.findById(gameID);
 		System.out.println(cards);
 		if (cards != null) {
@@ -222,6 +222,11 @@ public class PlayerCommandLineRunner implements CommandLineRunner {
 				));
 		Positions positions = positionsRepository.findById(gameID);
 		System.out.println(positions);
+		positions.setGreenCol(100);
+		System.out.print(positions);
+		positions = positionsRepository.findById(gameID);
+		System.out.print(positions);
+
 		clientController.getGameController().setPositions(positions);
 		System.out.println(clientController.getGameState(gameID));
 		

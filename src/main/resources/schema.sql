@@ -36,7 +36,11 @@ create table if not exists cards
     ballroom     varchar(255),
     kitchen      varchar(255),
     
-    primary key (game_id)
+    suggested_suspect varchar(255),
+    suggested_weapon  varchar(255),
+    suggested_room    varchar(255),
+    
+    primary key (gameid)
 );
 
 create table if not exists positions
@@ -56,5 +60,5 @@ create table if not exists positions
       greencol varchar(255),
       whitecol varchar(255),
       
-      primary key (game_id)
+      primary key (gameid)
 );

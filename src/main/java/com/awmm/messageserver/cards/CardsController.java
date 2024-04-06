@@ -24,4 +24,8 @@ public class CardsController {
 		}
 		return map;
 	}
+	
+//	public String getOwnerOf(String card) {
+//		
+//	}
 }

@@ -7,11 +7,6 @@ import jakarta.persistence.Id;
 @Entity
 public class Cards {
 
-//	@Id
-//	private int id;
-	
-//	@GeneratedValue(generator = "uuid")
-//	@GenericGenerator(name = "uuid", strategy = "uuid2")
 	@Id
 	@Column(name = "GAMEID")
 	String gameID;
@@ -40,6 +35,13 @@ public class Cards {
 	String conservatory;
 	String ballroom    ;
 	String kitchen     ;
+	// Suggestions
+	@Column(name = "SUGGESTED_SUSPECT")
+	String suggestedSuspect;
+	@Column(name = "SUGGESTED_WEAPON")
+	String suggestedWeapon ;
+	@Column(name = "SUGGESTED_ROOM")
+	String suggestedRoom   ;
 	
 	public Cards() {
 		super();
@@ -49,7 +51,7 @@ public class Cards {
 	public Cards(String gameID, String plum, String scarlet, String mustard, String peacock, String green, String white,
 			String rope, String pipe, String knife, String wrench, String candlestick, String revolver, String study,
 			String hall, String lounge, String library, String billiard, String dining, String conservatory,
-			String ballroom, String kitchen) {
+			String ballroom, String kitchen, String suggestedSuspect, String suggestedWeapon, String suggestedRoom) {
 		super();
 		this.gameID = gameID;
 		this.plum = plum;
@@ -73,6 +75,33 @@ public class Cards {
 		this.conservatory = conservatory;
 		this.ballroom = ballroom;
 		this.kitchen = kitchen;
+		this.suggestedSuspect = suggestedSuspect;
+		this.suggestedWeapon = suggestedWeapon;
+		this.suggestedRoom = suggestedRoom;
+	}
+
+	public String getSuggestedSuspect() {
+		return suggestedSuspect;
+	}
+
+	public void setSuggestedSuspect(String suggestedSuspect) {
+		this.suggestedSuspect = suggestedSuspect;
+	}
+
+	public String getSuggestedWeapon() {
+		return suggestedWeapon;
+	}
+
+	public void setSuggestedWeapon(String suggestedWeapon) {
+		this.suggestedWeapon = suggestedWeapon;
+	}
+
+	public String getSuggestedRoom() {
+		return suggestedRoom;
+	}
+
+	public void setSuggestedRoom(String suggestedRoom) {
+		this.suggestedRoom = suggestedRoom;
 	}
 
 	public String getGameID() {
@@ -133,16 +162,6 @@ public class Cards {
 
 	public String getRope() {
 		return rope;
-	}
-
-	@Override
-	public String toString() {
-		return "Cards [gameID=" + gameID + ", plum=" + plum + ", scarlet=" + scarlet + ", mustard=" + mustard
-				+ ", peacock=" + peacock + ", green=" + green + ", white=" + white + ", rope=" + rope + ", pipe=" + pipe
-				+ ", knife=" + knife + ", wrench=" + wrench + ", candlestick=" + candlestick + ", revolver=" + revolver
-				+ ", study=" + study + ", hall=" + hall + ", lounge=" + lounge + ", library=" + library + ", billiard="
-				+ billiard + ", dining=" + dining + ", conservatory=" + conservatory + ", ballroom=" + ballroom
-				+ ", kitchen=" + kitchen + "]";
 	}
 
 	public void setRope(String rope) {
@@ -259,6 +278,16 @@ public class Cards {
 
 	public void setKitchen(String kitchen) {
 		this.kitchen = kitchen;
+	}
+	
+	@Override
+	public String toString() {
+		return "Cards [gameID=" + gameID + ", plum=" + plum + ", scarlet=" + scarlet + ", mustard=" + mustard
+				+ ", peacock=" + peacock + ", green=" + green + ", white=" + white + ", rope=" + rope + ", pipe=" + pipe
+				+ ", knife=" + knife + ", wrench=" + wrench + ", candlestick=" + candlestick + ", revolver=" + revolver
+				+ ", study=" + study + ", hall=" + hall + ", lounge=" + lounge + ", library=" + library + ", billiard="
+				+ billiard + ", dining=" + dining + ", conservatory=" + conservatory + ", ballroom=" + ballroom
+				+ ", kitchen=" + kitchen + "]";
 	}
 	
 }
