@@ -21,10 +21,10 @@ import com.awmm.messageserver.positions.PositionsController;
 public class GameController {
 
 	// gameId to board state
-	private HashMap<String, Board> boardStates;
+	private final HashMap<String, Board> boardStates;
 	
-	private CardsController cardsController;
-	private PositionsController positionsController;
+	private final CardsController cardsController;
+	private final PositionsController positionsController;
 
 	private final Logger logger;
 	private static final String[] playerNames = {
@@ -34,17 +34,32 @@ public class GameController {
 		Board. MrsPeacockName,
 		Board.    MrGreenName,
 		Board.   MrsWhiteName
-	}; 
-	
+	};
+
+	/**
+	 * Constructor for GameController.
+	 */
 	public GameController() {
-		this.boardStates = new HashMap<String, Board>();
+		this.boardStates = new HashMap<>();
 		this.logger = LoggerFactory.getLogger(GameController.class);
 		this.cardsController = new CardsController();
 		this.positionsController = new PositionsController();
 	}
-	
-	public void createBoardState(String gameID) {
-		boardStates.put(gameID, new Board(gameID));
+
+	/**
+	 * Creates a new board state for the specified game ID.
+	 *
+	 * @param gameID The ID of the game.
+	 * @return true if the board state is created successfully, false otherwise.
+	 */
+	public boolean createBoardState(String gameID) {
+		if (boardStates.containsKey(gameID)){
+			return false;
+		}
+		else {
+			boardStates.put(gameID, new Board(gameID));
+			return true;
+		}
 	}
 	
 	// boolean 
@@ -57,17 +72,17 @@ public class GameController {
 			boardStates.get(gameID).movePlayer(playerNames[userID], location.toUpperCase());
 		}
 		else {
-			logger.error("Invalid gameId: {0} or userID: {1} or location: {2}", gameID, userID, location);
+			logger.error("Invalid gameId: {} or userID: {} or location: {}", gameID, userID, location);
 		}
 	}
-	
+
 	public void handleSuggest(Message clientMessage) {
 		String     gameId   = clientMessage.GAMEID()  ;
 		int        userId   = clientMessage.USERID()  ;
 		String     suspect  = clientMessage.suspect() ;
 		
 		if (!isValid(gameId, userId)) {
-            logger.error("Error processing gameId: {0} or userId: {1}", gameId, userId);
+            logger.error("Error processing gameId: {} or userId: {}", gameId, userId);
 			return;
 		}
 		
@@ -83,7 +98,28 @@ public class GameController {
 	private boolean isValid(String gameId, int userId) {
 		return boardStates.containsKey(gameId) && userId >= 0 && userId <= 5;
 	}
-	
+
+	/**
+	 * Checks if the game with the specified ID is joinable.
+	 *
+	 * @param gameID The ID of the game.
+	 * @return true if the game is joinable, false otherwise.
+	 */
+	public boolean isJoinable(String gameID) {
+		Board board = boardStates.get(gameID);
+
+		if (board.getStarted() /* must also check number of players */) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Retrieves the board state for the specified game ID.
+	 *
+	 * @param gameID The ID of the game.
+	 * @return The board state as a string.
+	 */
 	public String getBoardState(String gameID) {
 		Board board = boardStates.get(gameID);
 		if (board != null) {

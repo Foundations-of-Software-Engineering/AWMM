@@ -27,17 +27,20 @@ public class ClientController extends TextWebSocketHandler {
 
     private final ObjectMapper mapper = new ObjectMapper();
     private final Logger logger = LoggerFactory.getLogger(ClientController.class);
-//    private final Map<String, WebSocketSession> userIdSessionMap = new ConcurrentHashMap<>();
-//    private final Map<WebSocketSession, String> sessionToUserIdMap = new ConcurrentHashMap<>();
    
-    private final Map<String, Sessions> gameID2UserID2Session = new ConcurrentHashMap<String, Sessions>();
-    private final Map<WebSocketSession, String> session2GameID = new ConcurrentHashMap<WebSocketSession, String>();
+    private final Map<String, Sessions> gameID2UserID2Session = new ConcurrentHashMap<>();
+    private final Map<WebSocketSession, String> session2GameID = new ConcurrentHashMap<>();
     private final GameController gameController = new GameController();
     
     public GameController getGameController() {
 		return gameController;
 	}
 
+	/**
+	 * Inner class representing sessions for WebSocket connections.
+	 * Maintains an array of WebSocketSession objects for each user position in the game.
+	 * Provides methods to manipulate the sessions array, such as adding, removing, and retrieving sessions.
+	 */
 	private class Sessions {
     	
     	private WebSocketSession[] sessions;
@@ -88,7 +91,7 @@ public class ClientController extends TextWebSocketHandler {
             Message clientMessage = mapper.readValue(jsonText, Message.class);
             switch (clientMessage.action().toUpperCase()) {
             	case "START":
-            		handleStartAction(session, clientMessage);
+            		handleStartAction(clientMessage);
             		break;
                 case "LOGIN": // this adds player to board
                     handleLoginAction(session, clientMessage);
@@ -112,6 +115,9 @@ public class ClientController extends TextWebSocketHandler {
 				case "HOSTGAME":
 					handleHostAction(session, clientMessage);
 					break;
+				case "JOINGAME":
+					handleJoinAction(session, clientMessage);
+					break;
                 	
                 // Add other actions
                 default:
@@ -122,26 +128,88 @@ public class ClientController extends TextWebSocketHandler {
         }
     }
 
-	private void handleStartAction(WebSocketSession session, Message clientMessage) {
+	/**
+	 * Handles the "START" action received from a WebSocket client.
+	 * This method initiates the game start procedure by calling the corresponding method in the game controller.
+	 * After handling the start action, it broadcasts a message to all clients in the same game.
+	 *
+	 * @param clientMessage The message received from the WebSocket client.
+	 */
+	private void handleStartAction(Message clientMessage) {
 		gameController.handleStart(clientMessage);
 		broadcastMessage(clientMessage, clientMessage.GAMEID());
 	}
 
-	private void handleHostAction(WebSocketSession session, Message clientMessage) {
-		Message response = new Message ("10", 6, "host", null, null, null);
-		sendMessageToClient(session, response);
-	}
-
+	/**
+	 * Handles the "SUGGEST" action received from a WebSocket client.
+	 * This method processes the suggestion made by a player in the game.
+	 * After handling the suggestion action, it broadcasts a message to all clients in the same game.
+	 *
+	 * @param session The WebSocket session of the client.
+	 * @param clientMessage The message received from the WebSocket client.
+	 */
 	private void handleSuggest(WebSocketSession session, Message clientMessage) {
 		gameController.handleSuggest(clientMessage);
 		broadcastMessage(clientMessage, clientMessage.GAMEID());
 		
 	}
 
+	/**
+	 * Handles the "MOVE" action received from a WebSocket client.
+	 * This method processes the move made by a player in the game.
+	 * After handling the move action, it broadcasts a message to all clients in the same game.
+	 *
+	 * @param session The WebSocket session of the client.
+	 * @param clientMessage The message received from the WebSocket client.
+	 */
 	private void handleMoveAction(WebSocketSession session, Message clientMessage) {
 		/*boolean success = */gameController.handleMove(clientMessage);
 		// if (success) { tell everyone} else {tell player move failed and to make another move}
 		broadcastMessage(clientMessage, clientMessage.GAMEID());
+	}
+
+	/**
+	 * Handles the "HOSTGAME" action received from a WebSocket client.
+	 * This method creates a new game board state and assigns a unique game ID to it.
+	 * After handling the host game action, it sends a response message to the client indicating the success or failure
+	 * of the operation.
+	 *
+	 * @param session The WebSocket session of the client.
+	 * @param clientMessage The message received from the WebSocket client.
+	 */
+	private void handleHostAction(WebSocketSession session, Message clientMessage) {
+		String gameID = UUID.randomUUID().toString().substring(0,8);
+		boolean success = gameController.createBoardState(gameID); // extremely low but non-zero chance of collision
+		Message response;
+
+		if (success) {
+			response = new Message(gameID, null, "HOSTGAME", null, null, null);
+			logger.info("{} successfully created", gameID);
+		} else {
+			response = new Message(null, null, "HOSTGAME", null, null, null);
+		}
+		sendMessageToClient(session, response);
+	}
+
+	/**
+	 * Handles the "JOINGAME" action received from a WebSocket client.
+	 * This method checks if a game is joinable and sends a response message to the client indicating the success or
+	 * failure of the operation.
+	 *
+	 * @param session The WebSocket session of the client.
+	 * @param clientMessage The message received from the WebSocket client.
+	 */
+	private void handleJoinAction(WebSocketSession session, Message clientMessage) {
+		String gameID = clientMessage.GAMEID();
+		boolean success = gameController.isJoinable(gameID);
+		Message response;
+
+		if (success) {
+			response = new Message(gameID, null, "JOINGAME", null, null, null);
+		} else {
+			response = new Message(null, null, "JOINGAME", null, null, null);
+		}
+		sendMessageToClient(session, response);
 	}
 
 	/**
@@ -159,6 +227,12 @@ public class ClientController extends TextWebSocketHandler {
         }
     }
 
+	/**
+	 * Broadcasts a message to all WebSocket clients in a specific game.
+	 *
+	 * @param message The message to broadcast.
+	 * @param gameID The ID of the game to broadcast the message to.
+	 */
     public void broadcastMessage(Message message, String gameID) {
     	String jsonMessage = convertToJson(message);
     	for (WebSocketSession session : gameID2UserID2Session.get(gameID).getSessions()) {
@@ -171,21 +245,6 @@ public class ClientController extends TextWebSocketHandler {
             }
     	}
     }
-    
-//    /**
-//     * Broadcasts a message to all connected WebSocket clients.
-//     * @param message The message to broadcast.
-//     */
-//    public void broadcastMessage(Message message) {
-//        String jsonMessage = convertToJson(message);
-//        for (WebSocketSession session: userIdSessionMap.values()) {
-//            try {
-//                session.sendMessage(new TextMessage(jsonMessage));
-//            } catch (IOException e) {
-//                logger.error("Error broadcasting message to session: {}", session.getId(), e);
-//            }
-//        }
-//    }
 
     /**
      * Sends a message to a specific WebSocket client.
@@ -258,7 +317,13 @@ public class ClientController extends TextWebSocketHandler {
             return null;
         }
     }
-    
+
+	/**
+	 * Retrieves the current state of the game for the specified game ID.
+	 *
+	 * @param gameID The ID of the game for which to retrieve the state.
+	 * @return The current state of the game.
+	 */
     public String getGameState(String gameID) {
     	return gameController.getBoardState(gameID);
     }
