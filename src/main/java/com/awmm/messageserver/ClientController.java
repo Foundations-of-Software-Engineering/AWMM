@@ -1,5 +1,8 @@
 package com.awmm.messageserver;
 
+import com.awmm.messageserver.messages.ExampleMessage;
+import com.awmm.messageserver.messages.GameIdMessage;
+import com.awmm.messageserver.messages.Message;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
@@ -88,10 +91,10 @@ public class ClientController extends TextWebSocketHandler {
     public void handleTextMessage(@NonNull WebSocketSession session, TextMessage message) {
         try {
             String jsonText = message.getPayload();
-            Message clientMessage = mapper.readValue(jsonText, Message.class);
+			ExampleMessage clientMessage = mapper.readValue(jsonText, ExampleMessage.class);
             switch (clientMessage.action().toUpperCase()) {
             	case "START":
-            		handleStartAction(clientMessage);
+            		handleStartAction(session, clientMessage);
             		break;
                 case "LOGIN": // this adds player to board
                     handleLoginAction(session, clientMessage);
@@ -113,12 +116,12 @@ public class ClientController extends TextWebSocketHandler {
                 	
                 	break;
 				case "HOSTGAME":
-					handleHostAction(session, clientMessage);
+					sendGameId(session);
 					break;
 				case "JOINGAME":
 					handleJoinAction(session, clientMessage);
 					break;
-                	
+
                 // Add other actions
                 default:
                     logger.error("Unknown action received: {}", clientMessage.action());
@@ -135,10 +138,11 @@ public class ClientController extends TextWebSocketHandler {
 	 *
 	 * @param clientMessage The message received from the WebSocket client.
 	 */
-	private void handleStartAction(Message clientMessage) {
+	private void handleStartAction(WebSocketSession session, ExampleMessage clientMessage) {
 		gameController.handleStart(clientMessage);
 		broadcastMessage(clientMessage, clientMessage.GAMEID());
 	}
+
 
 	/**
 	 * Handles the "SUGGEST" action received from a WebSocket client.
@@ -148,7 +152,7 @@ public class ClientController extends TextWebSocketHandler {
 	 * @param session The WebSocket session of the client.
 	 * @param clientMessage The message received from the WebSocket client.
 	 */
-	private void handleSuggest(WebSocketSession session, Message clientMessage) {
+	private void handleSuggest(WebSocketSession session, ExampleMessage clientMessage) {
 		gameController.handleSuggest(clientMessage);
 		broadcastMessage(clientMessage, clientMessage.GAMEID());
 		
@@ -162,10 +166,15 @@ public class ClientController extends TextWebSocketHandler {
 	 * @param session The WebSocket session of the client.
 	 * @param clientMessage The message received from the WebSocket client.
 	 */
-	private void handleMoveAction(WebSocketSession session, Message clientMessage) {
+	private void handleMoveAction(WebSocketSession session, ExampleMessage clientMessage) {
 		/*boolean success = */gameController.handleMove(clientMessage);
 		// if (success) { tell everyone} else {tell player move failed and to make another move}
 		broadcastMessage(clientMessage, clientMessage.GAMEID());
+	}
+
+	private void sendGameId(WebSocketSession session) {
+		Message gameIdMessage = new GameIdMessage(session.getId(), "GAMEID");
+		sendMessageToClient(session, gameIdMessage);
 	}
 
 	/**
@@ -183,10 +192,10 @@ public class ClientController extends TextWebSocketHandler {
 		Message response;
 
 		if (success) {
-			response = new Message(gameID, null, "HOSTGAME", null, null, null);
+			response = new ExampleMessage(gameID, null, "HOSTGAME", null, null, null, "example");
 			logger.info("{} successfully created", gameID);
 		} else {
-			response = new Message(null, null, "HOSTGAME", null, null, null);
+			response = new ExampleMessage(null, null, "HOSTGAME", null, null, null, "example");
 		}
 		sendMessageToClient(session, response);
 	}
@@ -199,15 +208,15 @@ public class ClientController extends TextWebSocketHandler {
 	 * @param session The WebSocket session of the client.
 	 * @param clientMessage The message received from the WebSocket client.
 	 */
-	private void handleJoinAction(WebSocketSession session, Message clientMessage) {
+	private void handleJoinAction(WebSocketSession session, ExampleMessage clientMessage) {
 		String gameID = clientMessage.GAMEID();
 		boolean success = gameController.isJoinable(gameID);
 		Message response;
 
 		if (success) {
-			response = new Message(gameID, null, "JOINGAME", null, null, null);
+			response = new ExampleMessage(gameID, null, "JOINGAME", null, null, null, "example");
 		} else {
-			response = new Message(null, null, "JOINGAME", null, null, null);
+			response = new ExampleMessage(null, null, "JOINGAME", null, null, null, "example");
 		}
 		sendMessageToClient(session, response);
 	}
@@ -267,7 +276,7 @@ public class ClientController extends TextWebSocketHandler {
      * @param session The WebSocket session representing the client connection.
      * @param clientMessage The message received from the client.
      */
-    private void handleLoginAction(WebSocketSession session, Message clientMessage) {
+    private void handleLoginAction(WebSocketSession session, ExampleMessage clientMessage) {
     	String gameID = clientMessage.GAMEID();
     	int userID = clientMessage.USERID();
    	
@@ -289,9 +298,9 @@ public class ClientController extends TextWebSocketHandler {
         		success = true;
         	}
         }
-    	
-     	Message successResponseMessage = new Message(gameID, userID, "SUCCESS", null, null, null);
-    	Message failureResponseMessage = new Message(gameID, userID, "FAIL", null, null, null);
+
+		ExampleMessage successResponseMessage = new ExampleMessage(gameID, userID, "SUCCESS", null, null, null, "example");
+		ExampleMessage failureResponseMessage = new ExampleMessage(gameID, userID, "FAIL", null, null, null, "example");
             
         if (success) {
         	gameID2UserID2Session.get(gameID).put(userID, session);
