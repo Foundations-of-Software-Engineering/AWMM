@@ -116,7 +116,7 @@ public class ClientController extends TextWebSocketHandler {
                 	
                 	break;
 				case "HOSTGAME":
-					sendGameId(session);
+					handleHostAction(session);
 					break;
 				case "JOINGAME":
 					handleJoinAction(session, clientMessage);
@@ -172,10 +172,10 @@ public class ClientController extends TextWebSocketHandler {
 		broadcastMessage(clientMessage, clientMessage.GAMEID());
 	}
 
-	private void sendGameId(WebSocketSession session) {
-		Message gameIdMessage = new GameIdMessage(session.getId(), "GAMEID");
-		sendMessageToClient(session, gameIdMessage);
-	}
+//	private void sendGameId(WebSocketSession session) {
+//		Message gameIdMessage = new GameIdMessage(session.getId(), "GAMEID");
+//		sendMessageToClient(session, gameIdMessage);
+//	}
 
 	/**
 	 * Handles the "HOSTGAME" action received from a WebSocket client.
@@ -184,18 +184,17 @@ public class ClientController extends TextWebSocketHandler {
 	 * of the operation.
 	 *
 	 * @param session The WebSocket session of the client.
-	 * @param clientMessage The message received from the WebSocket client.
 	 */
-	private void handleHostAction(WebSocketSession session, Message clientMessage) {
+	private void handleHostAction(WebSocketSession session) {
 		String gameID = UUID.randomUUID().toString().substring(0,8);
 		boolean success = gameController.createBoardState(gameID); // extremely low but non-zero chance of collision
 		Message response;
 
 		if (success) {
-			response = new ExampleMessage(gameID, null, "HOSTGAME", null, null, null, "example");
+			response = new GameIdMessage(gameID, "GAMEID");
 			logger.info("{} successfully created", gameID);
 		} else {
-			response = new ExampleMessage(null, null, "HOSTGAME", null, null, null, "example");
+			response = new GameIdMessage(null, "GAMEID");
 		}
 		sendMessageToClient(session, response);
 	}
@@ -214,9 +213,9 @@ public class ClientController extends TextWebSocketHandler {
 		Message response;
 
 		if (success) {
-			response = new ExampleMessage(gameID, null, "JOINGAME", null, null, null, "example");
+			response = new GameIdMessage(gameID, "GAMEID");
 		} else {
-			response = new ExampleMessage(null, null, "JOINGAME", null, null, null, "example");
+			response = new GameIdMessage(null, "GAMEID");
 		}
 		sendMessageToClient(session, response);
 	}
