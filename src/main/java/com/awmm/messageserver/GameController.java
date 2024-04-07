@@ -1,7 +1,10 @@
 package com.awmm.messageserver;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,12 +31,12 @@ public class GameController {
 
 	private final Logger logger;
 	private static final String[] playerNames = {
-		Board.ProfessorPlumName,
-		Board.MissScarletName,
-		Board. ColMustardName,
-		Board. MrsPeacockName,
-		Board.    MrGreenName,
-		Board.   MrsWhiteName
+		Board.  ProfessorPlumName,
+		Board.    MissScarletName,
+		Board.     ColMustardName,
+		Board.     MrsPeacockName,
+		Board.        MrGreenName,
+		Board.       MrsWhiteName
 	};
 
 	/**
@@ -76,7 +79,7 @@ public class GameController {
 		}
 	}
 
-	public void handleSuggest(Message clientMessage) {
+	public boolean handleSuggest(Message clientMessage) {
 		String     gameId   = clientMessage.GAMEID()  ;
 		int        userId   = clientMessage.USERID()  ;
 		String     suspect  = clientMessage.suspect() ;
@@ -84,16 +87,21 @@ public class GameController {
 		
 		if (!isValid(gameId, userId)) {
             logger.error("Error processing gameId: {} or userId: {}", gameId, userId);
-			return;
 		}
-		
-		if (suspect == null) {
-            logger.error("Suspect is null");
-			return;
+		else if (suspect == null) {
+            logger.error("Suspect should not be null when making suggestion.");
 		}
-		
-		boardStates.get(gameId).handleSuggest(playerNames[userId], suspect);
-
+		else if (weapon == null) {
+			logger.error("Weapon should not be null when making suggestion.");
+		}
+		else if (!cardsController.hasSuggestion(gameId)){			
+			String roomName = boardStates.get(gameId).handleSuggest(playerNames[userId], suspect);
+			if (roomName != null) {				
+				cardsController.setSuggestion(gameId, weapon, suspect, roomName);
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	private boolean isValid(String gameId, int userId) {
@@ -142,14 +150,14 @@ public class GameController {
 		
 	}
 
-	public void setCards(Cards cards) {
-		// TODO Auto-generated method stub
-		Map<String, String> map = cardsController.getCardsMap(cards);
-		String gameID = map.remove("gameID");
-		if (boardStates.containsKey(gameID)) {
-			boardStates.get(gameID).setCards(map);
-		}
-	}
+//	public void setCards(Cards cards) {
+//		// TODO Auto-generated method stub
+//		Map<String, String> map = cardsController.getCardsMap(cards);
+//		String gameID = map.remove("gameID");
+//		if (boardStates.containsKey(gameID)) {
+//			boardStates.get(gameID).setCards(map);
+//		}
+//	}
 
 	public void setPositions(Positions positions) {
 		// TODO Auto-generated method stub

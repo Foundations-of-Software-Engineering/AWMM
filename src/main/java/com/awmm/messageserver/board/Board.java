@@ -11,6 +11,8 @@ import com.awmm.messageserver.cards.Cards;
 import com.awmm.messageserver.cards.CardsController;
 import com.awmm.messageserver.deck.Deck;
 import com.awmm.messageserver.player.Player;
+import com.awmm.messageserver.position.Position;
+import com.awmm.messageserver.position.PositionController;
 
 /**
  * Represents the game board for a Clue-like mystery game.
@@ -29,38 +31,39 @@ public class Board {
 	public final static String      MrsWhiteName =  "Mrs. White"   ;
 
 	// Constants for weapon names
-	public final static String        RopeName = "Rope"       ;
-	public final static String    LeadPipeName = "Lead Pipe"  ;
-	public final static String       KnifeName = "Knife"      ;
-	public final static String      WrenchName = "Wrench"     ;
-	public final static String CandlestickName = "Candlestick";
-	public final static String    RevolverName = "Revolver"   ;
+	public final static String          RopeName = "Rope"       ;
+	public final static String      LeadPipeName = "Lead Pipe"  ;
+	public final static String         KnifeName = "Knife"      ;
+	public final static String        WrenchName = "Wrench"     ;
+	public final static String   CandlestickName = "Candlestick";
+	public final static String      RevolverName = "Revolver"   ;
 
 	// Constants for room names
-	public final static String        StudyName =   "Study"        ;
-	public final static String         HallName =   "Hall"         ;
-	public final static String       LoungeName =   "Lounge"       ;
-	public final static String      LibraryName =   "Library"      ;
-	public final static String BilliardRoomName =   "Billiard Room";
-	public final static String   DiningRoomName =   "Dining Room"  ;
-	public final static String ConservatoryName =   "Conservatory" ;
-	public final static String     BallroomName =   "Ballroom"     ;
-	public final static String      KitchenName =   "Kitchen"      ;
+	public final static String        StudyName  =   "Study"        ;
+	public final static String         HallName  =   "Hall"         ;
+	public final static String       LoungeName  =   "Lounge"       ;
+	public final static String      LibraryName  =   "Library"      ;
+	public final static String BilliardRoomName  =   "Billiard Room";
+	public final static String   DiningRoomName  =   "Dining Room"  ;
+	public final static String ConservatoryName  =   "Conservatory" ;
+	public final static String     BallroomName  =   "Ballroom"     ;
+	public final static String      KitchenName  =   "Kitchen"      ;
 
 	// Constants for directions
-    public static final String Up    = "UP"   ;
-    public static final String Down  = "DOWN" ;
-    public static final String Right = "RIGHT";
-    public static final String Left  = "LEFT" ;
+    public static final String Up       = "UP"      ;
+    public static final String Down     = "DOWN"    ;
+    public static final String Right    = "RIGHT"   ;
+    public static final String Left     = "LEFT"    ;
     public static final String Diagonal = "DIAGONAL";
 	
     private String gameId;
 	private boolean started;
-	private boolean inSuggestion;
+	private boolean suggested;  
 	
 	private ArrayList<Player> players;
 	
 	private final CardsController cardsController;
+	private final PositionController positionController;
 
 	/**
 	 * Inner class representing a player on the board.
@@ -70,7 +73,7 @@ public class Board {
 		private Position position;
 		private BoardPlayer(int id, String gameID, String name) {
 			this.player = new Player(id, gameID, name);
-			this.position = new Position(-1, -1);
+			this.position = positionController.savePosition(gameID, id, -1, -1);
 		}
 	}
 
@@ -104,7 +107,7 @@ public class Board {
 		 * @param name The name of the room.
 		 */
 		RoomEnum(int row, int col, String name) {
-			this.position = new Position(row, col);
+			this.position = new Position("", -1, row, col);
 			this.name = name;
 		}
 	}
@@ -122,69 +125,6 @@ public class Board {
 			Board.RoomEnum.Kitchen      
 	};
 
-	/**
-	 * Inner class representing a position on the board grid.
-	 */
-	static public class Position {
-		/**
-		 * Constructs a Position object with default values (-1, -1).
-		 */
-		Position() {
-			row = -1;
-			col = -1;
-		}
-
-		/**
-		 * Returns the hash code value for this Position object.
-		 * The hash code is computed based on the values of the 'row' and 'col' attributes.
-		 *
-		 * @return The hash code value for this object.
-		 */
-		@Override
-		public int hashCode() {
-			return Objects.hash(col, row);
-		}
-
-		/**
-		 * Indicates whether some other object is "equal to" this one.
-		 * Two Position objects are considered equal if they have the same 'row' and 'col' values.
-		 *
-		 * @param obj The reference object with which to compare.
-		 * @return true if this object is the same as the obj argument; false otherwise.
-		 */
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			Position other = (Position) obj;
-			return col == other.col && row == other.row;
-		}
-
-		/**
-		 * Constructs a Position object with the given row and column indices.
-		 * @param row The row index.
-		 * @param col The column index.
-		 */
-		Position(int row, int col) {
-			this.row = row;
-			this.col = col;
-		}
-
-		/**
-		 * Constructs a Position object by copying another Position object.
-		 * @param position The Position object to copy.
-		 */
-		Position(Position position) {
-			this.row = position.row;
-			this.col = position.col;
-		}
-		private int row;
-		private int col;
-	}
 	
 	private Location[][] grid = new Location[ROW_SIZE][COL_SIZE];
 
@@ -210,13 +150,15 @@ public class Board {
 		mrsWhite      = new BoardPlayer(5, gameId,      MrsWhiteName);
 		
 		this.started = false;
+		this.suggested = false;
 		this.gameId = gameId;
 		this.players = new ArrayList<Player>();
 		this.cardsController = new CardsController();
+		this.positionController = new PositionController();
 		
 		//Rooms
 		for (RoomEnum roomEnum : RoomEnum.values()) {
-			grid[roomEnum.position.row][roomEnum.position.col] = new Room(roomEnum.name); 
+			grid[roomEnum.position.getRow()][roomEnum.position.getCol()] = new Room(roomEnum.name); 
 		}
 		
 		//Hallways
@@ -439,12 +381,6 @@ public class Board {
 		roomSolution = winningCards[2];
 	}
 	
-	public void setCards(Map<String, String> map) {
-		for (String owner : map.keySet()) {
-			getBoardPlayerFromName(map.get(owner)).player.receiveCard(owner);
-		}
-	}
-
 	/**
 	 * Retrieves the BoardPlayer object associated with the given player name.
 	 *
@@ -490,13 +426,15 @@ public class Board {
 	 * @param playerName The name of the suggesting player.
 	 * @param suspect The name of the suggested suspect.
 	 */
-	public boolean handleSuggest(String playerName, String suspect) {
+	public String handleSuggest(String playerName, String suspect) {
 		Location location = getLocation(getBoardPlayerFromName(playerName).position);
 		if (location instanceof Room) {			
-			movePlayer(suspect, ((Room) location).getName());
-			return true;
+			Room room = (Room) location;
+			movePlayer(suspect, room.getName());
+			suggested = true;
+			return room.getName();
 		}
-		return false;
+		return null;
 	}
 
 	/**

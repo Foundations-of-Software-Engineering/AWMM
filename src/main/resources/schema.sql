@@ -43,22 +43,31 @@ create table if not exists cards
     primary key (gameid)
 );
 
-create table if not exists positions
+create table if not exists position
 (
-	    gameid varchar(255) not null,
-	
-  	   plumrow varchar(255),
-    scarletrow varchar(255),
-    mustardrow varchar(255),
-    peacockrow varchar(255),
-      greenrow varchar(255),
-      whiterow varchar(255),
-	   plumcol varchar(255),
-    scarletcol varchar(255),
-    mustardcol varchar(255),
-    peacockcol varchar(255),
-      greencol varchar(255),
-      whitecol varchar(255),
-      
-      primary key (gameid)
+	gameid varchar(255) not null,
+	userid smallint not null,
+	grid_row smallint not null,
+	grid_col smallint not null,
+	constraint positionid primary key (gameid, userid)
 );
+
+--create table if not exists positions
+--(
+--	    gameid varchar(255) not null,
+--	
+--  	   plumrow varchar(255),
+--    scarletrow varchar(255),
+--    mustardrow varchar(255),
+--    peacockrow varchar(255),
+--      greenrow varchar(255),
+--      whiterow varchar(255),
+--	   plumcol varchar(255),
+--    scarletcol varchar(255),
+--    mustardcol varchar(255),
+--    peacockcol varchar(255),
+--      greencol varchar(255),
+--      whitecol varchar(255),
+--      
+--      primary key (gameid)
+--);

@@ -1,5 +1,7 @@
 package com.awmm.messageserver.cards;
 
+import com.awmm.messageserver.board.Board;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -11,37 +13,36 @@ public class Cards {
 	@Column(name = "GAMEID")
 	String gameID;
 	
-	// Suspects
-	String plum        ;
-	String scarlet     ;
-	String mustard     ;
-	String peacock     ;
-	String green       ;
-	String white       ;
+	private String plum        ;
+	private String scarlet     ;
+	private String mustard     ;
+	private String peacock     ;
+	private String green       ;
+	private String white       ;
 	// Weapons
-	String rope        ;
-	String pipe        ;
-	String knife       ;
-	String wrench      ;
-	String candlestick ;
-	String revolver    ;
+	private String rope        ;
+	private String pipe        ;
+	private String knife       ;
+	private String wrench      ;
+	private String candlestick ;
+	private String revolver    ;
 	// Locations
-	String study       ;
-	String hall        ;
-	String lounge      ;
-	String library     ;
-	String billiard    ;
-	String dining      ;
-	String conservatory;
-	String ballroom    ;
-	String kitchen     ;
+	private String study       ;
+	private String hall        ;
+	private String lounge      ;
+	private String library     ;
+	private String billiard    ;
+	private String dining      ;
+	private String conservatory;
+	private String ballroom    ;
+	private String kitchen     ;
 	// Suggestions
 	@Column(name = "SUGGESTED_SUSPECT")
-	String suggestedSuspect;
+	private String suggestedSuspect;
 	@Column(name = "SUGGESTED_WEAPON")
-	String suggestedWeapon ;
+	private String suggestedWeapon ;
 	@Column(name = "SUGGESTED_ROOM")
-	String suggestedRoom   ;
+	private String suggestedRoom   ;
 	
 	public Cards() {
 		super();
@@ -287,7 +288,62 @@ public class Cards {
 				+ ", knife=" + knife + ", wrench=" + wrench + ", candlestick=" + candlestick + ", revolver=" + revolver
 				+ ", study=" + study + ", hall=" + hall + ", lounge=" + lounge + ", library=" + library + ", billiard="
 				+ billiard + ", dining=" + dining + ", conservatory=" + conservatory + ", ballroom=" + ballroom
-				+ ", kitchen=" + kitchen + "]";
+				+ ", kitchen=" + kitchen + ", suggestedSuspect=" + suggestedSuspect + ", suggestedWeapon="
+				+ suggestedWeapon + ", suggestedRoom=" + suggestedRoom + "]";
+	}
+	
+	public void set(String player, String card) {
+		switch (card) {
+		case Board.ProfessorPlumName: { setPlum(player); return;}
+		case Board.  MissScarletName: { setScarlet(player); return; }
+		case Board.   ColMustardName: { setMustard(player); return; }
+		case Board.   MrsPeacockName: { setPeacock(player); return; }
+		case Board.      MrGreenName: { setGreen(player); return; }
+		case Board.     MrsWhiteName: { setWhite(player); return; }
+		case Board.         RopeName: { setRope(player); return; }
+		case Board.     LeadPipeName: { setPipe(player); return; }
+		case Board.        KnifeName: { setKnife(player); return; }
+		case Board.       WrenchName: { setWrench(player); return; }
+		case Board.  CandlestickName: { setCandlestick(player); return; }
+		case Board.     RevolverName: { setRevolver(player); return; }
+		case Board.        StudyName: { setStudy(player); return; }
+		case Board.         HallName: { setHall(player); return; }
+		case Board.       LoungeName: { setLounge(player); return; }
+		case Board.      LibraryName: { setLibrary(player); return; }
+		case Board. BilliardRoomName: { setBilliard(player); return; }
+		case Board.   DiningRoomName: { setDining(player); return; }
+		case Board. ConservatoryName: { setConservatory(player); return; }
+		case Board.     BallroomName: { setBallroom(player); return; }
+		case Board.      KitchenName: { setKitchen(player); return; }
+		default: return;
+		}
+	}
+	
+	public String get(String card) {
+		switch(card) {
+		case Board.ProfessorPlumName: { return getPlum();        }
+		case Board.  MissScarletName: { return getScarlet();     }
+		case Board.   ColMustardName: { return getMustard();     }
+		case Board.   MrsPeacockName: { return getPeacock();     }
+		case Board.      MrGreenName: { return getGreen();       }
+		case Board.     MrsWhiteName: { return getWhite();       }
+	    case Board.         RopeName: { return getRope();        }
+	    case Board.     LeadPipeName: { return getPipe();        }
+	    case Board.        KnifeName: { return getKnife();       }
+	    case Board.       WrenchName: { return getWrench();      }
+	    case Board.  CandlestickName: { return getCandlestick(); }
+	    case Board.     RevolverName: { return getRevolver();    }
+	    case Board.	       StudyName: { return getStudy();       } 
+	    case Board.	        HallName: { return getHall();        } 
+	    case Board.	      LoungeName: { return getLounge();      } 
+	    case Board.	     LibraryName: { return getLibrary();     } 
+	    case Board.	BilliardRoomName: { return getBilliard();    } 
+	    case Board.	  DiningRoomName: { return getDining();      } 
+	    case Board.	ConservatoryName: { return getConservatory();} 
+	    case Board.	    BallroomName: { return getBallroom();    } 
+	    case Board.	     KitchenName: { return getKitchen();     } 
+		default: return null;
+		}
 	}
 	
 }
