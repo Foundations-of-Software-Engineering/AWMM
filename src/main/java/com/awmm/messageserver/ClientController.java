@@ -109,7 +109,8 @@ public class ClientController extends TextWebSocketHandler {
                 	break;
                 case "ACCUSE":
                 	// TODO
-                	break;
+					handleAccuse(clientMessage);
+					break;
                 case "DISPROVE":
                 	// TODO
                 	// Send Message to a Player to Disprove if it's his/her turn
@@ -161,6 +162,19 @@ public class ClientController extends TextWebSocketHandler {
 	}
 
 	/**
+	 * Handles the "ACCUSE" action received from a WebSocket client.
+	 * This method processes the accusation made by a player in the game.
+	 * After handling the accusation action, it broadcasts a message to all clients in the same game.
+	 *
+	 * @param clientMessage The message received from the WebSocket client.
+	 */
+	private void handleAccuse(ExampleMessage clientMessage) {
+		gameController.handleAccuse(clientMessage);
+		broadcastMessage(clientMessage, clientMessage.GAMEID());
+
+	}
+
+	/**
 	 * Handles the "MOVE" action received from a WebSocket client.
 	 * This method processes the move made by a player in the game.
 	 * After handling the move action, it broadcasts a message to all clients in the same game.
@@ -174,10 +188,6 @@ public class ClientController extends TextWebSocketHandler {
 		broadcastMessage(clientMessage, clientMessage.GAMEID());
 	}
 
-//	private void sendGameId(WebSocketSession session) {
-//		Message gameIdMessage = new GameIdMessage(session.getId(), "GAMEID");
-//		sendMessageToClient(session, gameIdMessage);
-//	}
 
 	/**
 	 * Handles the "HOSTGAME" action received from a WebSocket client.

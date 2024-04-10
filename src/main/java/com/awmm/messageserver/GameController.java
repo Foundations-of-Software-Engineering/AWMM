@@ -42,6 +42,8 @@ public class GameController {
 		Board.       MrsWhiteName
 	};
 
+	int losers = 0;
+
 	/**
 	 * Constructor for GameController.
 	 */
@@ -106,6 +108,54 @@ public class GameController {
 			}
 		}
 		return false;
+	}
+
+	public void handleAccuse(ExampleMessage clientMessage) {
+		Board board = boardStates.get(clientMessage.GAMEID());
+
+		String     gameId   = clientMessage.GAMEID()  ;
+		int        userId   = clientMessage.USERID()  ;
+		String     suspect  = clientMessage.suspect() ;
+		String     weapon  = clientMessage.weapon() ;
+		String     location  = clientMessage.location() ;
+
+		if (!isValid(gameId, userId)) {
+			logger.error("Error processing gameId: {} or userId: {}", gameId, userId);
+			return;
+		}
+
+		if (suspect == null) {
+			logger.error("Suspect is null");
+			return;
+		}
+
+		if (weapon == null) {
+			logger.error("Weapon is null");
+			return;
+		}
+
+		if (location == null) {
+			logger.error("Location is null");
+			return;
+		}
+
+		if (clientMessage.location() == board.getWinningCards()[0]
+			&& clientMessage.weapon() == board.getWinningCards()[1]
+			&& clientMessage.suspect() == board.getWinningCards()[2]) {
+			logger.info("Accusation matches winning cards. Game over.");
+			board.setStarted(false);
+		} else {
+			// invalid integer will prevent user from making future decisions
+			userId = 999999;
+
+			losers += 1;
+			if (losers == board.getPlayers().size()) {
+				logger.info("Every accuser was incorrect. Game over");
+				board.setStarted(false);
+			}
+		}
+
+
 	}
 	
 	private boolean isValid(String gameId, int userId) {
