@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.awmm.messageserver.messages.ExampleMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -66,7 +67,7 @@ public class GameController {
 	}
 	
 	// boolean 
-	public void handleMove(Message clientMessage) {
+	public void handleMove(ExampleMessage clientMessage) {
 		String gameID   = clientMessage.GAMEID();
 		int    userID   = clientMessage.USERID();
 		String location = clientMessage.location();
@@ -79,7 +80,8 @@ public class GameController {
 		}
 	}
 
-	public boolean handleSuggest(Message clientMessage) {
+
+	public boolean handleSuggest(ExampleMessage clientMessage) {
 		String     gameId   = clientMessage.GAMEID()  ;
 		int        userId   = clientMessage.USERID()  ;
 		String     suspect  = clientMessage.suspect() ;
@@ -140,7 +142,7 @@ public class GameController {
 	// TODO
 	// if called before handleLogin it will fail
 	// could return boolean to denote failure or success
-	public void handleStart(Message clientMessage) {
+	public void handleStart(ExampleMessage clientMessage) {
 		// TODO Auto-generated method stub
 		String gameID = clientMessage.GAMEID();
 		Board board = boardStates.get(gameID);

@@ -7,6 +7,7 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
+import com.awmm.messageserver.messages.ExampleMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.http.HttpHeaders;
@@ -18,7 +19,7 @@ import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import com.awmm.messageserver.ClientController;
-import com.awmm.messageserver.Message;
+import com.awmm.messageserver.messages.Message;
 import com.awmm.messageserver.board.Board;
 import com.awmm.messageserver.cards.Cards;
 import com.awmm.messageserver.cards.CardsRepository;
@@ -31,34 +32,34 @@ import jakarta.transaction.Transactional;
 @Component
 public class PlayerCommandLineRunner implements CommandLineRunner {
 
-//	@Autowired 
+//	@Autowired
 //	private PlayerJdbcRepository repository;
 
 //	@Autowired
 //	private PlayerJpaRepository repository;
-	
-	@Autowired 
+
+	@Autowired
 	private CardsRepository cardsRepository;
-	
-	@Autowired 
+
+	@Autowired
 	private PositionsRepository positionsRepository;
-	
+
     private final ObjectMapper mapper = new ObjectMapper();
 
 	@Override
 	@Transactional
 	public void run(String... args) throws Exception {
-		
+
 		System.out.println("Hello from Player Command Line Runner");
 
 		class TestWebSocketSession implements WebSocketSession {
-			
+
 			String gameID;
-			
+
 			public String getGameID() {
 				return gameID;
 			}
-			
+
 			@Override
 			public String getId() {
 				// TODO Auto-generated method stub
@@ -110,7 +111,7 @@ public class PlayerCommandLineRunner implements CommandLineRunner {
 			@Override
 			public void setTextMessageSizeLimit(int messageSizeLimit) {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
@@ -122,7 +123,7 @@ public class PlayerCommandLineRunner implements CommandLineRunner {
 			@Override
 			public void setBinaryMessageSizeLimit(int messageSizeLimit) {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
@@ -142,7 +143,7 @@ public class PlayerCommandLineRunner implements CommandLineRunner {
 				// TODO Auto-generated method stub
 				String jsonText = (String) message.getPayload();
 				System.out.println("jsonText = " + jsonText);
-				Message msg = mapper.readValue(jsonText, Message.class);
+				ExampleMessage msg = mapper.readValue(jsonText, ExampleMessage.class);
 				gameID = msg.GAMEID();
 			}
 
@@ -155,41 +156,41 @@ public class PlayerCommandLineRunner implements CommandLineRunner {
 			@Override
 			public void close() throws IOException {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void close(CloseStatus status) throws IOException {
 				// TODO Auto-generated method stub
-				
+
 			}
-			
+
 		}
-		
-		
+
+
 		TestWebSocketSession session = new TestWebSocketSession();
 		ClientController clientController = new ClientController();
-		
+
 		// Test LOGIN
-		Message newUserMessage = new Message(null, 0, "LOGIN", null, null, null);
+		Message newUserMessage = new ExampleMessage(null, 0, "LOGIN", null, null, null, "example");
 		String jsonMessage = clientController.convertToJson(newUserMessage);
 		TextMessage textMessage = new TextMessage(jsonMessage);
 		clientController.handleTextMessage(session, textMessage);
 		String gameID = session.getGameID();
-		newUserMessage = new Message(gameID, 1, "LOGIN", null, null, null);
+		newUserMessage = new ExampleMessage(gameID, 1, "LOGIN", null, null, null, "example");
 		textMessage = new TextMessage(clientController.convertToJson(newUserMessage));
 		clientController.handleTextMessage(session, textMessage);
 		System.out.println("gameState for gameID " + gameID + " is\n" + clientController.getGameState(gameID));
-		
+
 		// Test MOVE
-		Message moveMessage = new Message(gameID, 0, "MOVE", "RIGHT", null, null);
+		Message moveMessage = new ExampleMessage(gameID, 0, "MOVE", "RIGHT", null, null, "example");
 		textMessage = new TextMessage(clientController.convertToJson(moveMessage));
 		clientController.handleTextMessage(session, textMessage);
-		moveMessage = new Message(gameID, 1, "MOVE", "DOWN", null, null);
+		moveMessage = new ExampleMessage(gameID, 1, "MOVE", "DOWN", null, null, "example");
 		textMessage = new TextMessage(clientController.convertToJson(moveMessage));
 		clientController.handleTextMessage(session, textMessage);
 		System.out.println("gameState for gameID " + gameID + " is\n" + clientController.getGameState(gameID));
-		
+
 		// Test Cards Database
 		System.out.println("Test Cards Database");
 		System.out.println("Game ID = " + gameID);
@@ -204,12 +205,13 @@ public class PlayerCommandLineRunner implements CommandLineRunner {
 //			clientController.getGameController().setCards(cards);
 		}
 		System.out.println(clientController.getGameState(gameID));
-		
+
 		// Test Positions Database
 		System.out.println("Test Positions Database");
 		System.out.println("Game ID = " + gameID);
-		
-		positionsRepository.insert(new Positions(gameID, 
+
+
+		positionsRepository.insert(new Positions(gameID,
 				2, 2, // plum
 				1, 1, // scarlet
 				3, 3, // mustard
@@ -226,14 +228,14 @@ public class PlayerCommandLineRunner implements CommandLineRunner {
 
 		clientController.getGameController().setPositions(positions);
 		System.out.println(clientController.getGameState(gameID));
-		
-		
+
+
 		// Test START
-		Message startMessage = new Message(gameID, 0, "START", null, null, null);
+		Message startMessage = new ExampleMessage(gameID, 0, "START", null, null, null, "example");
 		textMessage = new TextMessage(clientController.convertToJson(startMessage));
 		clientController.handleTextMessage(session, textMessage);
 		System.out.println("gameState for gameID " + gameID + " is\n" + clientController.getGameState(gameID));
-		
+
 		/**
 		 * Create a new Board and move every player.
 		 * Because it is the first time each player is moving, they will move to their
@@ -245,10 +247,10 @@ public class PlayerCommandLineRunner implements CommandLineRunner {
 		map.movePlayer(Board.    ColMustardName, Board. Down);
 		map.movePlayer(Board.    MrsPeacockName, Board. Down);
 		map.movePlayer(Board.       MrGreenName, Board. Down);
-		map.movePlayer(Board.      MrsWhiteName, Board. Down); 	
-		
+		map.movePlayer(Board.      MrsWhiteName, Board. Down);
+
 		System.out.println(map);
-		
+
 		map.movePlayer(Board.ProfessorPlumName, Board . Up      );
 		map.movePlayer(Board.  MissScarletName, Board . Right   );
 		map.movePlayer(Board.   ColMustardName, Board . Down    );
@@ -256,24 +258,24 @@ public class PlayerCommandLineRunner implements CommandLineRunner {
 		map.movePlayer(Board.   MrsPeacockName, Board . Diagonal);
 		map.movePlayer(Board.      MrGreenName, Board . Left    );
 		map.movePlayer(Board.     MrsWhiteName, Board.BilliardRoomName);
-	
-		System.out.println(map);
-		
 
-		
-		
-		
+		System.out.println(map);
+
+
+
+
+
 //		repository.insert(new Player(1l, 1l, "Miss Scarlet", new Room()));
 //		repository.insert(new Player(2l, 1l, "Colonel Mustard", "Study"));
 //		repository.insert(new Player(3l, 1l, "Chef White", "Dining Room"));
 //		repository.insert(new Player(4l, 1l, "Reverend Green", "Game Room"));
-		
+
 //		System.out.println(repository.findById(2l));
 //		System.out.println(repository.findById(3l));
-		
-		
-		
-		
+
+
+
+
 
 //		final int port = 8888;
 //		final int backlog = 4;
@@ -298,7 +300,7 @@ public class PlayerCommandLineRunner implements CommandLineRunner {
 //			}
 //		}
 	}
-	
-	
-	
+
+
+
 }
