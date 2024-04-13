@@ -1,6 +1,7 @@
 package com.awmm.messageserver;
 
-import com.awmm.messageserver.messages.ConfirmStartMessage;
+import com.awmm.messageserver.messages.*;
+
 import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
@@ -16,9 +17,6 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import com.awmm.messageserver.messages.ExampleMessage;
-import com.awmm.messageserver.messages.GameIdMessage;
-import com.awmm.messageserver.messages.Message;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -110,7 +108,7 @@ public class ClientController extends TextWebSocketHandler {
                 	break;
                 case "ACCUSE":
                 	// TODO
-					handleAccuse(clientMessage);
+					handleAccuse(session, clientMessage);
 					break;
                 case "DISPROVE":
                 	// TODO
@@ -171,8 +169,12 @@ public class ClientController extends TextWebSocketHandler {
 	 *
 	 * @param clientMessage The message received from the WebSocket client.
 	 */
-	private void handleAccuse(ExampleMessage clientMessage) {
-		gameController.handleAccuse(clientMessage);
+	private void handleAccuse(WebSocketSession session, ExampleMessage clientMessage) {
+		if (gameController.handleAccuse(clientMessage)) {
+
+		} else {
+			sendMessageToClient(session, new AccuseFailMessage("accusefail"));
+		}
 		broadcastMessage(clientMessage, clientMessage.GAMEID());
 
 	}

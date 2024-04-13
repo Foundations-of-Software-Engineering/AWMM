@@ -85,7 +85,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 startButtonContainer.style.display = 'block'; // Safe to access `style` because we checked if it's not null
             } else {
                 console.error('Failed to find the startButtonContainer element.');
-            }        }
+            }
+            if (message.action === 'accusefail') {
+                form.style.display = 'none';
+            }
+        }
     });
 
     form.addEventListener("submit", async (event) => {
