@@ -1,4 +1,3 @@
-import { start } from "repl";
 import { sendMessage, startGame } from "./sendMessage.js";
 import { wsManager } from './websocketManager.js';
 
@@ -37,6 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let selectedImageValue: number | null = null; // Variable to store the selected image value
     const messageBox = document.getElementById("message-box")!;
     const startButton = document.getElementById('startButton') as HTMLInputElement;
+    const startButtonContainer = document.getElementById('startButtonContainer');
 
     startButton.addEventListener("click", async () => {
         try {
@@ -52,8 +52,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    startButton.style.display = 'none'
-    form.style.display = 'none'; // Initially hide the form
+    if (startButtonContainer) {
+        startButtonContainer.style.display = 'block'; // Safe to access `style` because we checked if it's not null
+    } else {
+        console.error('Failed to find the startButtonContainer element.');
+    }    form.style.display = 'none'; // Initially hide the form
 
     // Add event listeners to each selectable image
     selectableImages.forEach(image => {
@@ -78,8 +81,11 @@ document.addEventListener("DOMContentLoaded", () => {
             const characterName = characterNames[message.USERID];
             console.log(`${characterName} has joined the game.`)
             messageBox.innerHTML += `${characterName} has joined the game.<br>`;
-            startButton.style.display = 'block';
-        }
+            if (startButtonContainer) {
+                startButtonContainer.style.display = 'block'; // Safe to access `style` because we checked if it's not null
+            } else {
+                console.error('Failed to find the startButtonContainer element.');
+            }        }
     });
 
     form.addEventListener("submit", async (event) => {
