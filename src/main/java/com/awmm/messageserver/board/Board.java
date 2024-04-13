@@ -61,13 +61,15 @@ public class Board {
 	
     private String gameId;
 	private boolean started;
-	private boolean suggested;  
+	private boolean suggested;
 	
 	private ArrayList<String> players;
 	
 	private CardsController cardsController;
-	
+
 	private PositionController positionController;
+
+	private String[] winningCards;
 
 	/**
 	 * Inner class representing a player on the board.
@@ -148,20 +150,20 @@ public class Board {
 	public Board(String gameId, PositionController positionController, CardsController cardsController) {
 		super();
 
-		this.cardsController = cardsController;
+		this.cardsController = new CardsController();
 		this.started = false;
 		this.suggested = false;
 		this.gameId = gameId;
 		this.players = new ArrayList<>();
 		this.positionController = positionController;
-		
+
 		missScarlet   = new BoardPlayer(ScarletUserID, gameId,   MissScarletName);
 		colMustard    = new BoardPlayer(MustardUserID, gameId,    ColMustardName);
 		mrsWhite      = new BoardPlayer(WhiteUserID  , gameId,      MrsWhiteName);
 		mrGreen       = new BoardPlayer(GreenUserID  , gameId,       MrGreenName);
 		mrsPeacock    = new BoardPlayer(PeacockUserID, gameId,    MrsPeacockName);
 		professorPlum = new BoardPlayer(PlumUserID   , gameId, ProfessorPlumName);
-		
+
 		//Rooms
 		for (RoomEnum roomEnum : RoomEnum.values()) {
 			grid[roomEnum.position.getRow()][roomEnum.position.getCol()] = new Room(roomEnum.name); 
@@ -388,6 +390,7 @@ public class Board {
 
 	/**
 	 * Starts the game by dealing cards to players and setting the solution cards.
+	 * @return
 	 */
 	public void start() {
 		started = true; // prevents people from joining
@@ -474,5 +477,10 @@ public class Board {
 	public boolean getStarted(){
 		return started;
 	}
-	
-}
+
+
+	public void setStarted(boolean started) {
+		this.started = started;
+	}
+
+	}
