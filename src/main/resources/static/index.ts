@@ -15,7 +15,7 @@ function redirectToPageIfCookieExists() {
         if (checkCookieExists() || tries > maxTries) {
             clearInterval(intervalId);
             if (checkCookieExists()) {
-                window.location.href = 'game.html'
+                OpenNewTab("game.html");
             } else {
                 console.error('Cookie was not set within the expected time.');
             }
@@ -34,8 +34,13 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Message received:", JSON.stringify(message))
         if (message.type === 'GAMEID') {
             const gameId = message.GAMEID
-            console.log("?????", gameId);
-            document.cookie = `gameId=${gameId}; path=/; max-age=86400`;
+            if (gameId != null){
+                console.log("?????", gameId);
+                document.cookie = `gameId=${gameId}; path=/; max-age=86400`;
+            }
+            else {
+                console.log("Could not join game.")
+            }
         }
     });
 
@@ -50,15 +55,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listener for "Quick Join" button
     document.getElementById('quickJoin')?.addEventListener('click', () => {
         wsManager.sendMessage({ action: 'quickJoin' });
+        redirectToPageIfCookieExists();
+
     });
 
     // Event listener for "Join Private Game" button
     document.getElementById('joinPrivateGame')?.addEventListener('click', () => {
         const gameId = (document.getElementById('gameIdInput') as HTMLInputElement).value;
         if (gameId) {
-            wsManager.sendMessage({ action: 'joinPrivateGame', gameId });
+            wsManager.sendMessage({ action: 'JOINGAME', GAMEID: gameId });
+            redirectToPageIfCookieExists();
         } else {
             console.error('Game ID is required for joining a private game.');
         }
     });
 });
+
+function OpenNewTab(url: string) {
+    window.open(url, "_blank");
+}

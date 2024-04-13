@@ -139,7 +139,6 @@ public class GameController {
 		if (board != null) {
 			board.start();
 		}
-		
 	}
 
 	public void setCards(Cards cards) {
