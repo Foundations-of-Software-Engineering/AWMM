@@ -10,12 +10,20 @@ const characterNames: {[key: number]: string } = {
     5: "Professor Plum"
 }
 
-function showCookies() {
-    const cookieValue = document.cookie.split("; ").find((row) => row.startsWith("gameId"))?.split("=")[1];
-    const output: HTMLElement | null = document.getElementById("cookie-value");
-    console.log("TEST", cookieValue);
-    if (output)
-        output.textContent = `>${cookieValue}`;
+// Function to get the value of a specific cookie
+function getCookieValue(cookieName: string): string | undefined {
+    const cookie = document.cookie.split("; ").find((row) => row.startsWith(cookieName));
+    return cookie ? cookie.split("=")[1] : undefined;
+}
+
+function sendLoginMessage(){
+    const GAMEID = <string>getCookieValue('gameId');
+    const USERID = parseInt(<string>getCookieValue('userId'));
+    try {
+        wsManager.sendMessage({GAMEID: GAMEID, USERID: USERID, action: "LOGIN"})
+    } catch (error) {
+        console.error("Error sending login message:", error);
+    }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -36,6 +44,9 @@ document.addEventListener("DOMContentLoaded", () => {
             // Store the selected image value in the variable
             selectedImageValue = parseInt(image.getAttribute('data-image')!);
             document.cookie = `userId=${selectedImageValue}; path=/; max-age=86400`;
+
+            // Send login message with corresponding userid
+            sendLoginMessage();
 
             imageSelection.style.display = 'none'; // Hide the image selection
             mainContent.style.display = 'block'; // Show the main content
@@ -62,13 +73,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const location = (document.getElementById('location') as HTMLInputElement).value;
         const weapon = (document.getElementById('weapon') as HTMLInputElement).value;
         const suspect = (document.getElementById('suspect') as HTMLInputElement).value;
-
-        const cookiebtn: HTMLElement | null = document.getElementById("show-cookie-btn");
-        if (cookiebtn) {
-            cookiebtn.addEventListener("click", showCookies)
-        } else {
-            console.error("Button with id 'show-cookie-btn' not found.");
-        }
 
         try {
             const message = await sendMessage({ GAMEID, USERID, action, location, weapon, suspect });
