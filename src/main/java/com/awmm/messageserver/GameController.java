@@ -23,12 +23,14 @@ public class GameController {
 	// gameId to board state
 	private final HashMap<String, Board> boardStates;
 	
-	private final CardsController cardsController;
+//	private final CardsController cardsController;
 //	private final PositionsController positionsController;
 	
 	
 	@Autowired
 	private PositionController positionController;
+	@Autowired
+	private CardsController cardsController;
 
 	private final Logger logger;
 	private static final String[] playerNames = {
@@ -46,7 +48,7 @@ public class GameController {
 	public GameController() {
 		this.boardStates = new HashMap<>();
 		this.logger = LoggerFactory.getLogger(GameController.class);
-		this.cardsController = new CardsController();
+//		this.cardsController = new CardsController();
 //		this.positionsController = new PositionsController();
 	}
 
@@ -61,7 +63,7 @@ public class GameController {
 			return false;
 		}
 		else {
-			boardStates.put(gameID, new Board(gameID, positionController));
+			boardStates.put(gameID, new Board(gameID, positionController, cardsController));
 			return true;
 		}
 	}
