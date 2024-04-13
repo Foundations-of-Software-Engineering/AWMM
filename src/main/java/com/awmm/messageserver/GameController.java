@@ -1,17 +1,14 @@
 package com.awmm.messageserver;
 
 import java.util.HashMap;
-import java.util.Map;
 
-import com.awmm.messageserver.messages.ExampleMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 
 import com.awmm.messageserver.board.Board;
-import com.awmm.messageserver.cards.Cards;
 import com.awmm.messageserver.cards.CardsController;
-import com.awmm.messageserver.positions.Positions;
+import com.awmm.messageserver.messages.ExampleMessage;
 import com.awmm.messageserver.positions.PositionsController;
 
 /**
@@ -29,12 +26,12 @@ public class GameController {
 
 	private final Logger logger;
 	private static final String[] playerNames = {
-		Board.ProfessorPlumName,
-		Board.MissScarletName,
-		Board. ColMustardName,
-		Board. MrsPeacockName,
-		Board.    MrGreenName,
-		Board.   MrsWhiteName
+		Board.    MissScarletName,
+		Board.  ProfessorPlumName,
+		Board.     ColMustardName,
+		Board.     MrsPeacockName,
+		Board.        MrGreenName,
+		Board.       MrsWhiteName
 	};
 
 	/**
@@ -77,23 +74,30 @@ public class GameController {
 		}
 	}
 
-	public void handleSuggest(ExampleMessage clientMessage) {
+
+	public boolean handleSuggest(ExampleMessage clientMessage) {
 		String     gameId   = clientMessage.GAMEID()  ;
 		int        userId   = clientMessage.USERID()  ;
 		String     suspect  = clientMessage.suspect() ;
+		String     weapon   = clientMessage.weapon()  ;
 		
 		if (!isValid(gameId, userId)) {
             logger.error("Error processing gameId: {} or userId: {}", gameId, userId);
-			return;
 		}
-		
-		if (suspect == null) {
-            logger.error("Suspect is null");
-			return;
+		else if (suspect == null) {
+            logger.error("Suspect should not be null when making suggestion.");
 		}
-		
-		boardStates.get(gameId).handleSuggest(playerNames[userId], suspect);
-
+		else if (weapon == null) {
+			logger.error("Weapon should not be null when making suggestion.");
+		}
+		else if (!cardsController.hasSuggestion(gameId)){			
+			String roomName = boardStates.get(gameId).handleSuggest(playerNames[userId], suspect);
+			if (roomName != null) {				
+				cardsController.setSuggestion(gameId, weapon, suspect, roomName);
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	private boolean isValid(String gameId, int userId) {
@@ -141,23 +145,27 @@ public class GameController {
 		}
 	}
 
-	public void setCards(Cards cards) {
-		// TODO Auto-generated method stub
-		Map<String, String> map = cardsController.getCardsMap(cards);
-		String gameID = map.remove("gameID");
-		if (boardStates.containsKey(gameID)) {
-			boardStates.get(gameID).setCards(map);
-		}
-	}
+//	public void setCards(Cards cards) {
+//		// TODO Auto-generated method stub
+//		Map<String, String> map = cardsController.getCardsMap(cards);
+//		String gameID = map.remove("gameID");
+//		if (boardStates.containsKey(gameID)) {
+//			boardStates.get(gameID).setCards(map);
+//		}
+//	}
 
-	public void setPositions(Positions positions) {
-		// TODO Auto-generated method stub
-		Map<String, Integer[]> map = positionsController.getPositionsMap(positions);
-		String gameID = positions.getGameID();
-		if (boardStates.containsKey(gameID)) {
-			boardStates.get(gameID).setPositions(map);
-		}
-		
+//	public void setPositions(Positions positions) {
+//		// TODO Auto-generated method stub
+//		Map<String, Integer[]> map = positionsController.getPositionsMap(positions);
+//		String gameID = positions.getGameID();
+//		if (boardStates.containsKey(gameID)) {
+//			boardStates.get(gameID).setPositions(map);
+//		}
+//		
+//	}
+	
+	public void addPlayer(String gameID, int userID) {
+		boardStates.get(gameID).addPlayer(playerNames[userID]);
 	}
     
 }

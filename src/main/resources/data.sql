@@ -21,7 +21,10 @@ billiard    ,
 dining      ,
 conservatory,
 ballroom    ,
-kitchen     )
+kitchen     ,
+suggested_suspect,
+suggested_weapon ,
+suggested_room   )
 values (
 --0,
 '0', 
@@ -45,5 +48,8 @@ NULL,
 'Mrs. White'   ,
 NULL,
 'Mrs. White'   ,
-'Mrs. White'   
+'Mrs. White'   ,
+NULL,
+NULL,
+NULL
 );

@@ -1,27 +1,131 @@
 package com.awmm.messageserver.cards;
 
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.Random;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.awmm.messageserver.board.Board;
+
+@Component
 public class CardsController {
-	public Map<String, String> getCardsMap(Cards cards) {
-		HashMap<String, String> map = new HashMap<>();
-		
-		for (Field field : Cards.class.getDeclaredFields()) {
-		    field.setAccessible(true);
-		    if (field.getType().equals(String.class)){
-		        try {
-					map.put(field.getName(), (String) field.get(cards));
-				} catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-		    }
-		}
-		return map;
+	
+	final private static String[] cardsArray = {
+	//	 6 Suspects
+	Board.ProfessorPlumName,
+	Board.  MissScarletName,
+	Board.   ColMustardName,
+	Board.   MrsPeacockName,
+	Board.      MrGreenName,
+	Board.     MrsWhiteName,
+	// 6 Weapons
+	Board.       RopeName,
+	Board.   LeadPipeName,
+	Board.      KnifeName,
+	Board.     WrenchName,
+	Board.CandlestickName,
+	Board.   RevolverName,
+	// 9 Rooms
+	Board.       StudyName,
+	Board.        HallName,
+	Board.      LoungeName,
+	Board.     LibraryName,
+	Board.BilliardRoomName,
+	Board.  DiningRoomName,
+	Board.ConservatoryName,
+	Board.    BallroomName,
+	Board.     KitchenName,
+	// 6 + 6 + 9 - 3 = 18
+	};
+
+	public CardsRepository getCardsRepository() {
+		return repository;
 	}
+
+	@Autowired
+	private CardsRepository repository;
+	
+	public String getOwnerOf(String gameID, String card) {
+		Optional<Cards> opt = repository.findById(gameID);
+		if (opt.isPresent()) {
+			opt.get().get(card);
+		}
+		return null;
+	}
+	
+	public boolean hasSuggestion(String gameID) {
+		boolean ret = false;
+		Optional<Cards> opt = repository.findById(gameID);
+		if (opt.isPresent()) {
+			Cards cards = opt.get();
+			ret = cards.getSuggestedRoom() == null && cards.getSuggestedSuspect() == null && cards.getSuggestedWeapon() == null;
+		}
+		return ret;
+	}
+	
+	public boolean setSuggestion(String gameID, String weapon, String suspect, String room) {
+		try {
+			Cards cards = repository.getReferenceById(gameID);
+			if (cards != null && cards.getSuggestedRoom() == null && cards.getSuggestedSuspect() == null && cards.getSuggestedWeapon() == null) {				
+				cards.setSuggestedWeapon(weapon);
+				cards.setSuggestedRoom(room);
+				cards.setSuggestedSuspect(suspect);
+				return true;
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public void dealCards(String gameID, ArrayList<String> players) {
+		Random rand = new Random();
+		ArrayList<String> cardList = new ArrayList<>(Arrays.asList(cardsArray));
+
+		Cards cards = new Cards();
+		cards.setGameID(gameID);
+		
+		cardList.remove(rand.nextInt(6)); // suspect
+		cardList.remove(rand.nextInt(6)+5); // weapon
+		cardList.remove(rand.nextInt(9)+10); // room
+
+		shuffleCards(cardList);
+		
+		int playersSize = players.size();
+		int cardListSize = cardList.size();
+		
+		for (int i = 0; i < cardListSize; ++i) {
+			cards.set(players.get(i % playersSize), cardList.get(i));
+		}
+		
+		repository.save(cards);
+	}
+	
+	public void deleteCards(String gameID) {
+		repository.deleteById(gameID);
+	}
+	
+	public CardsController() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	private static ArrayList<String> shuffleCards(ArrayList<String> cardsList) {
+        Random rand = new Random();
+        int j;
+        int size = cardsList.size();
+        for (int i = 0; i < size; i++) {
+            j = rand.nextInt(size);
+            String temp = cardsList.get(i);
+            cardsList.set(i, cardsList.get(j));
+            cardsList.set(j, temp);
+        }
+        return cardsList;
+    }
+	
+	
 }

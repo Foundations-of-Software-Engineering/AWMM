@@ -318,6 +318,7 @@ public class ClientController extends TextWebSocketHandler {
         if (success) {
         	gameID2UserID2Session.get(gameID).put(userID, session);
         	session2GameID.put(session, gameID);        
+        	gameController.addPlayer(gameID, userID);
         	broadcastMessage(successResponseMessage, gameID); // tell all users about new user
 			logger.info("Login for GAMEID {} USERID {}", gameID, userID);
     	}
