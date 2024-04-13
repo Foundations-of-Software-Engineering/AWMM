@@ -432,6 +432,7 @@ public class Board {
 	 */
 	public void start() {
 		started = true; // prevents people from joining
+		logger.info("Dealing cards for new game.");
 		String[] winningCards = Deck.dealCards(players);
 		suspectSolution = winningCards[0];
 		weaponSolution = winningCards[1];

@@ -32,6 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const mainContent = document.getElementById('main-content');
     const selectableImages = document.querySelectorAll('.selectable-image');
     let selectedImageValue = null; // Variable to store the selected image value
+    const messageBox = document.getElementById("message-box");
     form.style.display = 'none'; // Initially hide the form
     // Add event listeners to each selectable image
     selectableImages.forEach(image => {
@@ -51,6 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (message.action === 'SUCCESS') {
             const characterName = characterNames[message.USERID];
             console.log(`${characterName} has joined the game.`);
+            messageBox.innerHTML += `${characterName} has joined the game.<br>`;
         }
     });
     form.addEventListener("submit", (event) => __awaiter(void 0, void 0, void 0, function* () {

@@ -139,6 +139,7 @@ public class ClientController extends TextWebSocketHandler {
 	 * @param clientMessage The message received from the WebSocket client.
 	 */
 	private void handleStartAction(WebSocketSession session, ExampleMessage clientMessage) {
+		logger.info("Start message received");
 		gameController.handleStart(clientMessage);
 		broadcastMessage(clientMessage, clientMessage.GAMEID());
 	}
@@ -212,10 +213,24 @@ public class ClientController extends TextWebSocketHandler {
 		boolean success = gameController.isJoinable(gameID);
 		Message response;
 
+		// Iterate over sessions only if the game has yet to start
+		if (success) {
+			success = false;
+			WebSocketSession[] sessions = gameID2UserID2Session.get(gameID).getSessions();
+			for (WebSocketSession s: sessions){
+				if (s == null){
+					success = true;
+					break;
+				}
+			}
+		}
+
 		if (success) {
 			response = new GameIdMessage(gameID, "GAMEID");
+			logger.info("Player joined game {}", gameID);
 		} else {
 			response = new GameIdMessage(null, "GAMEID");
+			logger.info("Player tried to join full game {}", gameID);
 		}
 		sendMessageToClient(session, response);
 	}

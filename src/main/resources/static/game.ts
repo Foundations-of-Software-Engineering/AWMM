@@ -24,8 +24,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById('messageForm') as HTMLFormElement;
     const imageSelection = document.getElementById('image-selection')!;
     const mainContent = document.getElementById('main-content')!;
-    const selectableImages = document.querySelectorAll('.selectable-image');
+    const selectableImages = document.querySelectorAll('.selectable-image')!;
     let selectedImageValue: number | null = null; // Variable to store the selected image value
+    const messageBox = document.getElementById("message-box")!;
 
     form.style.display = 'none'; // Initially hide the form
 
@@ -49,6 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (message.action === 'SUCCESS') {
             const characterName = characterNames[message.USERID];
             console.log(`${characterName} has joined the game.`)
+            messageBox.innerHTML += `${characterName} has joined the game.<br>`;
         }
     });
 
