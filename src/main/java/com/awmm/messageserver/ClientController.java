@@ -1,5 +1,6 @@
 package com.awmm.messageserver;
 
+import com.awmm.messageserver.messages.ConfirmStartMessage;
 import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
@@ -95,7 +96,7 @@ public class ClientController extends TextWebSocketHandler {
 			ExampleMessage clientMessage = mapper.readValue(jsonText, ExampleMessage.class);
             switch (clientMessage.action().toUpperCase()) {
             	case "START":
-            		handleStartAction(session, clientMessage);
+					handleStartAction(session, clientMessage);
             		break;
                 case "LOGIN": // this adds player to board
                     handleLoginAction(session, clientMessage);
@@ -143,6 +144,8 @@ public class ClientController extends TextWebSocketHandler {
 	private void handleStartAction(WebSocketSession session, ExampleMessage clientMessage) {
 		logger.info("Start message received");
 		gameController.handleStart(clientMessage);
+		Message response = new ConfirmStartMessage(true);
+		sendMessageToClient(session, response);
 		broadcastMessage(clientMessage, clientMessage.GAMEID());
 	}
 

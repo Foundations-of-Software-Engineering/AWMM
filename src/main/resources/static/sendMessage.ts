@@ -11,4 +11,8 @@ function sendMessage(data: {
     wsManager.sendMessage(data);
 }
 
-export { sendMessage };
+function startGame(data: { action: string }): void {
+    wsManager.sendMessage(data);
+}
+
+export { sendMessage, startGame };

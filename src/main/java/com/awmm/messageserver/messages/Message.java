@@ -11,7 +11,7 @@ package com.awmm.messageserver.messages;
  * @param suspect The suspect passed in the message. Default value is "none".
  * @author AWMM
  */
-public abstract sealed interface Message permits ExampleMessage, GameIdMessage {
+public abstract sealed interface Message permits ConfirmStartMessage, ExampleMessage, GameIdMessage {
     String GAMEID = "0";
     Integer USERID = 0;
     String action = "none";

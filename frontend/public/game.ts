@@ -1,5 +1,5 @@
-import {sendMessage} from "./sendMessage.js";
-import {wsManager} from './websocketManager.js';
+import { sendMessage, startGame } from "./sendMessage.js";
+import { wsManager } from './websocketManager.js';
 
 const characterNames: {[key: number]: string } = {
     0: "Miss Scarlet",
