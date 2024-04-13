@@ -4,11 +4,13 @@ import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import com.awmm.messageserver.board.Board;
 import com.awmm.messageserver.cards.CardsController;
 import com.awmm.messageserver.messages.ExampleMessage;
+import com.awmm.messageserver.position.PositionController;
 import com.awmm.messageserver.positions.PositionsController;
 
 /**
@@ -22,7 +24,11 @@ public class GameController {
 	private final HashMap<String, Board> boardStates;
 	
 	private final CardsController cardsController;
-	private final PositionsController positionsController;
+//	private final PositionsController positionsController;
+	
+	
+	@Autowired
+	private PositionController positionController;
 
 	private final Logger logger;
 	private static final String[] playerNames = {
@@ -41,7 +47,7 @@ public class GameController {
 		this.boardStates = new HashMap<>();
 		this.logger = LoggerFactory.getLogger(GameController.class);
 		this.cardsController = new CardsController();
-		this.positionsController = new PositionsController();
+//		this.positionsController = new PositionsController();
 	}
 
 	/**
@@ -55,7 +61,7 @@ public class GameController {
 			return false;
 		}
 		else {
-			boardStates.put(gameID, new Board(gameID));
+			boardStates.put(gameID, new Board(gameID, positionController));
 			return true;
 		}
 	}

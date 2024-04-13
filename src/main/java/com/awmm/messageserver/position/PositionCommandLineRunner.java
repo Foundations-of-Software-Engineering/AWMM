@@ -6,10 +6,10 @@ import org.springframework.stereotype.Component;
 
 import jakarta.transaction.Transactional;
 
-@Component
+//@Component
 public class PositionCommandLineRunner implements CommandLineRunner {
 
-	@Autowired
+//	@Autowired
 	private PositionController positionController;
 
 	@Override

@@ -10,10 +10,10 @@ import com.awmm.messageserver.board.Board;
 
 import jakarta.transaction.Transactional;
 
-@Component
+//@Component
 public class CardsCommandLineRunner implements CommandLineRunner{
 
-	@Autowired
+//	@Autowired
 	private CardsController cardsController;
 	
 	@Override

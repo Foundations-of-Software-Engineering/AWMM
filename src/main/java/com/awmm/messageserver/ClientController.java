@@ -1,9 +1,13 @@
 package com.awmm.messageserver;
 
-import com.awmm.messageserver.messages.ExampleMessage;
-import com.awmm.messageserver.messages.GameIdMessage;
-import com.awmm.messageserver.messages.Message;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import java.io.IOException;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -11,15 +15,11 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import com.awmm.messageserver.messages.ExampleMessage;
+import com.awmm.messageserver.messages.GameIdMessage;
+import com.awmm.messageserver.messages.Message;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Class for handling WebSocket connections and messages from clients.
@@ -33,7 +33,8 @@ public class ClientController extends TextWebSocketHandler {
    
     private final Map<String, Sessions> gameID2UserID2Session = new ConcurrentHashMap<>();
     private final Map<WebSocketSession, String> session2GameID = new ConcurrentHashMap<>();
-    private final GameController gameController = new GameController();
+    @Autowired
+    private GameController gameController;
     
     public GameController getGameController() {
 		return gameController;

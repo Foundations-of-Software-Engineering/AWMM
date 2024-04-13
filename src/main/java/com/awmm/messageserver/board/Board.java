@@ -65,8 +65,9 @@ public class Board {
 	
 	private ArrayList<String> players;
 	
-	private final CardsController cardsController;
-	private final PositionController positionController;
+	private CardsController cardsController;
+	
+	private PositionController positionController;
 
 	/**
 	 * Inner class representing a player on the board.
@@ -144,7 +145,7 @@ public class Board {
 	 * Initializes the game board, players, and cards.
 	 * @param gameId The ID of the game.
 	 */
-	public Board(String gameId) {
+	public Board(String gameId, PositionController positionController) {
 		super();
 
 		this.cardsController = new CardsController();		
@@ -152,7 +153,7 @@ public class Board {
 		this.suggested = false;
 		this.gameId = gameId;
 		this.players = new ArrayList<>();
-		this.positionController = new PositionController();
+		this.positionController = positionController;
 		
 		missScarlet   = new BoardPlayer(ScarletUserID, gameId,   MissScarletName);
 		colMustard    = new BoardPlayer(MustardUserID, gameId,    ColMustardName);
