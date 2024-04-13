@@ -5,24 +5,34 @@
     <title>Send Data to Server</title>
 </head>
 <body>
-    <h2>Send Message</h2>
-    <form id="messageForm">
-        <label for="GAMEID">GAMEID:</label><br />
-        <input type="text" id="GAMEID" name="GAMEID" /> <br />
-        <label for="USERID">USERID:</label><br />
-        <input type="text" id="USERID" name="USERID" /> <br />
-        <label for="action">Action:</label><br />
-        <textarea id="action" name="action"></textarea><br />
-        <label for="location">Location:</label><br />
-        <textarea id="location" name="location"></textarea><br />
-        <label for="weapon">Weapon:</label><br />
-        <textarea id="weapon" name="weapon"></textarea><br />
-        <label for="suspect">Suspect:</label><br />
-        <textarea id="suspect" name="suspect"></textarea><br />
-        <textarea id="cookies" name="cookies"></textarea><br />
-        <button id="show-cookie-btn" type="submit">Show cookies</button>
-        <button type="submit">Send Message</button>
-    </form>
+    <div id="image-selection">
+        <p id="select-character-text">Please select a character.</p>
+        <img src="/images/Miss_Scarlet.jpg" class="selectable-image" data-image="0" alt="Miss Scarlet">
+        <img src="/images/Colonel_Mustard.jpg" class="selectable-image" data-image="1" alt="Colonel Mustard">
+        <img src="/images/Mrs_White.jpg" class="selectable-image" data-image="2" alt="Mrs White">
+        <img src="/images/Mr_Green.jpg" class="selectable-image" data-image="3" alt="Mr Green">
+        <img src="/images/Mrs_Peacock.jpg" class="selectable-image" data-image="4" alt="Mrs Peacock">
+        <img src="/images/Professor_Plum.jpg" class="selectable-image" data-image="5" alt="Professor Plum">
+    </div>
+
+    <div id="main-content" style="display: none;">
+        <h2>Send Message</h2>
+        <form id="messageForm">
+            <label for="GAMEID">GAMEID:</label><br />
+            <input type="text" id="GAMEID" name="GAMEID" /> <br />
+            <label for="USERID">USERID:</label><br />
+            <input type="text" id="USERID" name="USERID" /> <br />
+            <label for="action">Action:</label><br />
+            <textarea id="action" name="action"></textarea><br />
+            <label for="location">Location:</label><br />
+            <textarea id="location" name="location"></textarea><br />
+            <label for="weapon">Weapon:</label><br />
+            <textarea id="weapon" name="weapon"></textarea><br />
+            <label for="suspect">Suspect:</label><br />
+            <textarea id="suspect" name="suspect"></textarea><br />
+            <button type="submit">Send Message</button>
+        </form>
+    </div>
 
     <script src="game.js" type="module"></script>
 </body>

@@ -50,6 +50,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listener for "Quick Join" button
     document.getElementById('quickJoin')?.addEventListener('click', () => {
         wsManager.sendMessage({ action: 'quickJoin' });
+                    OpenNewTab("game.html");
+
     });
 
     // Event listener for "Join Private Game" button
@@ -57,8 +59,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const gameId = (document.getElementById('gameIdInput') as HTMLInputElement).value;
         if (gameId) {
             wsManager.sendMessage({ action: 'joinPrivateGame', gameId });
+            OpenNewTab("game.html");
         } else {
             console.error('Game ID is required for joining a private game.');
         }
     });
 });
+
+function OpenNewTab(url: string) {
+    window.open(url, "_blank");
+}

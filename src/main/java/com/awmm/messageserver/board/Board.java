@@ -200,13 +200,13 @@ public class Board {
 	 */
 	public Board(String gameId) {
 		super();
-		
-		professorPlum = new BoardPlayer(0, gameId, ProfessorPlumName);
-		missScarlet   = new BoardPlayer(1, gameId,   MissScarletName);
-		colMustard    = new BoardPlayer(2, gameId,    ColMustardName);
-		mrsPeacock    = new BoardPlayer(3, gameId,    MrsPeacockName);
-		mrGreen       = new BoardPlayer(4, gameId,       MrGreenName);
-		mrsWhite      = new BoardPlayer(5, gameId,      MrsWhiteName);
+
+		missScarlet   = new BoardPlayer(0, gameId,   MissScarletName);
+		colMustard    = new BoardPlayer(1, gameId,    ColMustardName);
+		mrsWhite      = new BoardPlayer(2, gameId,      MrsWhiteName);
+		mrGreen       = new BoardPlayer(3, gameId,       MrGreenName);
+		mrsPeacock    = new BoardPlayer(4, gameId,    MrsPeacockName);
+		professorPlum = new BoardPlayer(5, gameId, ProfessorPlumName);
 		
 		this.started = false;
 		this.gameId = gameId;

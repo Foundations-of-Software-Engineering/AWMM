@@ -243,6 +243,7 @@ public class ClientController extends TextWebSocketHandler {
 	 */
     public void broadcastMessage(Message message, String gameID) {
     	String jsonMessage = convertToJson(message);
+		logger.info("Message for broadcast: {}", jsonMessage);
     	for (WebSocketSession session : gameID2UserID2Session.get(gameID).getSessions()) {
             try {
             	if (session != null) {            		
@@ -289,25 +290,25 @@ public class ClientController extends TextWebSocketHandler {
     			// join existing game
         		success = true;
         	}
-        	else {
-        		// create and join new game
-        		gameID = UUID.randomUUID().toString();
+        	else if (gameID != null && !gameID.isBlank()) {
+        		// join new game as new player
         		gameID2UserID2Session.put(gameID, new Sessions());
-        		gameController.createBoardState(gameID);
         		success = true;
         	}
         }
 
 		ExampleMessage successResponseMessage = new ExampleMessage(gameID, userID, "SUCCESS", null, null, null, "example");
 		ExampleMessage failureResponseMessage = new ExampleMessage(gameID, userID, "FAIL", null, null, null, "example");
-            
+
         if (success) {
         	gameID2UserID2Session.get(gameID).put(userID, session);
         	session2GameID.put(session, gameID);        
         	broadcastMessage(successResponseMessage, gameID); // tell all users about new user
+			logger.info("Login for GAMEID {} USERID {}", gameID, userID);
     	}
         else {
         	sendMessageToClient(session, failureResponseMessage);
+			logger.error("Failed login for GAMEID {} USERID {}", gameID, userID);
         }
         
     }
