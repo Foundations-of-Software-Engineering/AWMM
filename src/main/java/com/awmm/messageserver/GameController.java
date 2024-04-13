@@ -26,8 +26,8 @@ public class GameController {
 
 	private final Logger logger;
 	private static final String[] playerNames = {
-		Board.  ProfessorPlumName,
 		Board.    MissScarletName,
+		Board.  ProfessorPlumName,
 		Board.     ColMustardName,
 		Board.     MrsPeacockName,
 		Board.        MrGreenName,
@@ -163,5 +163,9 @@ public class GameController {
 //		}
 //		
 //	}
+	
+	public void addPlayer(String gameID, int userID) {
+		boardStates.get(gameID).addPlayer(playerNames[userID]);
+	}
     
 }
