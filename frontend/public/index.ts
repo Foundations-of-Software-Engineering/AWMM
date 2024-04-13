@@ -35,7 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (message.type === 'GAMEID') {
             const gameId = message.GAMEID
             if (gameId != null){
-                console.log("?????", gameId);
                 document.cookie = `gameId=${gameId}; path=/; max-age=86400`;
             }
             else {

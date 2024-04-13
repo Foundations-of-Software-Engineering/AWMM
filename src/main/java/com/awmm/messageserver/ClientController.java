@@ -1,5 +1,7 @@
 package com.awmm.messageserver;
 
+import com.awmm.messageserver.messages.*;
+
 import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
@@ -15,9 +17,6 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import com.awmm.messageserver.messages.ExampleMessage;
-import com.awmm.messageserver.messages.GameIdMessage;
-import com.awmm.messageserver.messages.Message;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -95,7 +94,7 @@ public class ClientController extends TextWebSocketHandler {
 			ExampleMessage clientMessage = mapper.readValue(jsonText, ExampleMessage.class);
             switch (clientMessage.action().toUpperCase()) {
             	case "START":
-            		handleStartAction(session, clientMessage);
+					handleStartAction(session, clientMessage);
             		break;
                 case "LOGIN": // this adds player to board
                     handleLoginAction(session, clientMessage);
@@ -109,7 +108,8 @@ public class ClientController extends TextWebSocketHandler {
                 	break;
                 case "ACCUSE":
                 	// TODO
-                	break;
+					handleAccuse(session, clientMessage);
+					break;
                 case "DISPROVE":
                 	// TODO
                 	// Send Message to a Player to Disprove if it's his/her turn
@@ -142,6 +142,8 @@ public class ClientController extends TextWebSocketHandler {
 	private void handleStartAction(WebSocketSession session, ExampleMessage clientMessage) {
 		logger.info("Start message received");
 		gameController.handleStart(clientMessage);
+		Message response = new ConfirmStartMessage(true, "start");
+		sendMessageToClient(session, response);
 		broadcastMessage(clientMessage, clientMessage.GAMEID());
 	}
 
@@ -161,6 +163,23 @@ public class ClientController extends TextWebSocketHandler {
 	}
 
 	/**
+	 * Handles the "ACCUSE" action received from a WebSocket client.
+	 * This method processes the accusation made by a player in the game.
+	 * After handling the accusation action, it broadcasts a message to all clients in the same game.
+	 *
+	 * @param clientMessage The message received from the WebSocket client.
+	 */
+	private void handleAccuse(WebSocketSession session, ExampleMessage clientMessage) {
+		if (gameController.handleAccuse(clientMessage)) {
+
+		} else {
+			sendMessageToClient(session, new AccuseFailMessage("accusefail"));
+		}
+		broadcastMessage(clientMessage, clientMessage.GAMEID());
+
+	}
+
+	/**
 	 * Handles the "MOVE" action received from a WebSocket client.
 	 * This method processes the move made by a player in the game.
 	 * After handling the move action, it broadcasts a message to all clients in the same game.
@@ -174,10 +193,6 @@ public class ClientController extends TextWebSocketHandler {
 		broadcastMessage(clientMessage, clientMessage.GAMEID());
 	}
 
-//	private void sendGameId(WebSocketSession session) {
-//		Message gameIdMessage = new GameIdMessage(session.getId(), "GAMEID");
-//		sendMessageToClient(session, gameIdMessage);
-//	}
 
 	/**
 	 * Handles the "HOSTGAME" action received from a WebSocket client.
