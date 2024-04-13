@@ -64,7 +64,7 @@ public class Board {
 	private boolean started;
 	private boolean suggested;  
 	
-	private ArrayList<Player> players;
+	private ArrayList<String> players;
 	
 	private final CardsController cardsController;
 	private final PositionController positionController;
@@ -162,7 +162,7 @@ public class Board {
 		this.started = false;
 		this.suggested = false;
 		this.gameId = gameId;
-		this.players = new ArrayList<Player>();
+		this.players = new ArrayList<>();
 		this.cardsController = new CardsController();
 		this.positionController = new PositionController();
 		
@@ -189,7 +189,7 @@ public class Board {
 		if (started) return;
 		BoardPlayer boardPlayer = getBoardPlayerFromName(player);
 		if (!boardPlayer.added) {			
-			players.add(getBoardPlayerFromName(player).player);
+			players.add(player);
 			boardPlayer.added = true;
 		}
 	}
@@ -399,10 +399,7 @@ public class Board {
 	public void start() {
 		started = true; // prevents people from joining
 		logger.info("Dealing cards for new game.");
-		String[] winningCards = Deck.dealCards(players);
-		suspectSolution = winningCards[0];
-		weaponSolution = winningCards[1];
-		roomSolution = winningCards[2];
+		cardsController.dealCards(gameId, players);
 	}
 	
 	/**

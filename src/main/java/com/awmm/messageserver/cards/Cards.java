@@ -346,4 +346,6 @@ public class Cards {
 		}
 	}
 	
+//	public void getSolutions() {
+	
 }
