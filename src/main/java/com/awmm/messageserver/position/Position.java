@@ -27,6 +27,12 @@ public class Position {
 		this.row = row;
 		this.col = col;
 	}
+	
+	public Position(Position other) {
+		this.positionID = other.positionID;
+		this.row = other.row;
+		this.col = other.col;
+	}
 
 	public int getRow() {
 		return row;

@@ -1,13 +1,10 @@
 package com.awmm.messageserver.board;
 
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.awmm.messageserver.cards.Cards;
 import com.awmm.messageserver.cards.CardsController;
 import com.awmm.messageserver.deck.Deck;
 import com.awmm.messageserver.player.Player;
@@ -22,6 +19,13 @@ public class Board {
 	public static final int ROW_SIZE = 5;
 	public static final int COL_SIZE = 5;
 
+	public final static int ScarletUserID = 0;
+	public final static int MustardUserID = 1;
+	public final static int WhiteUserID   = 2;
+	public final static int GreenUserID   = 3;
+	public final static int PeacockUserID = 4;
+	public final static int PlumUserID    = 5;
+	
 	// Constants for character names
 	public final static String ProfessorPlumName = "Professor Plum";
 	public final static String   MissScarletName =  "Miss Scarlet" ;
@@ -71,9 +75,15 @@ public class Board {
 	private class BoardPlayer {
 		private Player player;
 		private Position position;
+		private boolean added;
 		private BoardPlayer(int id, String gameID, String name) {
 			this.player = new Player(id, gameID, name);
 			this.position = positionController.savePosition(gameID, id, -1, -1);
+			added = false;
+		}
+		private void setPosition(Position newPosition) {
+			this.position.setCol(newPosition.getCol());
+			this.position.setRow(newPosition.getRow());
 		}
 	}
 
@@ -107,7 +117,7 @@ public class Board {
 		 * @param name The name of the room.
 		 */
 		RoomEnum(int row, int col, String name) {
-			this.position = new Position("", -1, row, col);
+			this.position = new Position("", -1, row, col); // we don't care about gameid or userid here
 			this.name = name;
 		}
 	}
@@ -142,12 +152,12 @@ public class Board {
 	public Board(String gameId) {
 		super();
 
-		missScarlet   = new BoardPlayer(0, gameId,   MissScarletName);
-		colMustard    = new BoardPlayer(1, gameId,    ColMustardName);
-		mrsWhite      = new BoardPlayer(2, gameId,      MrsWhiteName);
-		mrGreen       = new BoardPlayer(3, gameId,       MrGreenName);
-		mrsPeacock    = new BoardPlayer(4, gameId,    MrsPeacockName);
-		professorPlum = new BoardPlayer(5, gameId, ProfessorPlumName);
+		missScarlet   = new BoardPlayer(ScarletUserID, gameId,   MissScarletName);
+		colMustard    = new BoardPlayer(MustardUserID, gameId,    ColMustardName);
+		mrsWhite      = new BoardPlayer(WhiteUserID  , gameId,      MrsWhiteName);
+		mrGreen       = new BoardPlayer(GreenUserID  , gameId,       MrGreenName);
+		mrsPeacock    = new BoardPlayer(PeacockUserID, gameId,    MrsPeacockName);
+		professorPlum = new BoardPlayer(PlumUserID   , gameId, ProfessorPlumName);
 		
 		this.started = false;
 		this.suggested = false;
@@ -175,51 +185,59 @@ public class Board {
 		roomSolution    = null;
 	}
 
+	public void addPlayer(String player) {
+		if (started) return;
+		BoardPlayer boardPlayer = getBoardPlayerFromName(player);
+		if (!boardPlayer.added) {			
+			players.add(getBoardPlayerFromName(player).player);
+			boardPlayer.added = true;
+		}
+	}
+	
 	/**
 	 * Adds a player to the board at a specified starting position if the game hasn't started yet.
 	 *
 	 * @param boardPlayer The BoardPlayer object representing the player to be added.
 	 */
-	private void addPlayer(BoardPlayer boardPlayer) {
+	private void firstMove(BoardPlayer boardPlayer) {
 		if (started) return;
 		Player player = boardPlayer.player;
 		Position startingPosition;
 		switch(player.getName()) {
 			case ProfessorPlumName: 
 			{
-				startingPosition = new Position(1, 0);
+				startingPosition = new Position(gameId, PlumUserID, 1, 0);
 				break;
 			}
 			case MissScarletName  : 
 			{
-				startingPosition = new Position(0, 3);
+				startingPosition = new Position(gameId, ScarletUserID, 0, 3);
 				break;
 			}
 			case ColMustardName   : 
 			{
-				startingPosition = new Position(1, 4);
+				startingPosition = new Position(gameId, MustardUserID, 1, 4);
 				break;
 			}
 			case MrsPeacockName   : 
 			{
-				startingPosition = new Position(3, 0);
+				startingPosition = new Position(gameId, PeacockUserID, 3, 0);
 				break;
 			}
 			case MrGreenName      : 
 			{
-				startingPosition = new Position(4, 1);
+				startingPosition = new Position(gameId, GreenUserID, 4, 1);
 				break; 
 			}
 			case MrsWhiteName     : 
 			{
-				startingPosition = new Position(4, 3);
+				startingPosition = new Position(gameId, WhiteUserID, 4, 3);
 				break;
 			}
 			default: {return;}	
 		}
-		boardPlayer.position = startingPosition;
-		grid[boardPlayer.position.row][boardPlayer.position.col].setPlayer(player);
-		players.add(player);
+		boardPlayer.setPosition(startingPosition);
+		grid[boardPlayer.position.getRow()][boardPlayer.position.getCol()].setPlayer(player);
 	}
 
 	/**
@@ -237,61 +255,64 @@ public class Board {
 			return false;
 		}
 		
-		if (boardPlayer.position.row == -1 || boardPlayer.position.col == -1) { // if it's player's first move
-			addPlayer(boardPlayer);
+		if (boardPlayer.position.getRow() == -1 || boardPlayer.position.getCol() == -1) { // if it's player's first move
+			firstMove(boardPlayer);
 			return true;
 		}
 		
 		Position oldPosition = boardPlayer.position;
 		String   key         = boardPlayer.player.getName();
-		Position newPosition = new Position(oldPosition);
+//		Position newPosition = new Position(oldPosition);
+		int row = oldPosition.getRow();
+		int col = oldPosition.getCol();
+		Position newPosition = new Position();
 		
 		switch (destination) {
 			case Up:
 			{
-				if (oldPosition.row-1 >= 0) {
-					--newPosition.row;
+				if (row-1 >= 0) {
+					newPosition.setRow(row-1);
 				}
 				break;
 			}
 			case Down:
 			{
-				if (oldPosition.row+1 < ROW_SIZE) {
-					++newPosition.row;
+				if (row+1 < ROW_SIZE) {
+					newPosition.setRow(row+1);
 				}
 				break;
 			}
 			case Left:
 			{
-				if (oldPosition.col-1 >= 0) {
-					--newPosition.col;
+				if (col-1 >= 0) {
+					newPosition.setCol(col-1);
 				}
 				break;
 			}
 			case Right:
 			{
-				if (oldPosition.col+1 < COL_SIZE) {
-					++newPosition.col;
+				if (col+1 < COL_SIZE) {
+					newPosition.setCol(col+1);
 				}
 				break;
 			}
 			case Diagonal:
 			{
-				if (oldPosition.row == 0 && oldPosition.col == 0) {
-					newPosition.row = 4;
-					newPosition.col = 4;
+				if (row == 0 && col == 0) {
+					newPosition.setRow(4);
+					newPosition.setCol(4);
 				}
-				else if (oldPosition.row == 0 && oldPosition.col == 4) {
-					newPosition.row = 4;
-					newPosition.col = 0;
+				else if (row == 0 && col == 4) {
+					newPosition.setRow(4);
+					newPosition.setCol(0);
 				}
-				else if (oldPosition.row == 4 && oldPosition.col == 0) {
-					newPosition.row = 0;
-					newPosition.col = 4;
+				else if (row == 4 && col == 0) {
+					newPosition.setRow(0);
+					newPosition.setCol(4);
 				}
-				else if (oldPosition.row == 4 && oldPosition.col == 4) {
-					newPosition.row = 0;
-					newPosition.col = 0;
+				else if (row == 4 && col == 4) {
+					newPosition.setRow(0);
+					newPosition.setCol(0);
 				}
 				break;
 			}
@@ -317,8 +338,10 @@ public class Board {
 	 * @return The location object at the specified position, or null if the position is out of bounds.
 	 */
 	private Location getLocation(Position position) {
-		if (position.row >= 0 && position.row < ROW_SIZE && position.col >= 0 && position.col < COL_SIZE) {			
-			return grid[position.row][position.col];
+		int row = position.getRow();
+		int col = position.getCol();
+		if (row >= 0 && row < ROW_SIZE && col >= 0 && col < COL_SIZE) {			
+			return grid[row][col];
 		}
 		return null;
 	}
@@ -333,10 +356,10 @@ public class Board {
 	 */
 	private boolean move(String key, Position oldPosition, Position newPosition) {
 		boolean ret = false;
-		if (oldPosition.row == -1 || oldPosition.col == -1) {
+		if (oldPosition.getRow() == -1 || oldPosition.getCol() == -1) {
 			BoardPlayer boardPlayer = getBoardPlayerFromName(key);
-			addPlayer(boardPlayer);
-			oldPosition = boardPlayer.position;
+			firstMove(boardPlayer);
+			return true;
 		}
 		
 		Location oldLocation = getLocation(oldPosition);
@@ -345,8 +368,8 @@ public class Board {
 		{		
 			Player player = oldLocation.getPlayer(key);
 			if (oldLocation.removePlayer(player) && newLocation.setPlayer(player)) {
-				oldPosition.row = newPosition.row;
-				oldPosition.col = newPosition.col;
+				oldPosition.setRow(newPosition.getRow());
+				oldPosition.setCol(newPosition.getCol());
 				ret = true;
 			}
 		}
@@ -443,15 +466,15 @@ public class Board {
 	 *
 	 * @param map A map containing player names as keys and arrays of row and column coordinates as values.
 	 */
-	public void setPositions(Map<String, Integer[]> map) {
-		for (String key : map.keySet()) {
-			BoardPlayer boardPlayer = getBoardPlayerFromName(key);
-			if (boardPlayer != null) {
-				Integer[] position = map.get(key);
-				move(key, boardPlayer.position, new Position(position[0], position[1]));
-			}
-		}
-	}
+//	public void setPositions(Map<String, Integer[]> map) {
+//		for (String key : map.keySet()) {
+//			BoardPlayer boardPlayer = getBoardPlayerFromName(key);
+//			if (boardPlayer != null) {
+//				Integer[] position = map.get(key);
+//				move(key, boardPlayer.position, new Position(position[0], position[1]));
+//			}
+//		}
+//	}
 
 	/**
 	 * Checks if the game has started.

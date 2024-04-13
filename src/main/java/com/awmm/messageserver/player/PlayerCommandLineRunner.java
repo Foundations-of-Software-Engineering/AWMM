@@ -229,7 +229,7 @@ public class PlayerCommandLineRunner implements CommandLineRunner {
 		positions = positionsRepository.findById(gameID);
 		System.out.print(positions);
 
-		clientController.getGameController().setPositions(positions);
+//		clientController.getGameController().setPositions(positions);
 		System.out.println(clientController.getGameState(gameID));
 
 

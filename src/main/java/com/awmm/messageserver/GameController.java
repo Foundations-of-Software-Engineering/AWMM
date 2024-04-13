@@ -1,20 +1,14 @@
 package com.awmm.messageserver;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
-import com.awmm.messageserver.messages.ExampleMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 
 import com.awmm.messageserver.board.Board;
-import com.awmm.messageserver.cards.Cards;
 import com.awmm.messageserver.cards.CardsController;
-import com.awmm.messageserver.positions.Positions;
+import com.awmm.messageserver.messages.ExampleMessage;
 import com.awmm.messageserver.positions.PositionsController;
 
 /**
@@ -160,14 +154,14 @@ public class GameController {
 //		}
 //	}
 
-	public void setPositions(Positions positions) {
-		// TODO Auto-generated method stub
-		Map<String, Integer[]> map = positionsController.getPositionsMap(positions);
-		String gameID = positions.getGameID();
-		if (boardStates.containsKey(gameID)) {
-			boardStates.get(gameID).setPositions(map);
-		}
-		
-	}
+//	public void setPositions(Positions positions) {
+//		// TODO Auto-generated method stub
+//		Map<String, Integer[]> map = positionsController.getPositionsMap(positions);
+//		String gameID = positions.getGameID();
+//		if (boardStates.containsKey(gameID)) {
+//			boardStates.get(gameID).setPositions(map);
+//		}
+//		
+//	}
     
 }
