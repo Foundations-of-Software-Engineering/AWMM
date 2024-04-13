@@ -1,3 +1,4 @@
+import { start } from "repl";
 import { sendMessage, startGame } from "./sendMessage.js";
 import { wsManager } from './websocketManager.js';
 
@@ -35,7 +36,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const selectableImages = document.querySelectorAll('.selectable-image')!;
     let selectedImageValue: number | null = null; // Variable to store the selected image value
     const messageBox = document.getElementById("message-box")!;
+    const startButton = document.getElementById('startButton') as HTMLInputElement;
 
+    startButton.addEventListener("click", async () => {
+        try {
+            mainContent.style.display = 'block'; // Show the main content
+            form.style.display = 'block'; // Show the form
+            const action = startButton.value;
+            const message = await startGame({ action });
+            console.log('Start game message received:', message);
+            startButton.style.display = 'none';
+        } catch (error) {
+            console.error(`Error starting game: `, error);
+            alert(`Failed to start game.`);
+        }
+    });
+
+    startButton.style.display = 'none'
     form.style.display = 'none'; // Initially hide the form
 
     // Add event listeners to each selectable image
@@ -49,8 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
             sendLoginMessage();
 
             imageSelection.style.display = 'none'; // Hide the image selection
-            mainContent.style.display = 'block'; // Show the main content
-            form.style.display = 'block'; // Show the form
+
         });
     });
 
@@ -62,6 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const characterName = characterNames[message.USERID];
             console.log(`${characterName} has joined the game.`)
             messageBox.innerHTML += `${characterName} has joined the game.<br>`;
+            startButton.style.display = 'block';
         }
     });
 
