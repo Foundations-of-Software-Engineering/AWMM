@@ -150,7 +150,7 @@ public class Board {
 	public Board(String gameId, PositionController positionController, CardsController cardsController) {
 		super();
 
-		this.cardsController = new CardsController();
+		this.cardsController = cardsController;
 		this.started = false;
 		this.suggested = false;
 		this.gameId = gameId;

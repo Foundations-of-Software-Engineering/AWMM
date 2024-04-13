@@ -11,7 +11,7 @@ function sendMessage(data: {
     wsManager.sendMessage(data);
 }
 
-function startGame(data: { action: string }): void {
+function startGame(data: {GAMEID: string, USERID: number, action: string }): void {
     wsManager.sendMessage(data);
 }
 
