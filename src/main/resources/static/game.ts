@@ -43,7 +43,9 @@ document.addEventListener("DOMContentLoaded", () => {
             mainContent.style.display = 'block'; // Show the main content
             form.style.display = 'block'; // Show the form
             const action = startButton.value;
-            const message = await startGame({ action });
+            const gameID = <string>getCookieValue('gameId');
+            const userID = parseInt(<string>getCookieValue('userId'));
+            const message = await startGame({ action: action, GAMEID: gameID, USERID: userID });
             console.log('Start game message received:', message);
             startButton.style.display = 'none';
         } catch (error) {
