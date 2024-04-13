@@ -51,9 +51,9 @@ public class CardsController {
 	public String getOwnerOf(String gameID, String card) {
 		Optional<Cards> opt = repository.findById(gameID);
 		if (opt.isPresent()) {
-			opt.get().get(card);
+			return opt.get().get(card);
 		}
-		return null;
+		return "Not Found";
 	}
 	
 	public boolean hasSuggestion(String gameID) {

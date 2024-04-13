@@ -41,10 +41,10 @@ public class PlayerCommandLineRunner implements CommandLineRunner {
 //	@Autowired
 //	private PlayerJpaRepository repository;
 
-	@Autowired
+//	@Autowired
 	private CardsRepository cardsRepository;
 
-	@Autowired
+//	@Autowired
 	private PositionsRepository positionsRepository;
 
     private final ObjectMapper mapper = new ObjectMapper();
@@ -244,25 +244,25 @@ public class PlayerCommandLineRunner implements CommandLineRunner {
 		 * Because it is the first time each player is moving, they will move to their
 		 * respective starting positions
 		 */
-		Board map = new Board("0");
-		map.movePlayer(Board. ProfessorPlumName, Board. Down);
-		map.movePlayer(Board.   MissScarletName, Board. Down);
-		map.movePlayer(Board.    ColMustardName, Board. Down);
-		map.movePlayer(Board.    MrsPeacockName, Board. Down);
-		map.movePlayer(Board.       MrGreenName, Board. Down);
-		map.movePlayer(Board.      MrsWhiteName, Board. Down);
-
-		System.out.println(map);
-
-		map.movePlayer(Board.ProfessorPlumName, Board . Up      );
-		map.movePlayer(Board.  MissScarletName, Board . Right   );
-		map.movePlayer(Board.   ColMustardName, Board . Down    );
-		map.movePlayer(Board.   MrsPeacockName, Board . Down    );
-		map.movePlayer(Board.   MrsPeacockName, Board . Diagonal);
-		map.movePlayer(Board.      MrGreenName, Board . Left    );
-		map.movePlayer(Board.     MrsWhiteName, Board.BilliardRoomName);
-
-		System.out.println(map);
+//		Board map = new Board("0");
+//		map.movePlayer(Board. ProfessorPlumName, Board. Down);
+//		map.movePlayer(Board.   MissScarletName, Board. Down);
+//		map.movePlayer(Board.    ColMustardName, Board. Down);
+//		map.movePlayer(Board.    MrsPeacockName, Board. Down);
+//		map.movePlayer(Board.       MrGreenName, Board. Down);
+//		map.movePlayer(Board.      MrsWhiteName, Board. Down);
+//
+//		System.out.println(map);
+//
+//		map.movePlayer(Board.ProfessorPlumName, Board . Up      );
+//		map.movePlayer(Board.  MissScarletName, Board . Right   );
+//		map.movePlayer(Board.   ColMustardName, Board . Down    );
+//		map.movePlayer(Board.   MrsPeacockName, Board . Down    );
+//		map.movePlayer(Board.   MrsPeacockName, Board . Diagonal);
+//		map.movePlayer(Board.      MrGreenName, Board . Left    );
+//		map.movePlayer(Board.     MrsWhiteName, Board.BilliardRoomName);
+//
+//		System.out.println(map);
 
 
 

@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.awmm.messageserver.cards.CardsController;
-import com.awmm.messageserver.deck.Deck;
 import com.awmm.messageserver.player.Player;
 import com.awmm.messageserver.position.Position;
 import com.awmm.messageserver.position.PositionController;
@@ -64,10 +63,11 @@ public class Board {
 	private boolean started;
 	private boolean suggested;  
 	
-	private ArrayList<Player> players;
+	private ArrayList<String> players;
 	
-	private final CardsController cardsController;
-	private final PositionController positionController;
+	private CardsController cardsController;
+	
+	private PositionController positionController;
 
 	/**
 	 * Inner class representing a player on the board.
@@ -138,10 +138,6 @@ public class Board {
 	
 	private Location[][] grid = new Location[ROW_SIZE][COL_SIZE];
 
-	private String suspectSolution;
-	private String weaponSolution ;
-	private String roomSolution   ;
-	
 	private final Logger logger = LoggerFactory.getLogger(Board.class);
 
 	/**
@@ -149,22 +145,22 @@ public class Board {
 	 * Initializes the game board, players, and cards.
 	 * @param gameId The ID of the game.
 	 */
-	public Board(String gameId) {
+	public Board(String gameId, PositionController positionController) {
 		super();
 
+		this.cardsController = new CardsController();		
+		this.started = false;
+		this.suggested = false;
+		this.gameId = gameId;
+		this.players = new ArrayList<>();
+		this.positionController = positionController;
+		
 		missScarlet   = new BoardPlayer(ScarletUserID, gameId,   MissScarletName);
 		colMustard    = new BoardPlayer(MustardUserID, gameId,    ColMustardName);
 		mrsWhite      = new BoardPlayer(WhiteUserID  , gameId,      MrsWhiteName);
 		mrGreen       = new BoardPlayer(GreenUserID  , gameId,       MrGreenName);
 		mrsPeacock    = new BoardPlayer(PeacockUserID, gameId,    MrsPeacockName);
 		professorPlum = new BoardPlayer(PlumUserID   , gameId, ProfessorPlumName);
-		
-		this.started = false;
-		this.suggested = false;
-		this.gameId = gameId;
-		this.players = new ArrayList<Player>();
-		this.cardsController = new CardsController();
-		this.positionController = new PositionController();
 		
 		//Rooms
 		for (RoomEnum roomEnum : RoomEnum.values()) {
@@ -179,17 +175,13 @@ public class Board {
 				}
 			}
 		}
-		
-		suspectSolution = null;
-		weaponSolution  = null;
-		roomSolution    = null;
 	}
 
 	public void addPlayer(String player) {
 		if (started) return;
 		BoardPlayer boardPlayer = getBoardPlayerFromName(player);
 		if (!boardPlayer.added) {			
-			players.add(getBoardPlayerFromName(player).player);
+			players.add(player);
 			boardPlayer.added = true;
 		}
 	}
@@ -383,7 +375,8 @@ public class Board {
 	 */
 	@Override
 	public String toString() {
-		String toString = "Game Answers for Game ID " + gameId +": " + suspectSolution + ", " + weaponSolution + ", " + roomSolution + "\n";
+		String toString = "";
+//		String toString = "Game Answers for Game ID " + gameId +": " + suspectSolution + ", " + weaponSolution + ", " + roomSolution + "\n";
 		for (int row = 0; row < ROW_SIZE; ++row) {
 			for (int col = 0; col < COL_SIZE; ++col) {
 				toString += String.format("%-50s", grid[row][col].toString());  ;
@@ -399,10 +392,7 @@ public class Board {
 	public void start() {
 		started = true; // prevents people from joining
 		logger.info("Dealing cards for new game.");
-		String[] winningCards = Deck.dealCards(players);
-		suspectSolution = winningCards[0];
-		weaponSolution = winningCards[1];
-		roomSolution = winningCards[2];
+		cardsController.dealCards(gameId, players);
 	}
 	
 	/**
