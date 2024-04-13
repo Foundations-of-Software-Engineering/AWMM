@@ -145,10 +145,10 @@ public class Board {
 	 * Initializes the game board, players, and cards.
 	 * @param gameId The ID of the game.
 	 */
-	public Board(String gameId, PositionController positionController) {
+	public Board(String gameId, PositionController positionController, CardsController cardsController) {
 		super();
 
-		this.cardsController = new CardsController();		
+		this.cardsController = cardsController;
 		this.started = false;
 		this.suggested = false;
 		this.gameId = gameId;
