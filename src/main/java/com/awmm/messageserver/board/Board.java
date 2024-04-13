@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.awmm.messageserver.cards.CardsController;
-import com.awmm.messageserver.deck.Deck;
 import com.awmm.messageserver.player.Player;
 import com.awmm.messageserver.position.Position;
 import com.awmm.messageserver.position.PositionController;
@@ -138,10 +137,6 @@ public class Board {
 	
 	private Location[][] grid = new Location[ROW_SIZE][COL_SIZE];
 
-	private String suspectSolution;
-	private String weaponSolution ;
-	private String roomSolution   ;
-	
 	private final Logger logger = LoggerFactory.getLogger(Board.class);
 
 	/**
@@ -152,19 +147,19 @@ public class Board {
 	public Board(String gameId) {
 		super();
 
+		this.cardsController = new CardsController();		
+		this.started = false;
+		this.suggested = false;
+		this.gameId = gameId;
+		this.players = new ArrayList<>();
+		this.positionController = new PositionController();
+		
 		missScarlet   = new BoardPlayer(ScarletUserID, gameId,   MissScarletName);
 		colMustard    = new BoardPlayer(MustardUserID, gameId,    ColMustardName);
 		mrsWhite      = new BoardPlayer(WhiteUserID  , gameId,      MrsWhiteName);
 		mrGreen       = new BoardPlayer(GreenUserID  , gameId,       MrGreenName);
 		mrsPeacock    = new BoardPlayer(PeacockUserID, gameId,    MrsPeacockName);
 		professorPlum = new BoardPlayer(PlumUserID   , gameId, ProfessorPlumName);
-		
-		this.started = false;
-		this.suggested = false;
-		this.gameId = gameId;
-		this.players = new ArrayList<>();
-		this.cardsController = new CardsController();
-		this.positionController = new PositionController();
 		
 		//Rooms
 		for (RoomEnum roomEnum : RoomEnum.values()) {
@@ -179,10 +174,6 @@ public class Board {
 				}
 			}
 		}
-		
-		suspectSolution = null;
-		weaponSolution  = null;
-		roomSolution    = null;
 	}
 
 	public void addPlayer(String player) {
@@ -383,7 +374,8 @@ public class Board {
 	 */
 	@Override
 	public String toString() {
-		String toString = "Game Answers for Game ID " + gameId +": " + suspectSolution + ", " + weaponSolution + ", " + roomSolution + "\n";
+		String toString = "";
+//		String toString = "Game Answers for Game ID " + gameId +": " + suspectSolution + ", " + weaponSolution + ", " + roomSolution + "\n";
 		for (int row = 0; row < ROW_SIZE; ++row) {
 			for (int col = 0; col < COL_SIZE; ++col) {
 				toString += String.format("%-50s", grid[row][col].toString());  ;
