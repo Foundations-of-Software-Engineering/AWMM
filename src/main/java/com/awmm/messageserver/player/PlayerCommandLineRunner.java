@@ -27,9 +27,12 @@ import com.awmm.messageserver.positions.Positions;
 import com.awmm.messageserver.positions.PositionsRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+
 import jakarta.transaction.Transactional;
 
-@Component
+
+//@Component
+
 public class PlayerCommandLineRunner implements CommandLineRunner {
 
 //	@Autowired

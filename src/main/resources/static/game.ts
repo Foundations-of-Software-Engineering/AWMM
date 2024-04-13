@@ -1,39 +1,83 @@
-import { sendMessage } from "./sendMessage.js";
-import { wsManager } from './websocketManager.js';
+import {sendMessage} from "./sendMessage.js";
+import {wsManager} from './websocketManager.js';
 
-function showCookies() {
-    const cookieValue = document.cookie.split("; ").find((row) => row.startsWith("gameId"))?.split("=")[1];
-    const output: HTMLElement | null = document.getElementById("cookie-value");
-    console.log("TEST", cookieValue);
-    if (output)
-        output.textContent = `>${cookieValue}`;
+const characterNames: {[key: number]: string } = {
+    0: "Miss Scarlet",
+    1: "Colonel Mustard",
+    2: "Mrs White",
+    3: "Mr Green",
+    4: "Mrs Peacock",
+    5: "Professor Plum"
+}
+
+// Function to get the value of a specific cookie
+function getCookieValue(cookieName: string): string | undefined {
+    const cookie = document.cookie.split("; ").find((row) => row.startsWith(cookieName));
+    return cookie ? cookie.split("=")[1] : undefined;
+}
+
+function sendLoginMessage(){
+    const GAMEID = <string>getCookieValue('gameId');
+    const USERID = parseInt(<string>getCookieValue('userId'));
+    try {
+        wsManager.sendMessage({GAMEID: GAMEID, USERID: USERID, action: "LOGIN"})
+    } catch (error) {
+        console.error("Error sending login message:", error);
+    }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
     wsManager.connect();
 
-
     const form = document.getElementById('messageForm') as HTMLFormElement;
+    const imageSelection = document.getElementById('image-selection')!;
+    const mainContent = document.getElementById('main-content')!;
+    const selectableImages = document.querySelectorAll('.selectable-image')!;
+    let selectedImageValue: number | null = null; // Variable to store the selected image value
+    const messageBox = document.getElementById("message-box")!;
+
+    form.style.display = 'none'; // Initially hide the form
+
+    // Add event listeners to each selectable image
+    selectableImages.forEach(image => {
+        image.addEventListener('click', () => {
+            // Store the selected image value in the variable
+            selectedImageValue = parseInt(image.getAttribute('data-image')!);
+            document.cookie = `userId=${selectedImageValue}; path=/; max-age=86400`;
+
+            // Send login message with corresponding userid
+            sendLoginMessage();
+
+            imageSelection.style.display = 'none'; // Hide the image selection
+            mainContent.style.display = 'block'; // Show the main content
+            form.style.display = 'block'; // Show the form
+        });
+    });
+
+    // Set up an event listener for when messages are received
+    wsManager.onMessage((event: MessageEvent) => {
+        console.log('Message from server:', event.data);
+        const message = JSON.parse(event.data)
+        if (message.action === 'SUCCESS') {
+            const characterName = characterNames[message.USERID];
+            console.log(`${characterName} has joined the game.`)
+            messageBox.innerHTML += `${characterName} has joined the game.<br>`;
+        }
+    });
+
     form.addEventListener("submit", async (event) => {
         event.preventDefault();
-        const GAMEID = Number((document.getElementById('GAMEID') as HTMLInputElement).value);
+        const GAMEID = (document.getElementById('GAMEID') as HTMLInputElement).value;
         const USERID = Number((document.getElementById('USERID') as HTMLInputElement).value);
         const action = (document.getElementById('action') as HTMLInputElement).value;
         const location = (document.getElementById('location') as HTMLInputElement).value;
         const weapon = (document.getElementById('weapon') as HTMLInputElement).value;
         const suspect = (document.getElementById('suspect') as HTMLInputElement).value;
 
-        const cookiebtn: HTMLElement | null = document.getElementById("show-cookie-btn");
-        if (cookiebtn) {
-            cookiebtn.addEventListener("click", showCookies)
-        } else {
-            console.error("Button with id 'show-cookie-btn' not found.");
-        }
-
-
         try {
             const message = await sendMessage({ GAMEID, USERID, action, location, weapon, suspect });
-            console.log('Message received: ', message);
+            // sendMessage() is void and so message will be undefined
+            // console.log('Message received: ', message);
             form.reset();
         } catch (error) {
             console.error(`Error sending message: `, error);

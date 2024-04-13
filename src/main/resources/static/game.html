@@ -3,8 +3,30 @@
 <head>
     <meta charset="utf-8">
     <title>Send Data to Server</title>
+    <style>
+        #message-box {
+            width: 800px;
+            height: 400px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            overflow-y: auto;
+            margin-left: 20px;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
+<div id="image-selection">
+    <p id="select-character-text">Please select a character.</p>
+    <img src="/images/Miss_Scarlet.jpg" class="selectable-image" data-image="0" alt="Miss Scarlet">
+    <img src="/images/Colonel_Mustard.jpg" class="selectable-image" data-image="1" alt="Colonel Mustard">
+    <img src="/images/Mrs_White.jpg" class="selectable-image" data-image="2" alt="Mrs White">
+    <img src="/images/Mr_Green.jpg" class="selectable-image" data-image="3" alt="Mr Green">
+    <img src="/images/Mrs_Peacock.jpg" class="selectable-image" data-image="4" alt="Mrs Peacock">
+    <img src="/images/Professor_Plum.jpg" class="selectable-image" data-image="5" alt="Professor Plum">
+</div>
+
+<div id="main-content" style="display: none;">
     <h2>Send Message</h2>
     <form id="messageForm">
         <label for="GAMEID">GAMEID:</label><br />
@@ -19,11 +41,12 @@
         <textarea id="weapon" name="weapon"></textarea><br />
         <label for="suspect">Suspect:</label><br />
         <textarea id="suspect" name="suspect"></textarea><br />
-        <textarea id="cookies" name="cookies"></textarea><br />
-        <button id="show-cookie-btn" type="submit">Show cookies</button>
         <button type="submit">Send Message</button>
     </form>
+</div>
 
-    <script src="game.js" type="module"></script>
+<div id="message-box"></div>
+
+<script src="game.js" type="module"></script>
 </body>
 </html>
