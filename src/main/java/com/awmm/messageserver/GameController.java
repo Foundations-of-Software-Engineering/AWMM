@@ -15,6 +15,7 @@ import com.awmm.messageserver.positions.PositionsController;
 
 /**
  * Controller class for communicating with the game server.
+ * 
  * @author AWMM
  */
 @Controller
@@ -22,11 +23,10 @@ public class GameController {
 
 	// gameId to board state
 	private final HashMap<String, Board> boardStates;
-	
-//	private final CardsController cardsController;
-//	private final PositionsController positionsController;
-	
-	
+
+	// private final CardsController cardsController;
+	// private final PositionsController positionsController;
+
 	@Autowired
 	private PositionController positionController;
 	@Autowired
@@ -34,12 +34,12 @@ public class GameController {
 
 	private final Logger logger;
 	private static final String[] playerNames = {
-		Board.    MissScarletName,
-		Board.  ProfessorPlumName,
-		Board.     ColMustardName,
-		Board.     MrsPeacockName,
-		Board.        MrGreenName,
-		Board.       MrsWhiteName
+			Board.MissScarletName,
+			Board.ProfessorPlumName,
+			Board.ColMustardName,
+			Board.MrsPeacockName,
+			Board.MrGreenName,
+			Board.MrsWhiteName
 	};
 
 	int losers = 0;
@@ -50,8 +50,8 @@ public class GameController {
 	public GameController() {
 		this.boardStates = new HashMap<>();
 		this.logger = LoggerFactory.getLogger(GameController.class);
-//		this.cardsController = new CardsController();
-//		this.positionsController = new PositionsController();
+		// this.cardsController = new CardsController();
+		// this.positionsController = new PositionsController();
 	}
 
 	/**
@@ -61,48 +61,43 @@ public class GameController {
 	 * @return true if the board state is created successfully, false otherwise.
 	 */
 	public boolean createBoardState(String gameID) {
-		if (boardStates.containsKey(gameID)){
+		if (boardStates.containsKey(gameID)) {
 			return false;
-		}
-		else {
+		} else {
 			boardStates.put(gameID, new Board(gameID, positionController, cardsController));
 			return true;
 		}
 	}
-	
-	// boolean 
-	public void handleMove(ExampleMessage clientMessage) {
-		String gameID   = clientMessage.GAMEID();
-		int    userID   = clientMessage.USERID();
+
+	public boolean handleMove(ExampleMessage clientMessage) {
+		String gameID = clientMessage.GAMEID();
+		int userID = clientMessage.USERID();
 		String location = clientMessage.location();
-		
+
 		if (isValid(gameID, userID) && location != null) {
-			boardStates.get(gameID).movePlayer(playerNames[userID], location.toUpperCase());
-		}
-		else {
+			return boardStates.get(gameID).movePlayer(playerNames[userID], location.toUpperCase());
+
+		} else {
 			logger.error("Invalid gameId: {} or userID: {} or location: {}", gameID, userID, location);
+			return false;
 		}
 	}
 
-
 	public boolean handleSuggest(ExampleMessage clientMessage) {
-		String     gameId   = clientMessage.GAMEID()  ;
-		int        userId   = clientMessage.USERID()  ;
-		String     suspect  = clientMessage.suspect() ;
-		String     weapon   = clientMessage.weapon()  ;
-		
+		String gameId = clientMessage.GAMEID();
+		int userId = clientMessage.USERID();
+		String suspect = clientMessage.suspect();
+		String weapon = clientMessage.weapon();
+
 		if (!isValid(gameId, userId)) {
-            logger.error("Error processing gameId: {} or userId: {}", gameId, userId);
-		}
-		else if (suspect == null) {
-            logger.error("Suspect should not be null when making suggestion.");
-		}
-		else if (weapon == null) {
+			logger.error("Error processing gameId: {} or userId: {}", gameId, userId);
+		} else if (suspect == null) {
+			logger.error("Suspect should not be null when making suggestion.");
+		} else if (weapon == null) {
 			logger.error("Weapon should not be null when making suggestion.");
-		}
-		else if (!cardsController.hasSuggestion(gameId)){			
+		} else if (!cardsController.hasSuggestion(gameId)) {
 			String roomName = boardStates.get(gameId).handleSuggest(playerNames[userId], suspect);
-			if (roomName != null) {				
+			if (roomName != null) {
 				cardsController.setSuggestion(gameId, weapon, suspect, roomName);
 				return true;
 			}
@@ -113,11 +108,11 @@ public class GameController {
 	public boolean handleAccuse(ExampleMessage clientMessage) {
 		Board board = boardStates.get(clientMessage.GAMEID());
 
-		String     gameId   = clientMessage.GAMEID()  ;
-		int        userId   = clientMessage.USERID()  ;
-		String     suspect  = clientMessage.suspect() ;
-		String     weapon  = clientMessage.weapon() ;
-		String     location  = clientMessage.location() ;
+		String gameId = clientMessage.GAMEID();
+		int userId = clientMessage.USERID();
+		String suspect = clientMessage.suspect();
+		String weapon = clientMessage.weapon();
+		String location = clientMessage.location();
 
 		if (!isValid(gameId, userId)) {
 			logger.error("Error processing gameId: {} or userId: {}", gameId, userId);
@@ -136,8 +131,8 @@ public class GameController {
 		}
 
 		if (cardsController.getOwnerOf(gameId, clientMessage.location()) == null
-			&& cardsController.getOwnerOf(gameId, clientMessage.weapon()) == null
-			&& cardsController.getOwnerOf(gameId, clientMessage.suspect()) == null) {
+				&& cardsController.getOwnerOf(gameId, clientMessage.weapon()) == null
+				&& cardsController.getOwnerOf(gameId, clientMessage.suspect()) == null) {
 			logger.info("Accusation matches winning cards. Game over.");
 			return true;
 		} else {
@@ -145,9 +140,8 @@ public class GameController {
 			return false;
 		}
 
-
 	}
-	
+
 	private boolean isValid(String gameId, int userId) {
 		return boardStates.containsKey(gameId) && userId >= 0 && userId <= 5;
 	}
@@ -177,8 +171,8 @@ public class GameController {
 		Board board = boardStates.get(gameID);
 		if (board != null) {
 			return board.toString();
-		}
-		else return "Cannot find Board with Game ID: " + gameID;
+		} else
+			return "Cannot find Board with Game ID: " + gameID;
 	}
 
 	// TODO
@@ -193,27 +187,27 @@ public class GameController {
 		}
 	}
 
-//	public void setCards(Cards cards) {
-//		// TODO Auto-generated method stub
-//		Map<String, String> map = cardsController.getCardsMap(cards);
-//		String gameID = map.remove("gameID");
-//		if (boardStates.containsKey(gameID)) {
-//			boardStates.get(gameID).setCards(map);
-//		}
-//	}
+	// public void setCards(Cards cards) {
+	// // TODO Auto-generated method stub
+	// Map<String, String> map = cardsController.getCardsMap(cards);
+	// String gameID = map.remove("gameID");
+	// if (boardStates.containsKey(gameID)) {
+	// boardStates.get(gameID).setCards(map);
+	// }
+	// }
 
-//	public void setPositions(Positions positions) {
-//		// TODO Auto-generated method stub
-//		Map<String, Integer[]> map = positionsController.getPositionsMap(positions);
-//		String gameID = positions.getGameID();
-//		if (boardStates.containsKey(gameID)) {
-//			boardStates.get(gameID).setPositions(map);
-//		}
-//		
-//	}
-	
+	// public void setPositions(Positions positions) {
+	// // TODO Auto-generated method stub
+	// Map<String, Integer[]> map = positionsController.getPositionsMap(positions);
+	// String gameID = positions.getGameID();
+	// if (boardStates.containsKey(gameID)) {
+	// boardStates.get(gameID).setPositions(map);
+	// }
+	//
+	// }
+
 	public void addPlayer(String gameID, int userID) {
 		boardStates.get(gameID).addPlayer(playerNames[userID]);
 	}
-    
+
 }
