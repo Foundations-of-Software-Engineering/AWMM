@@ -40,8 +40,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     startButton.addEventListener("click", async () => {
         try {
-            mainContent.style.display = 'block'; // Show the main content
-            form.style.display = 'block'; // Show the form
             const action = startButton.value;
             const gameID = <string>getCookieValue('gameId');
             const userID = parseInt(<string>getCookieValue('userId'));
@@ -91,6 +89,13 @@ document.addEventListener("DOMContentLoaded", () => {
             if (message.action === 'accusefail') {
                 form.style.display = 'none';
             }
+        } else if (message.action === 'START'){
+            console.log('Start game message received:', message);
+            startButton.style.display = 'none';
+            mainContent.style.display = 'block'; // Show the main content
+            form.style.display = 'block'; // Show the form
+        } else if (message.action === 'SUGGEST') {
+            messageBox.innerHTML += `${characterNames[message.USERID]} suggests it was ${message.suspect} in the ${message.location} with a ${message.weapon}.<br>`;
         }
     });
 
