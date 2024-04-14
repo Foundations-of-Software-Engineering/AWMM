@@ -171,12 +171,14 @@ public class ClientController extends TextWebSocketHandler {
 	 */
 	private void handleAccuse(WebSocketSession session, ExampleMessage clientMessage) {
 		if (gameController.handleAccuse(clientMessage)) {
-
-		} else {
+			broadcastMessage(clientMessage, clientMessage.GAMEID());
+		} else if (gameController.activePlayers(clientMessage) <= 0) { // no winners :(		
+			broadcastMessage(new NoWinMessage("Nobody Wins"), clientMessage.GAMEID());
+			// initiate cleanup
+		}
+		else {
 			sendMessageToClient(session, new AccuseFailMessage("accusefail"));
 		}
-		broadcastMessage(clientMessage, clientMessage.GAMEID());
-
 	}
 
 	/**

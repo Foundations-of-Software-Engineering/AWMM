@@ -141,11 +141,17 @@ public class GameController {
 			logger.info("Accusation matches winning cards. Game over.");
 			return true;
 		} else {
-			// invalid integer will prevent user from making future decisions
+			// invalid integer will prevent user from making future decisions but disprove
+			if (board != null) board.removePlayer(playerNames[userId]);
 			return false;
 		}
 
 
+	}
+	
+	public int activePlayers(ExampleMessage clientMessage) {
+		Board board = boardStates.get(clientMessage.GAMEID());
+		return board.activePlayers();
 	}
 	
 	private boolean isValid(String gameId, int userId) {
