@@ -24,9 +24,6 @@ public class GameController {
 	// gameId to board state
 	private final HashMap<String, Board> boardStates;
 
-	// private final CardsController cardsController;
-	// private final PositionsController positionsController;
-
 	@Autowired
 	private PositionController positionController;
 	@Autowired
@@ -73,9 +70,10 @@ public class GameController {
 		String gameID = clientMessage.GAMEID();
 		int userID = clientMessage.USERID();
 		String location = clientMessage.location();
+		int currentUser = boardStates.get(gameID).getCurrentPlayer();
 
-		if (userID != boardStates.get(gameID).getCurrentPlayer()){
-			logger.error("User {} tried moving when not their turn", userID);
+		if (userID != currentUser){
+			logger.error("User {} tried moving when it is User {}'s turn.", userID, currentUser);
 		} else if (boardStates.get(gameID).hasCurrentPlayerMoved()) {
 			logger.info("User {} tried moving more than once.", userID);
 		}

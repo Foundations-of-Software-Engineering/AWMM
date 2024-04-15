@@ -214,7 +214,7 @@ public class Board {
 	 * @param boardPlayer The BoardPlayer object representing the player to be added.
 	 */
 	private String firstMove(BoardPlayer boardPlayer) {
-		if (started) return null;
+		if (!started) return null;
 		Player player = boardPlayer.player;
 		Position startingPosition;
 		switch(player.getName()) {
@@ -288,6 +288,8 @@ public class Board {
 		int row = oldPosition.getRow();
 		int col = oldPosition.getCol();
 		Position newPosition = new Position();
+		newPosition.setRow(row);
+		newPosition.setCol(col);
 		
 		switch (destination) {
 			case Up:

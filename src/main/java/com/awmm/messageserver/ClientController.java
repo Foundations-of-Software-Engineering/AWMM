@@ -119,12 +119,9 @@ public class ClientController extends TextWebSocketHandler {
 					// TODO
 					handleAccuse(session, clientMessage);
 					break;
-        case "DISPROVE":
-          // TODO
-          // Send Message to a Player to Disprove if it's his/her turn
-          // Maybe automatically check for who can disprove and ask that player in order
-          handleDisprove(session, clientMessage);
-          break;
+		        case "DISPROVE":
+		          handleDisprove(session, clientMessage);
+		          break;
 				case "HOSTGAME":
 					handleHostAction(session);
 					break;

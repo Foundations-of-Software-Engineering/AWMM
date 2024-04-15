@@ -10,6 +10,24 @@ const characterNames: {[key: number]: string } = {
     5: "Professor Plum"
 }
 
+class Character {
+    name: string = "";
+    row: number = 0;
+    col: number = 0;
+    constructor(name: string, row: number, col:number) {
+        this.name = name;
+        this.row = row;
+        this.col = col;
+    }
+}
+
+var scarlet = new Character("Scarlet", 0, 0);
+var mustard = new Character("Mustard", 0, 0);
+var white = new Character("White", 0, 0);
+var green = new Character("Green", 0, 0);
+var peacock = new Character("Peacock", 0, 0);
+var plum = new Character("Plum", 0, 0);
+
 // Function to get the value of a specific cookie
 function getCookieValue(cookieName: string): string | undefined {
     const cookie = document.cookie.split("; ").find((row) => row.startsWith(cookieName));
@@ -24,6 +42,36 @@ function sendLoginMessage(){
     } catch (error) {
         console.error("Error sending login message:", error);
     }
+}
+
+function movePlayer(character : Character, x : number, y : number) {
+    // Clear previous player position\
+    let oldElement = document.querySelector(`#grid tbody tr:nth-child(${character.row + 1}) td:nth-child(${character.col + 1})`);
+    if (oldElement !== null) {
+        let str = oldElement.textContent;
+        if (str !== null) {
+            let replacement = str.replace(character.name, "");
+            oldElement.textContent = replacement;
+        }
+    }
+
+    // document.querySelector(`#grid tbody tr:nth-child(${y + 1}) td:nth-child(${x + 1})`).textContent = '';
+
+    // Update player position
+    // playerPosition.x += x;
+    // playerPosition.y += y;
+
+    // Ensure player stays within grid bounds
+    character.row = Math.max(0, Math.min(x, 4));
+    character.col = Math.max(0, Math.min(y, 4));
+
+    // Set new player position
+    let newElement = document.querySelector(`#grid tbody tr:nth-child(${character.row + 1}) td:nth-child(${character.col + 1})`);
+    // document.querySelector(`#grid tbody tr:nth-child(${y + 1}) td:nth-child(${x + 1})`).textContent = 'X';
+    if (newElement !== null) {
+        newElement.textContent += character.name + " ";
+    }
+        
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -168,6 +216,43 @@ document.addEventListener("DOMContentLoaded", () => {
             const characterName = characterNames[message.USERID];
             if (message.action === 'SUCCESS') {
                 messageBox.innerHTML += `${characterName} has moved to ${message.location}.<br>`;
+
+                let row = message.location.charAt(0);
+                let col = message.location.charAt(2);
+
+                let character : Character;
+
+                switch(message.USERID) {
+                    case 0: {
+                        character = scarlet;
+                        break;
+                    }
+                    case 1: {
+                        character = mustard;
+                        break;
+                    }
+                    case 2: {
+                        character = white;
+                        break;
+                    }
+                    case 3: {
+                        character = green;
+                        break;
+                    }
+                    case 4: {
+                        character = peacock;
+                        break;
+                    }
+                    case 5: { 
+                        character = plum;
+                        break;
+                    }
+                    default: { return; }
+                }
+
+                console.log("character = " + character + ", row = " + row + ", col = " + col);
+                movePlayer(character, row, col);
+
 
             } else {
                 console.log(`Move failed for ${characterName}`)

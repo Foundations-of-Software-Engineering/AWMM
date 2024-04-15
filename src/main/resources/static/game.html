@@ -13,6 +13,12 @@
             margin-left: 20px;
             margin-top: 20px;
         }
+        .hallway {
+            background-color: aqua;
+        }
+        .plum {
+            content: "Plum"
+        }
     </style>
 </head>
 <body>
@@ -56,6 +62,9 @@
         <input type="radio" id="diagonalAction" name="actionChoice" value="MOVE">
         <label for="diagonalAction">Move Diagonal</label>
 
+        <input type="radio" id="endTurnAction" name="actionChoice" value="ENDTURN">
+        <label for="endTurnAction">End Turn</label>
+
         <div id="selectOptions" style="display: none; margin-top: 10px">
             <p>
                 The weapon was
@@ -70,6 +79,47 @@
         <button type="submit">Send Message</button>
     </form>
 </div>
+
+<table id="grid" border="1">
+    <caption>Board</caption>
+    <tbody>
+        <tr>
+            <td>Study </td>
+            <td class="hallway"></td>
+            <td>Hall </td>
+            <td class="hallway"></td>
+            <td>Lounge </td>
+        </tr>
+        <tr>
+            <td class="hallway"></td>
+            <td></td>
+            <td class="hallway"></td>
+            <td></td>
+            <td class="hallway"></td>
+        </tr>
+        <tr id="row-2">
+            <td>Library</td>
+            <td class="hallway"></td>
+            <td>Billiard Room </td>
+            <td class="hallway"></td>
+            <td>Dining Room </td>
+        </tr>
+        <tr id="row-3">
+            <td class="hallway"></td>
+            <td></td>
+            <td class="hallway"></td>
+            <td></td>
+            <td class="hallway"></td>
+        </tr>
+        <tr id="row-4">
+            <td>Conservatory </td>
+            <td class="hallway"></td>
+            <td>Ballroom </td>
+            <td class="hallway"></td>
+            <td>Kitchen </td>
+        </tr>
+    </tbody>
+</table>
 
 <div id="message-box"></div>
 
