@@ -161,7 +161,6 @@ document.addEventListener("DOMContentLoaded", () => {
         event.preventDefault();
         const gameId = <string>getCookieValue('gameId');
         const userId = parseInt(<string>getCookieValue('userId'));
-        //const actionSelected = (document.querySelector('input[name="actionChoice"]:checked') as HTMLInputElement).value;
         const actionSelected = document.querySelector<HTMLInputElement>('input[name="actionChoice"]:checked')!;
 
         const data = {
