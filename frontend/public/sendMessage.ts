@@ -1,12 +1,12 @@
 import { wsManager } from './websocketManager.js';
 
 function sendMessage(data: {
-    weapon: string;
-    USERID: number;
-    action: string;
-    location: string;
-    suspect: string;
     GAMEID: string
+    USERID: number;
+    weapon?: string;
+    action?: string;
+    location?: string;
+    suspect?: string;
 }): void {
     wsManager.sendMessage(data);
 }
