@@ -123,6 +123,9 @@ public class ClientController extends TextWebSocketHandler {
 				case "JOINGAME":
 					handleJoinAction(session, clientMessage);
 					break;
+				case "ENDTURN":
+					handleEndAction(session, clientMessage);
+					break;
 
                 // Add other actions
                 default:
@@ -265,6 +268,15 @@ public class ClientController extends TextWebSocketHandler {
 			logger.info("Player tried to join full game {}", gameID);
 		}
 		sendMessageToClient(session, response);
+	}
+
+	private void handleEndAction(WebSocketSession session, ExampleMessage clientMessage){
+		String gameID = clientMessage.GAMEID();
+		int userID = clientMessage.USERID();
+
+		gameController.handleEndTurn(clientMessage);
+		Message response = new ExampleMessage(gameID, userID, "ENDTURN", null, null, null, "ENDTURN");
+		broadcastMessage(response, gameID);
 	}
 
 	/**
