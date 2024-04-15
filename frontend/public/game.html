@@ -30,21 +30,42 @@
     <button id="startButton" value="START">Start Game</button>
 </div>
 
+
 <div id="main-content" style="display: none;">
     <h2>Send Message</h2>
     <form id="messageForm">
-        <label for="GAMEID">GAMEID:</label><br />
-        <input type="text" id="GAMEID" name="GAMEID" /> <br />
-        <label for="USERID">USERID:</label><br />
-        <input type="text" id="USERID" name="USERID" /> <br />
-        <label for="action">Action:</label><br />
-        <textarea id="action" name="action"></textarea><br />
-        <label for="location">Location:</label><br />
-        <textarea id="location" name="location"></textarea><br />
-        <label for="weapon">Weapon:</label><br />
-        <textarea id="weapon" name="weapon"></textarea><br />
-        <label for="suspect">Suspect:</label><br />
-        <textarea id="suspect" name="suspect"></textarea><br />
+        <input type="radio" id="suggestAction" name="actionChoice" value="SUGGEST"  checked>
+        <label for="suggestAction">Suggest</label>
+
+        <input type="radio" id="accuseAction" name="actionChoice" value="ACCUSE">
+        <label style="color:red;" for="accuseAction">Accuse</label>
+
+        <input type="radio" id="leftAction" name="actionChoice" value="MOVE">
+        <label for="leftAction">Move Left</label>
+
+        <input type="radio" id="rightAction" name="actionChoice" value="MOVE">
+        <label for="rightAction">Move Right</label>
+
+        <input type="radio" id="upAction" name="actionChoice" value="MOVE">
+        <label for="upAction">Move Up</label>
+
+        <input type="radio" id="downAction" name="actionChoice" value="MOVE">
+        <label for="downAction">Move Down</label>
+
+        <input type="radio" id="diagonalAction" name="actionChoice" value="MOVE">
+        <label for="diagonalAction">Move Diagonal</label>
+
+        <div id="selectOptions" style="display: none; margin-top: 10px">
+            <p>
+                The weapon was
+                <select id="weaponSelect"></select>
+                within the room
+                <select id="roomSelect"></select>
+                by the killer
+                <select id="suspectSelect"></select>
+            </p>
+            <br />
+        </div>
         <button type="submit">Send Message</button>
     </form>
 </div>
