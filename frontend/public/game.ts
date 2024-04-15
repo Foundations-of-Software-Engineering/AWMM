@@ -134,26 +134,32 @@ document.addEventListener("DOMContentLoaded", () => {
     wsManager.onMessage((event: MessageEvent) => {
         console.log('Message from server:', event.data);
         const message = JSON.parse(event.data)
-
-        if (message.type === 'example') {
+        var isEmpty = messageBox.innerHTML === "";
+        if (isEmpty) {
+            messageBox.innerHTML += 'New Game Created with Game ID: ' + message.GAMEID + '<br>';
+        }
+        if (message.type === 'LOGIN') {
             const characterName = characterNames[message.USERID];
-            console.log(`${characterName} has joined the game.`)
-            messageBox.innerHTML += `${characterName} has joined the game.<br>`;
+            if (message.action === 'SUCCESS') {
+                console.log(`Login succeeded for ${characterName}`)
+                messageBox.innerHTML += `${characterName} has joined the game.<br>`;
+            } else {
+                console.log(`Login failed for ${characterName}`)
+            }
             if (startButtonContainer) {
                 startButtonContainer.style.display = 'block'; // Safe to access `style` because we checked if it's not null
             } else {
                 console.error('Failed to find the startButtonContainer element.');
             }
-            if (message.type === 'accusefail') {
-                form.style.display = 'none';
-            }
-        } else if (message.type === 'start'){
+        } else if (message.type === 'start') {
             console.log('Start game message received:', message);
             startButton.style.display = 'none';
             mainContent.style.display = 'block'; // Show the main content
             form.style.display = 'block'; // Show the form
         } else if (message.type === 'SUGGEST') {
             messageBox.innerHTML += `${characterNames[message.USERID]} suggests it was ${message.suspect} in the ${message.location} with a ${message.weapon}.<br>`;
+        } else if (message.type === 'accusefail') {
+            form.style.display = 'none';
         }
     });
 

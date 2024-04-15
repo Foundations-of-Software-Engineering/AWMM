@@ -134,7 +134,10 @@ document.addEventListener("DOMContentLoaded", () => {
     wsManager.onMessage((event: MessageEvent) => {
         console.log('Message from server:', event.data);
         const message = JSON.parse(event.data)
-
+        var isEmpty = messageBox.innerHTML === "";
+        if (isEmpty) {
+            messageBox.innerHTML += 'New Game Created with Game ID: ' + message.GAMEID + '<br>';
+        }
         if (message.type === 'example') {
             const characterName = characterNames[message.USERID];
             console.log(`${characterName} has joined the game.`)
@@ -161,7 +164,6 @@ document.addEventListener("DOMContentLoaded", () => {
         event.preventDefault();
         const gameId = <string>getCookieValue('gameId');
         const userId = parseInt(<string>getCookieValue('userId'));
-        //const actionSelected = (document.querySelector('input[name="actionChoice"]:checked') as HTMLInputElement).value;
         const actionSelected = document.querySelector<HTMLInputElement>('input[name="actionChoice"]:checked')!;
 
         const data = {
@@ -173,8 +175,6 @@ document.addEventListener("DOMContentLoaded", () => {
             suspect: 'null'
         };
 
-        console.log("???", actionSelected)
-        console.log("???", actionSelected.value)
 
         if (actionSelected.value === "SUGGEST" || actionSelected.value === "ACCUSE") {
             data.location = (document.getElementById('roomSelect') as HTMLInputElement).value;

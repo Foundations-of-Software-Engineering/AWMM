@@ -95,7 +95,7 @@ public class GameController {
 		String weapon = clientMessage.weapon();
 
 		if (!isValid(gameId, userId)) {
-      logger.error("Error processing gameId: {} or userId: {}", gameId, userId);
+			logger.error("Error processing gameId: {} or userId: {}", gameId, userId);
 		}
 		else if (userId != boardStates.get(gameId).getCurrentPlayer()){
 			logger.error("User {} tried suggesting when not their turn", userId);

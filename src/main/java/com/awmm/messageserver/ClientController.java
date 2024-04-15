@@ -376,9 +376,8 @@ public class ClientController extends TextWebSocketHandler {
 			}
 		}
 
-		ExampleMessage successResponseMessage = new ExampleMessage(gameID, userID, "SUCCESS", null, null, null,
-				"example");
-		ExampleMessage failureResponseMessage = new ExampleMessage(gameID, userID, "FAIL", null, null, null, "example");
+		ExampleMessage successResponseMessage = new ExampleMessage(gameID, userID, "SUCCESS", null, null, null,	"LOGIN");
+		ExampleMessage failureResponseMessage = new ExampleMessage(gameID, userID, "FAIL", null, null, null, "LOGIN");
 
 		if (success) {
 			gameID2UserID2Session.get(gameID).put(userID, session);
