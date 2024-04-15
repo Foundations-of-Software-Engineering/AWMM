@@ -78,10 +78,12 @@ public class Board {
 		private Player player;
 		private Position position;
 		private boolean added;
+		private boolean playable;
 		private BoardPlayer(int id, String gameID, String name) {
 			this.player = new Player(id, gameID, name);
 			this.position = positionController.savePosition(gameID, id, -1, -1);
 			added = false;
+			playable = false;
 		}
 		private void setPosition(Position newPosition) {
 			this.position.setCol(newPosition.getCol());
@@ -178,13 +180,26 @@ public class Board {
 			}
 		}
 	}
+	
+	public int activePlayers() {
+		return players.size();
+	}
+	
+	public void removePlayer(String player) {
+		BoardPlayer boardPlayer = getBoardPlayerFromName(player);
+		if (boardPlayer != null) {
+			boardPlayer.playable = false;
+			players.remove(player);
+		}
+	}
 
 	public void addPlayer(String player) {
 		if (started) return;
 		BoardPlayer boardPlayer = getBoardPlayerFromName(player);
-		if (!boardPlayer.added) {			
+		if (!boardPlayer.added) {
 			players.add(player);
 			boardPlayer.added = true;
+			boardPlayer.playable = true;
 		}
 	}
 	
@@ -246,6 +261,11 @@ public class Board {
 		
 		if (boardPlayer == null || destination == null) {
 			logger.error("Error: playerName or direction is null");
+			return false;
+		}
+		
+		if (!boardPlayer.playable) {
+			logger.info("player is not playable");
 			return false;
 		}
 		
@@ -444,6 +464,11 @@ public class Board {
 	 * @param suspect The name of the suggested suspect.
 	 */
 	public String handleSuggest(String playerName, String suspect) {
+		BoardPlayer boardPlayer = getBoardPlayerFromName(playerName);
+		if (!boardPlayer.playable) {
+			logger.info("Player: {} is not playable", playerName);
+			return null;
+		}
 		Location location = getLocation(getBoardPlayerFromName(playerName).position);
 		if (location instanceof Room) {			
 			Room room = (Room) location;

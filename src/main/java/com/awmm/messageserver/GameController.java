@@ -84,7 +84,6 @@ public class GameController {
 		}
 	}
 
-
 	public boolean handleSuggest(ExampleMessage clientMessage) {
 		String     gameId   = clientMessage.GAMEID()  ;
 		int        userId   = clientMessage.USERID()  ;
@@ -141,11 +140,17 @@ public class GameController {
 			logger.info("Accusation matches winning cards. Game over.");
 			return true;
 		} else {
-			// invalid integer will prevent user from making future decisions
+			// invalid integer will prevent user from making future decisions but disprove
+			if (board != null) board.removePlayer(playerNames[userId]);
 			return false;
 		}
 
 
+	}
+	
+	public int activePlayers(ExampleMessage clientMessage) {
+		Board board = boardStates.get(clientMessage.GAMEID());
+		return board.activePlayers();
 	}
 	
 	private boolean isValid(String gameId, int userId) {
@@ -214,6 +219,20 @@ public class GameController {
 	
 	public void addPlayer(String gameID, int userID) {
 		boardStates.get(gameID).addPlayer(playerNames[userID]);
+	}
+
+	public boolean handleDisprove(ExampleMessage clientMessage) {
+		// TODO Auto-generated method stub
+		boolean ret = false;
+		String gameID = clientMessage.GAMEID();
+		int userID = clientMessage.USERID();
+		String weapon = clientMessage.weapon();
+		String suspect = clientMessage.suspect();
+		String room = clientMessage.location();
+		if (isValid(gameID, userID)) {
+			ret = cardsController.checkSuggestion(gameID, weapon, suspect, room, playerNames[userID]);
+		}
+		return ret;
 	}
     
 }
