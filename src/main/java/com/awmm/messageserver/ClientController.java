@@ -144,7 +144,7 @@ public class ClientController extends TextWebSocketHandler {
 		gameController.handleStart(clientMessage);
 		Message response = new ConfirmStartMessage(true, "start");
 		sendMessageToClient(session, response);
-		broadcastMessage(clientMessage, clientMessage.GAMEID());
+		//broadcastMessage(clientMessage, clientMessage.GAMEID());
 	}
 
 

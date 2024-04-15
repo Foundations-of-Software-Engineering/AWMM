@@ -35,8 +35,65 @@ document.addEventListener("DOMContentLoaded", () => {
     const selectableImages = document.querySelectorAll('.selectable-image')!;
     let selectedImageValue: number | null = null; // Variable to store the selected image value
     const messageBox = document.getElementById("message-box")!;
+
     const startButton = document.getElementById('startButton') as HTMLInputElement;
     const startButtonContainer = document.getElementById('startButtonContainer');
+
+    const suggestAction = document.getElementById('suggestAction') as HTMLInputElement;
+    const accuseAction = document.getElementById('accuseAction') as HTMLInputElement;
+
+    const selectOptions = document.getElementById('selectOptions')!;
+
+
+    const suspectSelect = document.getElementById('suspectSelect') as HTMLSelectElement;
+    const weaponSelect = document.getElementById('weaponSelect') as HTMLSelectElement;
+    const roomSelect = document.getElementById('roomSelect') as HTMLSelectElement;
+
+    const suspects = ['Professor Plum', 'Miss Scarlet', 'Col. Mustard', 'Mrs. Peacock', 'Mr. Green', 'Mrs. White'];
+    const weapons = ['Candlestick', 'Dagger', 'Lead Pipe', 'Revolver', 'Rope', 'Wrench'];
+    const rooms = ['Study', 'Hall', 'Lounge', 'Kitchen', 'Ballroom', 'Conservatory', 'Dining Room', 'Billiard Room', 'Library'];
+
+
+    suspects.forEach(suspects => {
+        const option = document.createElement('option');
+        option.value = suspects;
+        option.textContent = suspects;
+        suspectSelect.appendChild(option);
+    });
+
+    weapons.forEach(weapon => {
+        const option = document.createElement('option');
+        option.value = weapon;
+        option.textContent = weapon;
+        weaponSelect.appendChild(option);
+    });
+
+    rooms.forEach(rooms => {
+        const option = document.createElement('option');
+        option.value = rooms;
+        option.textContent = rooms;
+        roomSelect.appendChild(option);
+    });
+
+
+    document.querySelectorAll('input[name="actionChoice"]').forEach(input => {
+        input.addEventListener('change', function () {
+            if (suggestAction.checked || accuseAction.checked) {
+                selectOptions.style.display = 'block';
+            } else {
+                selectOptions.style.display = 'none';
+            }
+        })
+    });
+
+    // Function to toggle select options based on the checked radio button
+    function toggleSelectOptions() {
+        if (suggestAction.checked) {
+            selectOptions.style.display = 'block';
+        } else {
+            selectOptions.style.display = 'none';
+        }
+    }
 
     startButton.addEventListener("click", async () => {
         try {
@@ -77,7 +134,8 @@ document.addEventListener("DOMContentLoaded", () => {
     wsManager.onMessage((event: MessageEvent) => {
         console.log('Message from server:', event.data);
         const message = JSON.parse(event.data)
-        if (message.action === 'SUCCESS') {
+
+        if (message.type === 'example') {
             const characterName = characterNames[message.USERID];
             console.log(`${characterName} has joined the game.`)
             messageBox.innerHTML += `${characterName} has joined the game.<br>`;
@@ -86,36 +144,52 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 console.error('Failed to find the startButtonContainer element.');
             }
-            if (message.action === 'accusefail') {
+            if (message.type === 'accusefail') {
                 form.style.display = 'none';
             }
-        } else if (message.action === 'START'){
+        } else if (message.type === 'start'){
             console.log('Start game message received:', message);
             startButton.style.display = 'none';
             mainContent.style.display = 'block'; // Show the main content
             form.style.display = 'block'; // Show the form
-        } else if (message.action === 'SUGGEST') {
+        } else if (message.type === 'SUGGEST') {
             messageBox.innerHTML += `${characterNames[message.USERID]} suggests it was ${message.suspect} in the ${message.location} with a ${message.weapon}.<br>`;
         }
     });
 
     form.addEventListener("submit", async (event) => {
         event.preventDefault();
-        const GAMEID = (document.getElementById('GAMEID') as HTMLInputElement).value;
-        const USERID = Number((document.getElementById('USERID') as HTMLInputElement).value);
-        const action = (document.getElementById('action') as HTMLInputElement).value;
-        const location = (document.getElementById('location') as HTMLInputElement).value;
-        const weapon = (document.getElementById('weapon') as HTMLInputElement).value;
-        const suspect = (document.getElementById('suspect') as HTMLInputElement).value;
+        const gameId = <string>getCookieValue('gameId');
+        const userId = parseInt(<string>getCookieValue('userId'));
+        const actionSelected = (document.querySelector('input[name="actionChoice"]:checked') as HTMLInputElement).value;
+
+        const data = {
+            GAMEID: gameId,
+            USERID: userId,
+            action: actionSelected,
+            location: 'null',
+            weapon: 'null',
+            suspect: 'null'
+        };
+
+
+        if (actionSelected === "SUGGEST" || actionSelected === "ACCUSE") {
+            data.location = (document.getElementById('roomSelect') as HTMLInputElement).value;
+            data.weapon = (document.getElementById('weaponSelect') as HTMLInputElement).value;
+            data.suspect = (document.getElementById('suspectSelect') as HTMLInputElement).value;
+        }
+
 
         try {
-            const message = await sendMessage({ GAMEID, USERID, action, location, weapon, suspect });
+            const message = await sendMessage(data);
             // sendMessage() is void and so message will be undefined
-            // console.log('Message received: ', message);
+             console.log('Message received: ', message);
             form.reset();
         } catch (error) {
             console.error(`Error sending message: `, error);
             alert(`Failed to send message.`);
         }
     });
+    // Initial call to set the correct display state based on the default checked radio
+    toggleSelectOptions();
 });
