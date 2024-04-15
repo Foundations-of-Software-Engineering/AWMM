@@ -130,6 +130,11 @@ public class GameController {
 		String     weapon  = clientMessage.weapon() ;
 		String     location  = clientMessage.location() ;
 
+		if (userId != board.getCurrentPlayer()){
+			logger.error("User {} tried accusing when not their turn.", userId);
+			return false;
+		}
+
 		if (!isValid(gameId, userId)) {
 			logger.error("Error processing gameId: {} or userId: {}", gameId, userId);
 		}
