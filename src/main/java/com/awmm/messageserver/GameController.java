@@ -84,7 +84,6 @@ public class GameController {
 		}
 	}
 
-
 	public boolean handleSuggest(ExampleMessage clientMessage) {
 		String     gameId   = clientMessage.GAMEID()  ;
 		int        userId   = clientMessage.USERID()  ;
@@ -220,6 +219,20 @@ public class GameController {
 	
 	public void addPlayer(String gameID, int userID) {
 		boardStates.get(gameID).addPlayer(playerNames[userID]);
+	}
+
+	public boolean handleDisprove(ExampleMessage clientMessage) {
+		// TODO Auto-generated method stub
+		boolean ret = false;
+		String gameID = clientMessage.GAMEID();
+		int userID = clientMessage.USERID();
+		String weapon = clientMessage.weapon();
+		String suspect = clientMessage.suspect();
+		String room = clientMessage.location();
+		if (isValid(gameID, userID)) {
+			ret = cardsController.checkSuggestion(gameID, weapon, suspect, room, playerNames[userID]);
+		}
+		return ret;
 	}
     
 }

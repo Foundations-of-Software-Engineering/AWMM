@@ -1,5 +1,6 @@
 package com.awmm.messageserver;
 
+import com.awmm.messageserver.cards.CardsController;
 import com.awmm.messageserver.messages.*;
 
 import java.io.IOException;
@@ -114,7 +115,7 @@ public class ClientController extends TextWebSocketHandler {
                 	// TODO
                 	// Send Message to a Player to Disprove if it's his/her turn
                 	// Maybe automatically check for who can disprove and ask that player in order
-                	
+                	handleDisprove(session, clientMessage);
                 	break;
 				case "HOSTGAME":
 					handleHostAction(session);
@@ -131,6 +132,19 @@ public class ClientController extends TextWebSocketHandler {
             logger.error("Error processing incoming message from session: {}",session.getId(), e);
         }
     }
+
+	private void handleDisprove(WebSocketSession session, ExampleMessage clientMessage) {
+		// TODO Auto-generated method stub
+		ExampleMessage returnMessage = new ExampleMessage(null, null, null, null, null, null, null);
+		if (gameController.handleDisprove(clientMessage)) {
+			returnMessage = new ExampleMessage(clientMessage.GAMEID(), clientMessage.USERID(), "SUCCESS", null, null, null, null);
+			broadcastMessage(returnMessage, clientMessage.GAMEID());
+		} else {
+			returnMessage = new ExampleMessage(clientMessage.GAMEID(), clientMessage.USERID(), "FAIL", null, null, null, null);
+			sendMessageToClient(session, returnMessage);
+		}
+	
+	}
 
 	/**
 	 * Handles the "START" action received from a WebSocket client.
