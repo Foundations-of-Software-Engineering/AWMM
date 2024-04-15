@@ -1,13 +1,7 @@
 package com.awmm.messageserver.player;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.net.URI;
 import java.security.Principal;
 import java.util.List;
@@ -29,12 +23,16 @@ import com.awmm.messageserver.messages.Message;
 import com.awmm.messageserver.board.Board;
 import com.awmm.messageserver.cards.Cards;
 import com.awmm.messageserver.cards.CardsRepository;
-import com.awmm.messageserver.jpa.PlayerJpaRepository;
 import com.awmm.messageserver.positions.Positions;
 import com.awmm.messageserver.positions.PositionsRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+
+import jakarta.transaction.Transactional;
+
+
 //@Component
+
 public class PlayerCommandLineRunner implements CommandLineRunner {
 
 //	@Autowired
@@ -43,15 +41,16 @@ public class PlayerCommandLineRunner implements CommandLineRunner {
 //	@Autowired
 //	private PlayerJpaRepository repository;
 
-	@Autowired
+//	@Autowired
 	private CardsRepository cardsRepository;
 
-	@Autowired
+//	@Autowired
 	private PositionsRepository positionsRepository;
 
     private final ObjectMapper mapper = new ObjectMapper();
 
 	@Override
+	@Transactional
 	public void run(String... args) throws Exception {
 
 		System.out.println("Hello from Player Command Line Runner");
@@ -198,21 +197,23 @@ public class PlayerCommandLineRunner implements CommandLineRunner {
 		// Test Cards Database
 		System.out.println("Test Cards Database");
 		System.out.println("Game ID = " + gameID);
-		cardsRepository.insert(new Cards(
+		cardsRepository.save(new Cards(
 				gameID, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName,
 				Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName,
 				Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName,
-				Board.ProfessorPlumName, Board.ProfessorPlumName));
-		Cards cards = cardsRepository.findById(gameID);
+				Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName, Board.ProfessorPlumName));
+		Cards cards = cardsRepository.getReferenceById(gameID);
 		System.out.println(cards);
 		if (cards != null) {
-			clientController.getGameController().setCards(cards);
+//			clientController.getGameController().setCards(cards);
 		}
 		System.out.println(clientController.getGameState(gameID));
 
 		// Test Positions Database
 		System.out.println("Test Positions Database");
 		System.out.println("Game ID = " + gameID);
+
+
 		positionsRepository.insert(new Positions(gameID,
 				2, 2, // plum
 				1, 1, // scarlet
@@ -223,7 +224,12 @@ public class PlayerCommandLineRunner implements CommandLineRunner {
 				));
 		Positions positions = positionsRepository.findById(gameID);
 		System.out.println(positions);
-		clientController.getGameController().setPositions(positions);
+		positions.setGreenCol(100);
+		System.out.print(positions);
+		positions = positionsRepository.findById(gameID);
+		System.out.print(positions);
+
+//		clientController.getGameController().setPositions(positions);
 		System.out.println(clientController.getGameState(gameID));
 
 
@@ -238,25 +244,25 @@ public class PlayerCommandLineRunner implements CommandLineRunner {
 		 * Because it is the first time each player is moving, they will move to their
 		 * respective starting positions
 		 */
-		Board map = new Board("0");
-		map.movePlayer(Board. ProfessorPlumName, Board. Down);
-		map.movePlayer(Board.   MissScarletName, Board. Down);
-		map.movePlayer(Board.    ColMustardName, Board. Down);
-		map.movePlayer(Board.    MrsPeacockName, Board. Down);
-		map.movePlayer(Board.       MrGreenName, Board. Down);
-		map.movePlayer(Board.      MrsWhiteName, Board. Down);
-
-		System.out.println(map);
-
-		map.movePlayer(Board.ProfessorPlumName, Board . Up      );
-		map.movePlayer(Board.  MissScarletName, Board . Right   );
-		map.movePlayer(Board.   ColMustardName, Board . Down    );
-		map.movePlayer(Board.   MrsPeacockName, Board . Down    );
-		map.movePlayer(Board.   MrsPeacockName, Board . Diagonal);
-		map.movePlayer(Board.      MrGreenName, Board . Left    );
-		map.movePlayer(Board.     MrsWhiteName, Board.BilliardRoomName);
-
-		System.out.println(map);
+//		Board map = new Board("0");
+//		map.movePlayer(Board. ProfessorPlumName, Board. Down);
+//		map.movePlayer(Board.   MissScarletName, Board. Down);
+//		map.movePlayer(Board.    ColMustardName, Board. Down);
+//		map.movePlayer(Board.    MrsPeacockName, Board. Down);
+//		map.movePlayer(Board.       MrGreenName, Board. Down);
+//		map.movePlayer(Board.      MrsWhiteName, Board. Down);
+//
+//		System.out.println(map);
+//
+//		map.movePlayer(Board.ProfessorPlumName, Board . Up      );
+//		map.movePlayer(Board.  MissScarletName, Board . Right   );
+//		map.movePlayer(Board.   ColMustardName, Board . Down    );
+//		map.movePlayer(Board.   MrsPeacockName, Board . Down    );
+//		map.movePlayer(Board.   MrsPeacockName, Board . Diagonal);
+//		map.movePlayer(Board.      MrGreenName, Board . Left    );
+//		map.movePlayer(Board.     MrsWhiteName, Board.BilliardRoomName);
+//
+//		System.out.println(map);
 
 
 

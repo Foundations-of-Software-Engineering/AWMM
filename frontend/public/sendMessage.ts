@@ -11,4 +11,8 @@ function sendMessage(data: {
     wsManager.sendMessage(data);
 }
 
-export { sendMessage };
+function startGame(data: {GAMEID: string, USERID: number, action: string }): void {
+    wsManager.sendMessage(data);
+}
+
+export { sendMessage, startGame };

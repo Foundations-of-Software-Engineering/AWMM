@@ -1,16 +1,14 @@
 package com.awmm.messageserver.board;
 
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.awmm.messageserver.cards.Cards;
 import com.awmm.messageserver.cards.CardsController;
-import com.awmm.messageserver.deck.Deck;
 import com.awmm.messageserver.player.Player;
+import com.awmm.messageserver.position.Position;
+import com.awmm.messageserver.position.PositionController;
 
 /**
  * Represents the game board for a Clue-like mystery game.
@@ -20,6 +18,13 @@ public class Board {
 	public static final int ROW_SIZE = 5;
 	public static final int COL_SIZE = 5;
 
+	public final static int ScarletUserID = 0;
+	public final static int MustardUserID = 1;
+	public final static int WhiteUserID   = 2;
+	public final static int GreenUserID   = 3;
+	public final static int PeacockUserID = 4;
+	public final static int PlumUserID    = 5;
+	
 	// Constants for character names
 	public final static String ProfessorPlumName = "Professor Plum";
 	public final static String   MissScarletName =  "Miss Scarlet" ;
@@ -29,37 +34,42 @@ public class Board {
 	public final static String      MrsWhiteName =  "Mrs. White"   ;
 
 	// Constants for weapon names
-	public final static String        RopeName = "Rope"       ;
-	public final static String    LeadPipeName = "Lead Pipe"  ;
-	public final static String       KnifeName = "Knife"      ;
-	public final static String      WrenchName = "Wrench"     ;
-	public final static String CandlestickName = "Candlestick";
-	public final static String    RevolverName = "Revolver"   ;
+	public final static String          RopeName = "Rope"       ;
+	public final static String      LeadPipeName = "Lead Pipe"  ;
+	public final static String         KnifeName = "Knife"      ;
+	public final static String        WrenchName = "Wrench"     ;
+	public final static String   CandlestickName = "Candlestick";
+	public final static String      RevolverName = "Revolver"   ;
 
 	// Constants for room names
-	public final static String        StudyName =   "Study"        ;
-	public final static String         HallName =   "Hall"         ;
-	public final static String       LoungeName =   "Lounge"       ;
-	public final static String      LibraryName =   "Library"      ;
-	public final static String BilliardRoomName =   "Billiard Room";
-	public final static String   DiningRoomName =   "Dining Room"  ;
-	public final static String ConservatoryName =   "Conservatory" ;
-	public final static String     BallroomName =   "Ballroom"     ;
-	public final static String      KitchenName =   "Kitchen"      ;
+	public final static String        StudyName  =   "Study"        ;
+	public final static String         HallName  =   "Hall"         ;
+	public final static String       LoungeName  =   "Lounge"       ;
+	public final static String      LibraryName  =   "Library"      ;
+	public final static String BilliardRoomName  =   "Billiard Room";
+	public final static String   DiningRoomName  =   "Dining Room"  ;
+	public final static String ConservatoryName  =   "Conservatory" ;
+	public final static String     BallroomName  =   "Ballroom"     ;
+	public final static String      KitchenName  =   "Kitchen"      ;
 
 	// Constants for directions
-    public static final String Up    = "UP"   ;
-    public static final String Down  = "DOWN" ;
-    public static final String Right = "RIGHT";
-    public static final String Left  = "LEFT" ;
+    public static final String Up       = "UP"      ;
+    public static final String Down     = "DOWN"    ;
+    public static final String Right    = "RIGHT"   ;
+    public static final String Left     = "LEFT"    ;
     public static final String Diagonal = "DIAGONAL";
 	
     private String gameId;
 	private boolean started;
+	private boolean suggested;
 	
-	private ArrayList<Player> players;
+	private ArrayList<String> players;
 	
-	private final CardsController cardsController;
+	private CardsController cardsController;
+
+	private PositionController positionController;
+
+	private String[] winningCards;
 
 	/**
 	 * Inner class representing a player on the board.
@@ -67,9 +77,17 @@ public class Board {
 	private class BoardPlayer {
 		private Player player;
 		private Position position;
+		private boolean added;
+		private boolean playable;
 		private BoardPlayer(int id, String gameID, String name) {
 			this.player = new Player(id, gameID, name);
-			this.position = new Position(-1, -1);
+			this.position = positionController.savePosition(gameID, id, -1, -1);
+			added = false;
+			playable = false;
+		}
+		private void setPosition(Position newPosition) {
+			this.position.setCol(newPosition.getCol());
+			this.position.setRow(newPosition.getRow());
 		}
 	}
 
@@ -103,7 +121,7 @@ public class Board {
 		 * @param name The name of the room.
 		 */
 		RoomEnum(int row, int col, String name) {
-			this.position = new Position(row, col);
+			this.position = new Position("", -1, row, col); // we don't care about gameid or userid here
 			this.name = name;
 		}
 	}
@@ -121,76 +139,9 @@ public class Board {
 			Board.RoomEnum.Kitchen      
 	};
 
-	/**
-	 * Inner class representing a position on the board grid.
-	 */
-	static public class Position {
-		/**
-		 * Constructs a Position object with default values (-1, -1).
-		 */
-		Position() {
-			row = -1;
-			col = -1;
-		}
-
-		/**
-		 * Returns the hash code value for this Position object.
-		 * The hash code is computed based on the values of the 'row' and 'col' attributes.
-		 *
-		 * @return The hash code value for this object.
-		 */
-		@Override
-		public int hashCode() {
-			return Objects.hash(col, row);
-		}
-
-		/**
-		 * Indicates whether some other object is "equal to" this one.
-		 * Two Position objects are considered equal if they have the same 'row' and 'col' values.
-		 *
-		 * @param obj The reference object with which to compare.
-		 * @return true if this object is the same as the obj argument; false otherwise.
-		 */
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			Position other = (Position) obj;
-			return col == other.col && row == other.row;
-		}
-
-		/**
-		 * Constructs a Position object with the given row and column indices.
-		 * @param row The row index.
-		 * @param col The column index.
-		 */
-		Position(int row, int col) {
-			this.row = row;
-			this.col = col;
-		}
-
-		/**
-		 * Constructs a Position object by copying another Position object.
-		 * @param position The Position object to copy.
-		 */
-		Position(Position position) {
-			this.row = position.row;
-			this.col = position.col;
-		}
-		private int row;
-		private int col;
-	}
 	
 	private Location[][] grid = new Location[ROW_SIZE][COL_SIZE];
 
-	private String suspectSolution;
-	private String weaponSolution ;
-	private String roomSolution   ;
-	
 	private final Logger logger = LoggerFactory.getLogger(Board.class);
 
 	/**
@@ -198,24 +149,26 @@ public class Board {
 	 * Initializes the game board, players, and cards.
 	 * @param gameId The ID of the game.
 	 */
-	public Board(String gameId) {
+	public Board(String gameId, PositionController positionController, CardsController cardsController) {
 		super();
 
-		missScarlet   = new BoardPlayer(0, gameId,   MissScarletName);
-		colMustard    = new BoardPlayer(1, gameId,    ColMustardName);
-		mrsWhite      = new BoardPlayer(2, gameId,      MrsWhiteName);
-		mrGreen       = new BoardPlayer(3, gameId,       MrGreenName);
-		mrsPeacock    = new BoardPlayer(4, gameId,    MrsPeacockName);
-		professorPlum = new BoardPlayer(5, gameId, ProfessorPlumName);
-		
+		this.cardsController = cardsController;
 		this.started = false;
+		this.suggested = false;
 		this.gameId = gameId;
-		this.players = new ArrayList<Player>();
-		this.cardsController = new CardsController();
-		
+		this.players = new ArrayList<>();
+		this.positionController = positionController;
+
+		missScarlet   = new BoardPlayer(ScarletUserID, gameId,   MissScarletName);
+		colMustard    = new BoardPlayer(MustardUserID, gameId,    ColMustardName);
+		mrsWhite      = new BoardPlayer(WhiteUserID  , gameId,      MrsWhiteName);
+		mrGreen       = new BoardPlayer(GreenUserID  , gameId,       MrGreenName);
+		mrsPeacock    = new BoardPlayer(PeacockUserID, gameId,    MrsPeacockName);
+		professorPlum = new BoardPlayer(PlumUserID   , gameId, ProfessorPlumName);
+
 		//Rooms
 		for (RoomEnum roomEnum : RoomEnum.values()) {
-			grid[roomEnum.position.row][roomEnum.position.col] = new Room(roomEnum.name); 
+			grid[roomEnum.position.getRow()][roomEnum.position.getCol()] = new Room(roomEnum.name); 
 		}
 		
 		//Hallways
@@ -226,57 +179,74 @@ public class Board {
 				}
 			}
 		}
-		
-		suspectSolution = null;
-		weaponSolution  = null;
-		roomSolution    = null;
+	}
+	
+	public int activePlayers() {
+		return players.size();
+	}
+	
+	public void removePlayer(String player) {
+		BoardPlayer boardPlayer = getBoardPlayerFromName(player);
+		if (boardPlayer != null) {
+			boardPlayer.playable = false;
+			players.remove(player);
+		}
 	}
 
+	public void addPlayer(String player) {
+		if (started) return;
+		BoardPlayer boardPlayer = getBoardPlayerFromName(player);
+		if (!boardPlayer.added) {
+			players.add(player);
+			boardPlayer.added = true;
+			boardPlayer.playable = true;
+		}
+	}
+	
 	/**
 	 * Adds a player to the board at a specified starting position if the game hasn't started yet.
 	 *
 	 * @param boardPlayer The BoardPlayer object representing the player to be added.
 	 */
-	private void addPlayer(BoardPlayer boardPlayer) {
+	private void firstMove(BoardPlayer boardPlayer) {
 		if (started) return;
 		Player player = boardPlayer.player;
 		Position startingPosition;
 		switch(player.getName()) {
 			case ProfessorPlumName: 
 			{
-				startingPosition = new Position(1, 0);
+				startingPosition = new Position(gameId, PlumUserID, 1, 0);
 				break;
 			}
 			case MissScarletName  : 
 			{
-				startingPosition = new Position(0, 3);
+				startingPosition = new Position(gameId, ScarletUserID, 0, 3);
 				break;
 			}
 			case ColMustardName   : 
 			{
-				startingPosition = new Position(1, 4);
+				startingPosition = new Position(gameId, MustardUserID, 1, 4);
 				break;
 			}
 			case MrsPeacockName   : 
 			{
-				startingPosition = new Position(3, 0);
+				startingPosition = new Position(gameId, PeacockUserID, 3, 0);
 				break;
 			}
 			case MrGreenName      : 
 			{
-				startingPosition = new Position(4, 1);
+				startingPosition = new Position(gameId, GreenUserID, 4, 1);
 				break; 
 			}
 			case MrsWhiteName     : 
 			{
-				startingPosition = new Position(4, 3);
+				startingPosition = new Position(gameId, WhiteUserID, 4, 3);
 				break;
 			}
 			default: {return;}	
 		}
-		boardPlayer.position = startingPosition;
-		grid[boardPlayer.position.row][boardPlayer.position.col].setPlayer(player);
-		players.add(player);
+		boardPlayer.setPosition(startingPosition);
+		grid[boardPlayer.position.getRow()][boardPlayer.position.getCol()].setPlayer(player);
 	}
 
 	/**
@@ -294,61 +264,69 @@ public class Board {
 			return false;
 		}
 		
-		if (boardPlayer.position.row == -1 || boardPlayer.position.col == -1) { // if it's player's first move
-			addPlayer(boardPlayer);
+		if (!boardPlayer.playable) {
+			logger.info("player is not playable");
+			return false;
+		}
+		
+		if (boardPlayer.position.getRow() == -1 || boardPlayer.position.getCol() == -1) { // if it's player's first move
+			firstMove(boardPlayer);
 			return true;
 		}
 		
 		Position oldPosition = boardPlayer.position;
 		String   key         = boardPlayer.player.getName();
-		Position newPosition = new Position(oldPosition);
+//		Position newPosition = new Position(oldPosition);
+		int row = oldPosition.getRow();
+		int col = oldPosition.getCol();
+		Position newPosition = new Position();
 		
 		switch (destination) {
 			case Up:
 			{
-				if (oldPosition.row-1 >= 0) {
-					--newPosition.row;
+				if (row-1 >= 0) {
+					newPosition.setRow(row-1);
 				}
 				break;
 			}
 			case Down:
 			{
-				if (oldPosition.row+1 < ROW_SIZE) {
-					++newPosition.row;
+				if (row+1 < ROW_SIZE) {
+					newPosition.setRow(row+1);
 				}
 				break;
 			}
 			case Left:
 			{
-				if (oldPosition.col-1 >= 0) {
-					--newPosition.col;
+				if (col-1 >= 0) {
+					newPosition.setCol(col-1);
 				}
 				break;
 			}
 			case Right:
 			{
-				if (oldPosition.col+1 < COL_SIZE) {
-					++newPosition.col;
+				if (col+1 < COL_SIZE) {
+					newPosition.setCol(col+1);
 				}
 				break;
 			}
 			case Diagonal:
 			{
-				if (oldPosition.row == 0 && oldPosition.col == 0) {
-					newPosition.row = 4;
-					newPosition.col = 4;
+				if (row == 0 && col == 0) {
+					newPosition.setRow(4);
+					newPosition.setCol(4);
 				}
-				else if (oldPosition.row == 0 && oldPosition.col == 4) {
-					newPosition.row = 4;
-					newPosition.col = 0;
+				else if (row == 0 && col == 4) {
+					newPosition.setRow(4);
+					newPosition.setCol(0);
 				}
-				else if (oldPosition.row == 4 && oldPosition.col == 0) {
-					newPosition.row = 0;
-					newPosition.col = 4;
+				else if (row == 4 && col == 0) {
+					newPosition.setRow(0);
+					newPosition.setCol(4);
 				}
-				else if (oldPosition.row == 4 && oldPosition.col == 4) {
-					newPosition.row = 0;
-					newPosition.col = 0;
+				else if (row == 4 && col == 4) {
+					newPosition.setRow(0);
+					newPosition.setCol(0);
 				}
 				break;
 			}
@@ -374,8 +352,10 @@ public class Board {
 	 * @return The location object at the specified position, or null if the position is out of bounds.
 	 */
 	private Location getLocation(Position position) {
-		if (position.row >= 0 && position.row < ROW_SIZE && position.col >= 0 && position.col < COL_SIZE) {			
-			return grid[position.row][position.col];
+		int row = position.getRow();
+		int col = position.getCol();
+		if (row >= 0 && row < ROW_SIZE && col >= 0 && col < COL_SIZE) {			
+			return grid[row][col];
 		}
 		return null;
 	}
@@ -390,10 +370,10 @@ public class Board {
 	 */
 	private boolean move(String key, Position oldPosition, Position newPosition) {
 		boolean ret = false;
-		if (oldPosition.row == -1 || oldPosition.col == -1) {
+		if (oldPosition.getRow() == -1 || oldPosition.getCol() == -1) {
 			BoardPlayer boardPlayer = getBoardPlayerFromName(key);
-			addPlayer(boardPlayer);
-			oldPosition = boardPlayer.position;
+			firstMove(boardPlayer);
+			return true;
 		}
 		
 		Location oldLocation = getLocation(oldPosition);
@@ -402,8 +382,8 @@ public class Board {
 		{		
 			Player player = oldLocation.getPlayer(key);
 			if (oldLocation.removePlayer(player) && newLocation.setPlayer(player)) {
-				oldPosition.row = newPosition.row;
-				oldPosition.col = newPosition.col;
+				oldPosition.setRow(newPosition.getRow());
+				oldPosition.setCol(newPosition.getCol());
 				ret = true;
 			}
 		}
@@ -417,7 +397,8 @@ public class Board {
 	 */
 	@Override
 	public String toString() {
-		String toString = "Game Answers for Game ID " + gameId +": " + suspectSolution + ", " + weaponSolution + ", " + roomSolution + "\n";
+		String toString = "";
+//		String toString = "Game Answers for Game ID " + gameId +": " + suspectSolution + ", " + weaponSolution + ", " + roomSolution + "\n";
 		for (int row = 0; row < ROW_SIZE; ++row) {
 			for (int col = 0; col < COL_SIZE; ++col) {
 				toString += String.format("%-50s", grid[row][col].toString());  ;
@@ -429,22 +410,14 @@ public class Board {
 
 	/**
 	 * Starts the game by dealing cards to players and setting the solution cards.
+	 * @return
 	 */
 	public void start() {
 		started = true; // prevents people from joining
 		logger.info("Dealing cards for new game.");
-		String[] winningCards = Deck.dealCards(players);
-		suspectSolution = winningCards[0];
-		weaponSolution = winningCards[1];
-		roomSolution = winningCards[2];
+		cardsController.dealCards(gameId, players);
 	}
 	
-	public void setCards(Map<String, String> map) {
-		for (String owner : map.keySet()) {
-			getBoardPlayerFromName(map.get(owner)).player.receiveCard(owner);
-		}
-	}
-
 	/**
 	 * Retrieves the BoardPlayer object associated with the given player name.
 	 *
@@ -490,11 +463,20 @@ public class Board {
 	 * @param playerName The name of the suggesting player.
 	 * @param suspect The name of the suggested suspect.
 	 */
-	public void handleSuggest(String playerName, String suspect) {
+	public String handleSuggest(String playerName, String suspect) {
+		BoardPlayer boardPlayer = getBoardPlayerFromName(playerName);
+		if (!boardPlayer.playable) {
+			logger.info("Player: {} is not playable", playerName);
+			return null;
+		}
 		Location location = getLocation(getBoardPlayerFromName(playerName).position);
 		if (location instanceof Room) {			
-			movePlayer(suspect, ((Room) location).getName());
+			Room room = (Room) location;
+			movePlayer(suspect, room.getName());
+			suggested = true;
+			return room.getName();
 		}
+		return null;
 	}
 
 	/**
@@ -502,15 +484,15 @@ public class Board {
 	 *
 	 * @param map A map containing player names as keys and arrays of row and column coordinates as values.
 	 */
-	public void setPositions(Map<String, Integer[]> map) {
-		for (String key : map.keySet()) {
-			BoardPlayer boardPlayer = getBoardPlayerFromName(key);
-			if (boardPlayer != null) {
-				Integer[] position = map.get(key);
-				move(key, boardPlayer.position, new Position(position[0], position[1]));
-			}
-		}
-	}
+//	public void setPositions(Map<String, Integer[]> map) {
+//		for (String key : map.keySet()) {
+//			BoardPlayer boardPlayer = getBoardPlayerFromName(key);
+//			if (boardPlayer != null) {
+//				Integer[] position = map.get(key);
+//				move(key, boardPlayer.position, new Position(position[0], position[1]));
+//			}
+//		}
+//	}
 
 	/**
 	 * Checks if the game has started.
@@ -520,5 +502,10 @@ public class Board {
 	public boolean getStarted(){
 		return started;
 	}
-	
-}
+
+
+	public void setStarted(boolean started) {
+		this.started = started;
+	}
+
+	}
