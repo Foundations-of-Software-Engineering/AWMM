@@ -173,8 +173,6 @@ document.addEventListener("DOMContentLoaded", () => {
             suspect: 'null'
         };
 
-        console.log("???", actionSelected)
-        console.log("???", actionSelected.value)
 
         if (actionSelected.value === "SUGGEST" || actionSelected.value === "ACCUSE") {
             data.location = (document.getElementById('roomSelect') as HTMLInputElement).value;
