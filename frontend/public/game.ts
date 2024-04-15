@@ -161,24 +161,42 @@ document.addEventListener("DOMContentLoaded", () => {
         event.preventDefault();
         const gameId = <string>getCookieValue('gameId');
         const userId = parseInt(<string>getCookieValue('userId'));
-        const actionSelected = (document.querySelector('input[name="actionChoice"]:checked') as HTMLInputElement).value;
+        //const actionSelected = (document.querySelector('input[name="actionChoice"]:checked') as HTMLInputElement).value;
+        const actionSelected = document.querySelector<HTMLInputElement>('input[name="actionChoice"]:checked')!;
 
         const data = {
             GAMEID: gameId,
             USERID: userId,
-            action: actionSelected,
+            action: actionSelected.value,
             location: 'null',
             weapon: 'null',
             suspect: 'null'
         };
 
+        console.log("???", actionSelected)
+        console.log("???", actionSelected.value)
 
-        if (actionSelected === "SUGGEST" || actionSelected === "ACCUSE") {
+        if (actionSelected.value === "SUGGEST" || actionSelected.value === "ACCUSE") {
             data.location = (document.getElementById('roomSelect') as HTMLInputElement).value;
             data.weapon = (document.getElementById('weaponSelect') as HTMLInputElement).value;
             data.suspect = (document.getElementById('suspectSelect') as HTMLInputElement).value;
+        } else { 
+            if (actionSelected.id === 'leftAction') {
+                data.location = 'left';
+            } else if (actionSelected.id === 'rightAction') {
+                data.location = 'right';
+            } else if (actionSelected.id === 'upAction') {
+                data.location = 'up';
+            } else if (actionSelected.id === 'downAction') {
+                data.location = 'down';
+            } else if (actionSelected.id === 'diagonalAction') {
+                data.location = 'diagonal';
+            } else {
+                console.error("Direction not available.");
+            }
         }
 
+        data.action = actionSelected.value;
 
         try {
             const message = await sendMessage(data);
