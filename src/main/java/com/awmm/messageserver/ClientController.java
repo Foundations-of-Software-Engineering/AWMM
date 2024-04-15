@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -121,6 +122,9 @@ public class ClientController extends TextWebSocketHandler {
 					break;
 				case "JOINGAME":
 					handleJoinAction(session, clientMessage);
+					break;
+				case "ENDTURN":
+					handleEndAction(session, clientMessage);
 					break;
 
                 // Add other actions
@@ -249,6 +253,15 @@ public class ClientController extends TextWebSocketHandler {
 			logger.info("Player tried to join full game {}", gameID);
 		}
 		sendMessageToClient(session, response);
+	}
+
+	private void handleEndAction(WebSocketSession session, ExampleMessage clientMessage){
+		String gameID = clientMessage.GAMEID();
+		int userID = clientMessage.USERID();
+
+		gameController.handleEndTurn(clientMessage);
+		Message response = new ExampleMessage(gameID, userID, "ENDTURN", null, null, null, "ENDTURN");
+		broadcastMessage(response, gameID);
 	}
 
 	/**

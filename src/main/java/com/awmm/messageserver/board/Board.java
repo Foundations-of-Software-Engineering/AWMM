@@ -61,7 +61,6 @@ public class Board {
 	
     private String gameId;
 	private boolean started;
-	private boolean suggested;
 	
 	private ArrayList<String> players;
 	
@@ -70,6 +69,10 @@ public class Board {
 	private PositionController positionController;
 
 	private String[] winningCards;
+
+	private int currentPlayer;
+	private boolean currentPlayerMoved;
+	private boolean currentPlayerSuggested;
 
 	/**
 	 * Inner class representing a player on the board.
@@ -152,10 +155,12 @@ public class Board {
 
 		this.cardsController = cardsController;
 		this.started = false;
-		this.suggested = false;
 		this.gameId = gameId;
 		this.players = new ArrayList<>();
 		this.positionController = positionController;
+		this.currentPlayer = 0;
+		this.currentPlayerMoved = false;
+		this.currentPlayerSuggested = false;
 
 		missScarlet   = new BoardPlayer(ScarletUserID, gameId,   MissScarletName);
 		colMustard    = new BoardPlayer(MustardUserID, gameId,    ColMustardName);
@@ -251,6 +256,7 @@ public class Board {
 		
 		if (boardPlayer.position.getRow() == -1 || boardPlayer.position.getCol() == -1) { // if it's player's first move
 			firstMove(boardPlayer);
+			currentPlayerMoved = true;
 			return true;
 		}
 		
@@ -353,6 +359,7 @@ public class Board {
 		if (oldPosition.getRow() == -1 || oldPosition.getCol() == -1) {
 			BoardPlayer boardPlayer = getBoardPlayerFromName(key);
 			firstMove(boardPlayer);
+			currentPlayerMoved = true;
 			return true;
 		}
 		
@@ -367,7 +374,15 @@ public class Board {
 				ret = true;
 			}
 		}
+		if (ret == true) {currentPlayerMoved = true;}
+
 		return ret;
+	}
+
+	public void switchPlayerTurn() {
+		currentPlayer = (currentPlayer + 1) % players.size();
+		currentPlayerMoved = false;
+		currentPlayerSuggested = false;
 	}
 
 	/**
@@ -448,7 +463,7 @@ public class Board {
 		if (location instanceof Room) {			
 			Room room = (Room) location;
 			movePlayer(suspect, room.getName());
-			suggested = true;
+			currentPlayerSuggested = true;
 			return room.getName();
 		}
 		return null;
@@ -483,4 +498,16 @@ public class Board {
 		this.started = started;
 	}
 
+	public boolean hasCurrentPlayerMoved() {
+		return currentPlayerMoved;
 	}
+
+	public boolean hasCurrentPlayerSuggested(){
+		return currentPlayerSuggested;
+	}
+
+	public int getCurrentPlayer(){
+		return currentPlayer;
+	}
+
+}
