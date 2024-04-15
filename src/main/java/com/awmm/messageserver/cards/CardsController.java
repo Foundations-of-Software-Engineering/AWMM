@@ -66,6 +66,24 @@ public class CardsController {
 		return ret;
 	}
 	
+	public boolean checkSuggestion(String gameID, String weapon, String suspect, String room, String owner) {
+		boolean ret = false;
+		Optional<Cards> opt = repository.findById(gameID);
+		if (opt.isPresent()) {
+			Cards cards = opt.get();
+			if (weapon != null && cards.get(weapon).equals(owner) && cards.getSuggestedWeapon().equals(weapon)) {
+				ret = true;
+			}
+			else if (suspect != null && cards.get(suspect).equals(owner) && cards.getSuggestedSuspect().equals(suspect)) {
+				ret = true;
+			}
+			else if (room != null && cards.get(room).equals(owner) && cards.getSuggestedRoom().equals(room)) {
+				ret = true;
+			}
+		}
+		return ret;
+	}
+	
 	public boolean setSuggestion(String gameID, String weapon, String suspect, String room) {
 		try {
 			Cards cards = repository.getReferenceById(gameID);

@@ -74,10 +74,15 @@ public class GameController {
 		int userID = clientMessage.USERID();
 		String location = clientMessage.location();
 
-		if (isValid(gameID, userID) && location != null) {
+		if (userID != boardStates.get(gameID).getCurrentPlayer()){
+			logger.error("User {} tried moving when not their turn", userID);
+		} else if (boardStates.get(gameID).hasCurrentPlayerMoved()) {
+			logger.info("User {} tried moving more than once.", userID);
+		}
+		else if (isValid(gameID, userID) && location != null) {
 			return boardStates.get(gameID).movePlayer(playerNames[userID], location.toUpperCase());
-
-		} else {
+		}
+		else {
 			logger.error("Invalid gameId: {} or userID: {} or location: {}", gameID, userID, location);
 			return false;
 		}
@@ -90,10 +95,18 @@ public class GameController {
 		String weapon = clientMessage.weapon();
 
 		if (!isValid(gameId, userId)) {
-			logger.error("Error processing gameId: {} or userId: {}", gameId, userId);
-		} else if (suspect == null) {
-			logger.error("Suspect should not be null when making suggestion.");
-		} else if (weapon == null) {
+      logger.error("Error processing gameId: {} or userId: {}", gameId, userId);
+		}
+		else if (userId != boardStates.get(gameId).getCurrentPlayer()){
+			logger.error("User {} tried suggesting when not their turn", userId);
+		}
+		else if(boardStates.get(gameId).hasCurrentPlayerSuggested()){
+			logger.info("User {} in game {} tried suggesting more than once", userId, gameId);
+		}
+		else if (suspect == null) {
+            logger.error("Suspect should not be null when making suggestion.");
+		}
+		else if (weapon == null) {
 			logger.error("Weapon should not be null when making suggestion.");
 		} else if (!cardsController.hasSuggestion(gameId)) {
 			String roomName = boardStates.get(gameId).handleSuggest(playerNames[userId], suspect);
@@ -113,6 +126,11 @@ public class GameController {
 		String suspect = clientMessage.suspect();
 		String weapon = clientMessage.weapon();
 		String location = clientMessage.location();
+
+		if (userId != board.getCurrentPlayer()){
+			logger.error("User {} tried accusing when not their turn.", userId);
+			return false;
+		}
 
 		if (!isValid(gameId, userId)) {
 			logger.error("Error processing gameId: {} or userId: {}", gameId, userId);
@@ -136,11 +154,23 @@ public class GameController {
 			logger.info("Accusation matches winning cards. Game over.");
 			return true;
 		} else {
-			// invalid integer will prevent user from making future decisions
+			// invalid integer will prevent user from making future decisions but disprove
+			if (board != null) board.removePlayer(playerNames[userId]);
 			return false;
 		}
 
 	}
+
+	public void handleEndTurn(ExampleMessage clientMessage){
+		String gameID = clientMessage.GAMEID();
+		boardStates.get(gameID).switchPlayerTurn();
+	}
+	
+	public int activePlayers(ExampleMessage clientMessage) {
+		Board board = boardStates.get(clientMessage.GAMEID());
+		return board.activePlayers();
+	}
+	
 
 	private boolean isValid(String gameId, int userId) {
 		return boardStates.containsKey(gameId) && userId >= 0 && userId <= 5;
@@ -209,5 +239,20 @@ public class GameController {
 	public void addPlayer(String gameID, int userID) {
 		boardStates.get(gameID).addPlayer(playerNames[userID]);
 	}
+
+	public boolean handleDisprove(ExampleMessage clientMessage) {
+		// TODO Auto-generated method stub
+		boolean ret = false;
+		String gameID = clientMessage.GAMEID();
+		int userID = clientMessage.USERID();
+		String weapon = clientMessage.weapon();
+		String suspect = clientMessage.suspect();
+		String room = clientMessage.location();
+		if (isValid(gameID, userID)) {
+			ret = cardsController.checkSuggestion(gameID, weapon, suspect, room, playerNames[userID]);
+		}
+		return ret;
+	}
+    
 
 }

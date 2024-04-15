@@ -1,5 +1,6 @@
 package com.awmm.messageserver;
 
+import com.awmm.messageserver.cards.CardsController;
 import com.awmm.messageserver.messages.*;
 
 import java.io.IOException;
@@ -113,17 +114,20 @@ public class ClientController extends TextWebSocketHandler {
 					// TODO
 					handleAccuse(session, clientMessage);
 					break;
-				case "DISPROVE":
-					// TODO
-					// Send Message to a Player to Disprove if it's his/her turn
-					// Maybe automatically check for who can disprove and ask that player in order
-
-					break;
+        case "DISPROVE":
+          // TODO
+          // Send Message to a Player to Disprove if it's his/her turn
+          // Maybe automatically check for who can disprove and ask that player in order
+          handleDisprove(session, clientMessage);
+          break;
 				case "HOSTGAME":
 					handleHostAction(session);
 					break;
 				case "JOINGAME":
 					handleJoinAction(session, clientMessage);
+					break;
+				case "ENDTURN":
+					handleEndAction(session, clientMessage);
 					break;
 
 				// Add other actions
@@ -133,6 +137,19 @@ public class ClientController extends TextWebSocketHandler {
 		} catch (JsonProcessingException e) {
 			logger.error("Error processing incoming message from session: {}", session.getId(), e);
 		}
+	}
+
+	private void handleDisprove(WebSocketSession session, ExampleMessage clientMessage) {
+		// TODO Auto-generated method stub
+		ExampleMessage returnMessage = new ExampleMessage(null, null, null, null, null, null, null);
+		if (gameController.handleDisprove(clientMessage)) {
+			returnMessage = new ExampleMessage(clientMessage.GAMEID(), clientMessage.USERID(), "SUCCESS", null, null, null, null);
+			broadcastMessage(returnMessage, clientMessage.GAMEID());
+		} else {
+			returnMessage = new ExampleMessage(clientMessage.GAMEID(), clientMessage.USERID(), "FAIL", null, null, null, null);
+			sendMessageToClient(session, returnMessage);
+		}
+	
 	}
 
 	/**
@@ -177,12 +194,14 @@ public class ClientController extends TextWebSocketHandler {
 	 */
 	private void handleAccuse(WebSocketSession session, ExampleMessage clientMessage) {
 		if (gameController.handleAccuse(clientMessage)) {
-
-		} else {
+			broadcastMessage(clientMessage, clientMessage.GAMEID());
+		} else if (gameController.activePlayers(clientMessage) <= 0) { // no winners :(		
+			broadcastMessage(new NoWinMessage("Nobody Wins"), clientMessage.GAMEID());
+			// initiate cleanup
+		}
+		else {
 			sendMessageToClient(session, new AccuseFailMessage("accusefail"));
 		}
-		broadcastMessage(clientMessage, clientMessage.GAMEID());
-
 	}
 
 	/**
@@ -265,6 +284,15 @@ public class ClientController extends TextWebSocketHandler {
 			logger.info("Player tried to join full game {}", gameID);
 		}
 		sendMessageToClient(session, response);
+	}
+
+	private void handleEndAction(WebSocketSession session, ExampleMessage clientMessage){
+		String gameID = clientMessage.GAMEID();
+		int userID = clientMessage.USERID();
+
+		gameController.handleEndTurn(clientMessage);
+		Message response = new ExampleMessage(gameID, userID, "ENDTURN", null, null, null, "ENDTURN");
+		broadcastMessage(response, gameID);
 	}
 
 	/**
