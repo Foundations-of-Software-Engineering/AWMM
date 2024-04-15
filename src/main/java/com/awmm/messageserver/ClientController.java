@@ -201,7 +201,7 @@ public class ClientController extends TextWebSocketHandler {
 		ExampleMessage ResponseMessage = new ExampleMessage(gameID, userID, "FAIL", null, null, null, "example");
 
 		if (success)
-			broadcastMessage(clientMessage, clientMessage.GAMEID());
+			broadcastMessage(clientMessage, gameID);
 		else
 			sendMessageToClient(session, ResponseMessage);
 
