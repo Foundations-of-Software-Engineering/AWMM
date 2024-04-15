@@ -84,8 +84,8 @@ public class GameController {
 		}
 		else {
 			logger.error("Invalid gameId: {} or userID: {} or location: {}", gameID, userID, location);
-			return false;
 		}
+		return false;
 	}
 
 	public boolean handleSuggest(ExampleMessage clientMessage) {
