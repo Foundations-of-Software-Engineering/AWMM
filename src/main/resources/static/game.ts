@@ -127,6 +127,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
             imageSelection.style.display = 'none'; // Hide the image selection
 
+            var display = document.getElementById('display-name');
+            var name = image.getAttribute('alt');
+            console.log('display = ' + display + ', name  = ' + name)
+            if (name !== null && display !== null)
+            {
+                console.log("set inner text")
+                display.innerHTML = name;
+                console.log("inner html = " + display.innerHTML)
+
+            }
+            
         });
     });
 
@@ -134,29 +145,44 @@ document.addEventListener("DOMContentLoaded", () => {
     wsManager.onMessage((event: MessageEvent) => {
         console.log('Message from server:', event.data);
         const message = JSON.parse(event.data)
-        var isEmpty = messageBox.innerHTML === "";
-        if (isEmpty) {
-            messageBox.innerHTML += 'New Game Created with Game ID: ' + message.GAMEID + '<br>';
-        }
-        if (message.type === 'example') {
+        // var isEmpty = messageBox.innerHTML === "";
+        // if (isEmpty) {
+        //     messageBox.innerHTML += 'New Game Created with Game ID: ' + message.GAMEID + '<br>';
+        // }
+        if (message.type === 'LOGIN') {
             const characterName = characterNames[message.USERID];
-            console.log(`${characterName} has joined the game.`)
-            messageBox.innerHTML += `${characterName} has joined the game.<br>`;
+            if (message.action !== 'FAIL') {
+                console.log(`Login succeeded for ${characterName}`)
+                messageBox.innerHTML = message.action;
+                // messageBox.innerHTML += `${characterName} has joined the game.<br>`;
+            } else {
+                alert("Login Failed!")
+                console.log(`Login failed for ${characterName}`)
+            }
             if (startButtonContainer) {
                 startButtonContainer.style.display = 'block'; // Safe to access `style` because we checked if it's not null
             } else {
                 console.error('Failed to find the startButtonContainer element.');
             }
-            if (message.type === 'accusefail') {
-                form.style.display = 'none';
+        } else if (message.type === 'MOVE') {
+            const characterName = characterNames[message.USERID];
+            if (message.action === 'SUCCESS') {
+                messageBox.innerHTML += `${characterName} has moved to ${message.location}.<br>`;
+
+            } else {
+                console.log(`Move failed for ${characterName}`)
             }
-        } else if (message.type === 'start'){
+        
+        } else if (message.type === 'start') {
             console.log('Start game message received:', message);
             startButton.style.display = 'none';
             mainContent.style.display = 'block'; // Show the main content
             form.style.display = 'block'; // Show the form
+            messageBox.innerHTML = message.action;
         } else if (message.type === 'SUGGEST') {
             messageBox.innerHTML += `${characterNames[message.USERID]} suggests it was ${message.suspect} in the ${message.location} with a ${message.weapon}.<br>`;
+        } else if (message.type === 'accusefail') {
+            form.style.display = 'none';
         }
     });
 

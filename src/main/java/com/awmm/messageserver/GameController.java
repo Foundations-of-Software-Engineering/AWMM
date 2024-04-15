@@ -33,7 +33,7 @@ public class GameController {
 	private CardsController cardsController;
 
 	private final Logger logger;
-	private static final String[] playerNames = {
+	public static final String[] playerNames = {
 			Board.MissScarletName,
 			Board.ProfessorPlumName,
 			Board.ColMustardName,
@@ -69,7 +69,7 @@ public class GameController {
 		}
 	}
 
-	public boolean handleMove(ExampleMessage clientMessage) {
+	public String handleMove(ExampleMessage clientMessage) {
 		String gameID = clientMessage.GAMEID();
 		int userID = clientMessage.USERID();
 		String location = clientMessage.location();
@@ -85,7 +85,7 @@ public class GameController {
 		else {
 			logger.error("Invalid gameId: {} or userID: {} or location: {}", gameID, userID, location);
 		}
-		return false;
+		return null;
 	}
 
 	public boolean handleSuggest(ExampleMessage clientMessage) {

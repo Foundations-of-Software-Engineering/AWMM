@@ -1,8 +1,5 @@
 package com.awmm.messageserver;
 
-import com.awmm.messageserver.cards.CardsController;
-import com.awmm.messageserver.messages.*;
-
 import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
@@ -18,6 +15,13 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import com.awmm.messageserver.chat.ChatController;
+import com.awmm.messageserver.messages.AccuseFailMessage;
+import com.awmm.messageserver.messages.ConfirmStartMessage;
+import com.awmm.messageserver.messages.ExampleMessage;
+import com.awmm.messageserver.messages.GameIdMessage;
+import com.awmm.messageserver.messages.Message;
+import com.awmm.messageserver.messages.NoWinMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -36,7 +40,8 @@ public class ClientController extends TextWebSocketHandler {
 	private final Map<WebSocketSession, String> session2GameID = new ConcurrentHashMap<>();
 	@Autowired
 	private GameController gameController;
-
+	@Autowired
+	private ChatController chatController;
 	public GameController getGameController() {
 		return gameController;
 	}
@@ -164,7 +169,8 @@ public class ClientController extends TextWebSocketHandler {
 	private void handleStartAction(WebSocketSession session, ExampleMessage clientMessage) {
 		logger.info("Start message received");
 		gameController.handleStart(clientMessage);
-		Message response = new ConfirmStartMessage(true, "start");
+//		Message response = new ConfirmStartMessage(true, "start");
+		ExampleMessage response = new ExampleMessage(null, null, chatController.append(clientMessage.GAMEID(), "Game has started."), null, null, null, "start");
 		//sendMessageToClient(session, response);
 		broadcastMessage(response, clientMessage.GAMEID());
 	}
@@ -217,14 +223,16 @@ public class ClientController extends TextWebSocketHandler {
 	private void handleMoveAction(WebSocketSession session, ExampleMessage clientMessage) {
 		String gameID = clientMessage.GAMEID();
 		int userID = clientMessage.USERID();
-		boolean success = gameController.handleMove(clientMessage);
-		ExampleMessage ResponseMessage = new ExampleMessage(gameID, userID, "FAIL", null, null, null, "example");
+		String location = gameController.handleMove(clientMessage);
 
-		if (success)
-			broadcastMessage(clientMessage, gameID);
-		else
-			sendMessageToClient(session, ResponseMessage);
-
+		if (location != null) {			
+			ExampleMessage ResponseSuccessMessage = new ExampleMessage(gameID, userID, "SUCCESS", location, null, null, "MOVE");
+			broadcastMessage(ResponseSuccessMessage, gameID);
+		}
+		else {
+			ExampleMessage ResponseFailMessage = new ExampleMessage(gameID, userID, "FAIL", null, null, null, "MOVE");
+			sendMessageToClient(session, ResponseFailMessage);			
+		}
 	}
 
 	/**
@@ -372,20 +380,22 @@ public class ClientController extends TextWebSocketHandler {
 			} else if (gameID != null && !gameID.isBlank()) {
 				// join new game as new player
 				gameID2UserID2Session.put(gameID, new Sessions());
+				chatController.setChat(gameID, "New Game Created with Game ID " + gameID + "<br>");
 				success = true;
 			}
 		}
 
-		ExampleMessage successResponseMessage = new ExampleMessage(gameID, userID, "SUCCESS", null, null, null,	"LOGIN");
-		ExampleMessage failureResponseMessage = new ExampleMessage(gameID, userID, "FAIL", null, null, null, "LOGIN");
 
 		if (success) {
 			gameID2UserID2Session.get(gameID).put(userID, session);
 			session2GameID.put(session, gameID);
 			gameController.addPlayer(gameID, userID);
+			String append = GameController.playerNames[userID] + " has joined game.\n";
+			ExampleMessage successResponseMessage = new ExampleMessage(gameID, userID, chatController.append(gameID, append), null, null, null,"LOGIN");
 			broadcastMessage(successResponseMessage, gameID); // tell all users about new user
 			logger.info("Login for GAMEID {} USERID {}", gameID, userID);
 		} else {
+			ExampleMessage failureResponseMessage = new ExampleMessage(gameID, userID, "FAIL", null, null, null, "LOGIN");
 			sendMessageToClient(session, failureResponseMessage);
 			logger.error("Failed login for GAMEID {} USERID {}", gameID, userID);
 		}

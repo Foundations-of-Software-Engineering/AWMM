@@ -134,8 +134,6 @@ document.addEventListener("DOMContentLoaded", () => {
             {
                 console.log("set inner text")
                 display.innerHTML = name;
-                console.log("inner html = " + display.innerHTML)
-
             }
             
         });
@@ -173,7 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 console.log(`Move failed for ${characterName}`)
             }
         
-        } else if (message.type === 'start') {
+        } else if (message.type === 'START') {
             console.log('Start game message received:', message);
             startButton.style.display = 'none';
             mainContent.style.display = 'block'; // Show the main content

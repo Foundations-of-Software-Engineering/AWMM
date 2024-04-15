@@ -213,8 +213,8 @@ public class Board {
 	 *
 	 * @param boardPlayer The BoardPlayer object representing the player to be added.
 	 */
-	private void firstMove(BoardPlayer boardPlayer) {
-		if (started) return;
+	private String firstMove(BoardPlayer boardPlayer) {
+		if (started) return null;
 		Player player = boardPlayer.player;
 		Position startingPosition;
 		switch(player.getName()) {
@@ -248,12 +248,13 @@ public class Board {
 				startingPosition = new Position(gameId, WhiteUserID, 4, 3);
 				break;
 			}
-			default: {return;}	
+			default: {return null;}	
 		}
 		boardPlayer.setPosition(startingPosition);
 		grid[boardPlayer.position.getRow()][boardPlayer.position.getCol()].setPlayer(player);
+		return boardPlayer.position.getRow() +  " " + boardPlayer.position.getCol();
 	}
-
+	
 	/**
 	 * Moves a player to a specified destination on the board.
 	 *
@@ -261,28 +262,29 @@ public class Board {
 	 * @param destination The direction or room name to move the player to.
 	 * @return true if the player is successfully moved, false otherwise.
 	 */
-	public boolean movePlayer(String playerName, String destination) {
+	public String movePlayer(String playerName, String destination) {
 		BoardPlayer boardPlayer = getBoardPlayerFromName(playerName);
 		
 		if (boardPlayer == null || destination == null) {
 			logger.error("Error: playerName or direction is null");
-			return false;
+//			return false;
+			return null;
 		}
 		
 		if (!boardPlayer.playable) {
 			logger.info("player is not playable");
-			return false;
+//			return false;
+			return null;
 		}
 		
 		if (boardPlayer.position.getRow() == -1 || boardPlayer.position.getCol() == -1) { // if it's player's first move
-			firstMove(boardPlayer);
 			currentPlayerMoved = true;
-			return true;
+			return firstMove(boardPlayer);
+//			return true;
 		}
 		
 		Position oldPosition = boardPlayer.position;
 		String   key         = boardPlayer.player.getName();
-//		Position newPosition = new Position(oldPosition);
 		int row = oldPosition.getRow();
 		int col = oldPosition.getCol();
 		Position newPosition = new Position();
@@ -345,10 +347,15 @@ public class Board {
 			case ConservatoryName: { newPosition = new Position(RoomEnum.Conservatory.position); break; }
 			case     BallroomName: { newPosition = new Position(RoomEnum.Ballroom    .position); break; }
 			case      KitchenName: { newPosition = new Position(RoomEnum.Kitchen     .position); break; }
-			default: {return false;} 
+			default: {return null;} 
 		}
-		
-		return move(key, oldPosition, newPosition);				
+		if (move(key, oldPosition, newPosition)) {
+			return newPosition.getRow() + " " + newPosition.getCol();
+		}
+		else {
+			return null;
+		}
+//		return move(key, oldPosition, newPosition);				
 	}
 
 	/**
