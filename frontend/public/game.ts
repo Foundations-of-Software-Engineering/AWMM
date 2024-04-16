@@ -87,15 +87,15 @@ function getCharacterFromName(name : string) : Character | null {
             character = mustard;
             break;
         }
-        case "Mrs White": {
+        case "Mrs. White": {
             character = white;
             break;
         }
-        case "Mr Green": {
+        case "Mr. Green": {
             character = green;
             break;
         }
-        case "Mrs Peacock": {
+        case "Mrs. Peacock": {
             character = peacock;
             break;
         }
@@ -153,6 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const suggestAction = document.getElementById('suggestAction') as HTMLInputElement;
     const accuseAction = document.getElementById('accuseAction') as HTMLInputElement;
+    const disproveAction = document.getElementById('disproveAction') as HTMLInputElement;
 
     const selectOptions = document.getElementById('selectOptions')!;
 
@@ -190,7 +191,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.querySelectorAll('input[name="actionChoice"]').forEach(input => {
         input.addEventListener('change', function () {
-            if (suggestAction.checked || accuseAction.checked) {
+            if (suggestAction.checked || accuseAction.checked || disproveAction.checked) {
                 selectOptions.style.display = 'block';
             } else {
                 selectOptions.style.display = 'none';
@@ -348,6 +349,12 @@ document.addEventListener("DOMContentLoaded", () => {
             if (hand !== null) {
                 hand.innerHTML += message.action + ", ";
             }
+        } else if (message.type === 'DISPROVE') {
+            if (message.action === 'FAIL') {
+                messageBox.innerHTML += `${characterNames[message.USERID]} failed to disprove`;
+            } else {
+                messageBox.innerHTML += `${characterNames[message.USERID]} disproved`;
+            }
         }
     });
 
@@ -367,7 +374,7 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
 
-        if (actionSelected.value === "SUGGEST" || actionSelected.value === "ACCUSE") {
+        if (actionSelected.value === "SUGGEST" || actionSelected.value === "ACCUSE" || actionSelected.value === "DISPROVE") {
             data.location = (document.getElementById('roomSelect') as HTMLInputElement).value;
             data.weapon = (document.getElementById('weaponSelect') as HTMLInputElement).value;
             data.suspect = (document.getElementById('suspectSelect') as HTMLInputElement).value;

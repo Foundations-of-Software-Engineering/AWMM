@@ -147,10 +147,10 @@ public class ClientController extends TextWebSocketHandler {
 		// TODO Auto-generated method stub
 		ExampleMessage returnMessage = new ExampleMessage(null, null, null, null, null, null, null);
 		if (gameController.handleDisprove(clientMessage)) {
-			returnMessage = new ExampleMessage(clientMessage.GAMEID(), clientMessage.USERID(), "SUCCESS", null, null, null, null);
+			returnMessage = new ExampleMessage(clientMessage.GAMEID(), clientMessage.USERID(), "SUCCESS", null, null, null, "DISPROVE");
 			broadcastMessage(returnMessage, clientMessage.GAMEID());
 		} else {
-			returnMessage = new ExampleMessage(clientMessage.GAMEID(), clientMessage.USERID(), "FAIL", null, null, null, null);
+			returnMessage = new ExampleMessage(clientMessage.GAMEID(), clientMessage.USERID(), "FAIL", null, null, null, "DISPROVE");
 			sendMessageToClient(session, returnMessage);
 		}
 	
