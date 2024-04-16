@@ -2,6 +2,7 @@ package com.awmm.messageserver.cards;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.Random;
 
@@ -100,10 +101,12 @@ public class CardsController {
 		return false;
 	}
 	
-	public void dealCards(String gameID, ArrayList<String> players) {
+	public HashMap<String, ArrayList<String>> dealCards(String gameID, ArrayList<String> players) {
 		Random rand = new Random();
 		ArrayList<String> cardList = new ArrayList<>(Arrays.asList(cardsArray));
 
+		HashMap<String, ArrayList<String>> map = new HashMap<>();
+		
 		Cards cards = new Cards();
 		cards.setGameID(gameID);
 		
@@ -116,11 +119,23 @@ public class CardsController {
 		int playersSize = players.size();
 		int cardListSize = cardList.size();
 		
+		String player;
+		String card;
 		for (int i = 0; i < cardListSize; ++i) {
-			cards.set(players.get(i % playersSize), cardList.get(i));
+			player = players.get(i % playersSize);
+			card = cardList.get(i);
+			cards.set(player, card);
+			if (map.containsKey(player)) {
+				map.get(player).add(card);
+			}
+			else {
+				map.put(player, new ArrayList<>());
+				map.get(player).add(card);
+			}
 		}
 		
 		repository.save(cards);
+		return map;
 	}
 	
 	public void deleteCards(String gameID) {

@@ -268,6 +268,11 @@ document.addEventListener("DOMContentLoaded", () => {
             messageBox.innerHTML += `${characterNames[message.USERID]} suggests it was ${message.suspect} in the ${message.location} with a ${message.weapon}.<br>`;
         } else if (message.type === 'accusefail') {
             form.style.display = 'none';
+        } else if (message.type === 'CARD') {
+            let hand = document.getElementById('cards');
+            if (hand !== null) {
+                hand.innerHTML += message.action + ", ";
+            }
         }
     });
 

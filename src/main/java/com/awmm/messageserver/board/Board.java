@@ -1,6 +1,7 @@
 package com.awmm.messageserver.board;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -436,10 +437,10 @@ public class Board {
 	 * Starts the game by dealing cards to players and setting the solution cards.
 	 * @return
 	 */
-	public void start() {
+	public HashMap<String, ArrayList<String>> start() {
 		started = true; // prevents people from joining
 		logger.info("Dealing cards for new game.");
-		cardsController.dealCards(gameId, players);
+		return cardsController.dealCards(gameId, players);
 	}
 	
 	/**

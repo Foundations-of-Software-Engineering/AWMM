@@ -1,5 +1,6 @@
 package com.awmm.messageserver;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.slf4j.Logger;
@@ -11,7 +12,6 @@ import com.awmm.messageserver.board.Board;
 import com.awmm.messageserver.cards.CardsController;
 import com.awmm.messageserver.messages.ExampleMessage;
 import com.awmm.messageserver.position.PositionController;
-import com.awmm.messageserver.positions.PositionsController;
 
 /**
  * Controller class for communicating with the game server.
@@ -37,6 +37,17 @@ public class GameController {
 			Board.MrsPeacockName,
 			Board.MrGreenName,
 			Board.MrsWhiteName
+	};
+	
+	public static final HashMap<String, Integer> PlayerName2UserID = new HashMap<>(){
+		{
+			put(Board.MissScarletName, 0);
+			put(Board.ProfessorPlumName,1);   
+			put(Board.ColMustardName,   2);   
+			put(Board.MrsPeacockName,   3);   
+			put(Board.MrGreenName,      4);   
+			put(Board.MrsWhiteName,      5);   
+		}
 	};
 
 	int losers = 0;
@@ -206,15 +217,16 @@ public class GameController {
 	// TODO
 	// if called before handleLogin it will fail
 	// could return boolean to denote failure or success
-	public void handleStart(ExampleMessage clientMessage) {
+	public HashMap<String, ArrayList<String>> handleStart(ExampleMessage clientMessage) {
 		// TODO Auto-generated method stub
 		String gameID = clientMessage.GAMEID();
 		Board board = boardStates.get(gameID);
 		if (board != null) {
-			board.start();
+			return board.start();
 		}
+		return null;
 	}
-
+	
 	// public void setCards(Cards cards) {
 	// // TODO Auto-generated method stub
 	// Map<String, String> map = cardsController.getCardsMap(cards);

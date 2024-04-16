@@ -1,6 +1,8 @@
 package com.awmm.messageserver;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -165,7 +167,16 @@ public class ClientController extends TextWebSocketHandler {
 	 */
 	private void handleStartAction(WebSocketSession session, ExampleMessage clientMessage) {
 		logger.info("Start message received");
-		gameController.handleStart(clientMessage);
+		String gameID = clientMessage.GAMEID();
+		int userID;
+		HashMap<String, ArrayList<String>> map = gameController.handleStart(clientMessage);
+		for (String player : map.keySet()) {
+			for (String card : map.get(player)) {
+				userID = GameController.PlayerName2UserID.get(player);
+				ExampleMessage message = new ExampleMessage(gameID, userID, card, null, null, null, "CARD");
+				sendMessageToClient(gameID2UserID2Session.get(gameID).get(userID), message);
+			}
+		}
 //		Message response = new ConfirmStartMessage(true, "start");
 		ExampleMessage response = new ExampleMessage(null, null, chatController.append(clientMessage.GAMEID(), "Game has started."), null, null, null, "start");
 		//sendMessageToClient(session, response);
