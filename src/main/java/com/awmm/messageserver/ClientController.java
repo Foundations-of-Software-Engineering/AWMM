@@ -193,8 +193,16 @@ public class ClientController extends TextWebSocketHandler {
 	 * @param clientMessage The message received from the WebSocket client.
 	 */
 	private void handleSuggest(WebSocketSession session, ExampleMessage clientMessage) {
-		gameController.handleSuggest(clientMessage);
-		broadcastMessage(clientMessage, clientMessage.GAMEID());
+		String position = gameController.handleSuggest(clientMessage);
+		ExampleMessage message;
+		if (position != null) {
+			message = new ExampleMessage(clientMessage.GAMEID(), clientMessage.USERID(), position, clientMessage.location(), clientMessage.weapon(), clientMessage.suspect(), "SUGGEST");
+//			sendMessageToClient(session, message);
+		}
+		else {
+			message = new ExampleMessage(clientMessage.GAMEID(), clientMessage.USERID(), "FAIL", clientMessage.location(), clientMessage.weapon(), clientMessage.suspect(), "SUGGEST");
+		}
+		broadcastMessage(message, clientMessage.GAMEID());
 
 	}
 

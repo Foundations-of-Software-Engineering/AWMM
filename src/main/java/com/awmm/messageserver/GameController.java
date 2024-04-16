@@ -97,7 +97,7 @@ public class GameController {
 		return null;
 	}
 
-	public boolean handleSuggest(ExampleMessage clientMessage) {
+	public String handleSuggest(ExampleMessage clientMessage) {
 		String gameId = clientMessage.GAMEID();
 		int userId = clientMessage.USERID();
 		String suspect = clientMessage.suspect();
@@ -118,13 +118,17 @@ public class GameController {
 		else if (weapon == null) {
 			logger.error("Weapon should not be null when making suggestion.");
 		} else if (!cardsController.hasSuggestion(gameId)) {
-			String roomName = boardStates.get(gameId).handleSuggest(playerNames[userId], suspect);
-			if (roomName != null) {
-				cardsController.setSuggestion(gameId, weapon, suspect, roomName);
-				return true;
+			logger.info("board handleSuggest");
+			String ret = boardStates.get(gameId).handleSuggest(playerNames[userId], suspect);
+			if (ret != null) {
+				cardsController.setSuggestion(gameId, weapon, suspect, clientMessage.location());
+				return ret;
+			}
+			else {
+				logger.info("Could not make suggestion");
 			}
 		}
-		return false;
+		return null;
 	}
 
 	public boolean handleAccuse(ExampleMessage clientMessage) {
