@@ -180,8 +180,10 @@ public class Board {
 		//Hallways
 		for (int i = 0; i < ROW_SIZE; ++i) {
 			for (int j = 0; j < COL_SIZE; ++j) {
-				if (grid[i][j] == null) {					
-					grid[i][j] = new Hallway();
+				if (i == 0 || i == 2 || i == 4 || j == 0 || j == 2 || j == 4) {					
+					if (grid[i][j] == null) {					
+						grid[i][j] = new Hallway();
+					}
 				}
 			}
 		}
@@ -403,7 +405,7 @@ public class Board {
 				oldPosition.setCol(newPosition.getCol());
 				ret = true;
 			}
-		}
+		}	
 		if (ret == true) {currentPlayerMoved = true;}
 
 		return ret;
