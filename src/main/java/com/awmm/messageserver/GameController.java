@@ -32,8 +32,8 @@ public class GameController {
 	private final Logger logger;
 	public static final String[] playerNames = {
 			Board.MissScarletName,
-			Board.ProfessorPlumName,
 			Board.ColMustardName,
+			Board.ProfessorPlumName,
 			Board.MrsPeacockName,
 			Board.MrGreenName,
 			Board.MrsWhiteName
@@ -42,8 +42,8 @@ public class GameController {
 	public static final HashMap<String, Integer> PlayerName2UserID = new HashMap<>(){
 		{
 			put(Board.MissScarletName, 0);
-			put(Board.ProfessorPlumName,1);   
-			put(Board.ColMustardName,   2);   
+			put(Board.ColMustardName,   1);   
+			put(Board.ProfessorPlumName,2);   
 			put(Board.MrsPeacockName,   3);   
 			put(Board.MrGreenName,      4);   
 			put(Board.MrsWhiteName,      5);   

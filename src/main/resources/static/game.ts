@@ -271,7 +271,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } else if (message.type === 'CARD') {
             let hand = document.getElementById('cards');
             if (hand !== null) {
-                hand.innerHTML += message.action + " ";
+                hand.innerHTML += message.action + ", ";
             }
         }
     });
