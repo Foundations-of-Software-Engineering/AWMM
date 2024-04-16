@@ -258,6 +258,10 @@ document.addEventListener("DOMContentLoaded", () => {
     wsManager.onMessage((event: MessageEvent) => {
         console.log('Message from server:', event.data);
         const message = JSON.parse(event.data)
+
+        if (message.action === "Game Won") {
+            messageBox.innerHTML += `${message.USERID} has won the game!`
+        }
         // var isEmpty = messageBox.innerHTML === "";
         // if (isEmpty) {
         //     messageBox.innerHTML += 'New Game Created with Game ID: ' + message.GAMEID + '<br>';
