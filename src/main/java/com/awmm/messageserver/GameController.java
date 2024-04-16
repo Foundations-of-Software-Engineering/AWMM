@@ -1,5 +1,6 @@
 package com.awmm.messageserver;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.slf4j.Logger;
@@ -11,7 +12,6 @@ import com.awmm.messageserver.board.Board;
 import com.awmm.messageserver.cards.CardsController;
 import com.awmm.messageserver.messages.ExampleMessage;
 import com.awmm.messageserver.position.PositionController;
-import com.awmm.messageserver.positions.PositionsController;
 
 /**
  * Controller class for communicating with the game server.
@@ -24,22 +24,30 @@ public class GameController {
 	// gameId to board state
 	private final HashMap<String, Board> boardStates;
 
-	// private final CardsController cardsController;
-	// private final PositionsController positionsController;
-
 	@Autowired
 	private PositionController positionController;
 	@Autowired
 	private CardsController cardsController;
 
 	private final Logger logger;
-	private static final String[] playerNames = {
+	public static final String[] playerNames = {
 			Board.MissScarletName,
-			Board.ProfessorPlumName,
 			Board.ColMustardName,
+			Board.ProfessorPlumName,
 			Board.MrsPeacockName,
 			Board.MrGreenName,
 			Board.MrsWhiteName
+	};
+	
+	public static final HashMap<String, Integer> PlayerName2UserID = new HashMap<>(){
+		{
+			put(Board.MissScarletName, 0);
+			put(Board.ColMustardName,   1);   
+			put(Board.ProfessorPlumName,2);   
+			put(Board.MrsPeacockName,   3);   
+			put(Board.MrGreenName,      4);   
+			put(Board.MrsWhiteName,      5);   
+		}
 	};
 
 	int losers = 0;
@@ -69,13 +77,14 @@ public class GameController {
 		}
 	}
 
-	public boolean handleMove(ExampleMessage clientMessage) {
+	public String handleMove(ExampleMessage clientMessage) {
 		String gameID = clientMessage.GAMEID();
 		int userID = clientMessage.USERID();
 		String location = clientMessage.location();
+		int currentUser = boardStates.get(gameID).getCurrentPlayer();
 
-		if (userID != boardStates.get(gameID).getCurrentPlayer()){
-			logger.error("User {} tried moving when not their turn", userID);
+		if (userID != currentUser){
+			logger.error("User {} tried moving when it is User {}'s turn.", userID, currentUser);
 		} else if (boardStates.get(gameID).hasCurrentPlayerMoved()) {
 			logger.info("User {} tried moving more than once.", userID);
 		}
@@ -84,8 +93,8 @@ public class GameController {
 		}
 		else {
 			logger.error("Invalid gameId: {} or userID: {} or location: {}", gameID, userID, location);
-			return false;
 		}
+		return null;
 	}
 
 	public boolean handleSuggest(ExampleMessage clientMessage) {
@@ -95,7 +104,7 @@ public class GameController {
 		String weapon = clientMessage.weapon();
 
 		if (!isValid(gameId, userId)) {
-      logger.error("Error processing gameId: {} or userId: {}", gameId, userId);
+			logger.error("Error processing gameId: {} or userId: {}", gameId, userId);
 		}
 		else if (userId != boardStates.get(gameId).getCurrentPlayer()){
 			logger.error("User {} tried suggesting when not their turn", userId);
@@ -208,15 +217,16 @@ public class GameController {
 	// TODO
 	// if called before handleLogin it will fail
 	// could return boolean to denote failure or success
-	public void handleStart(ExampleMessage clientMessage) {
+	public HashMap<String, ArrayList<String>> handleStart(ExampleMessage clientMessage) {
 		// TODO Auto-generated method stub
 		String gameID = clientMessage.GAMEID();
 		Board board = boardStates.get(gameID);
 		if (board != null) {
-			board.start();
+			return board.start();
 		}
+		return null;
 	}
-
+	
 	// public void setCards(Cards cards) {
 	// // TODO Auto-generated method stub
 	// Map<String, String> map = cardsController.getCardsMap(cards);

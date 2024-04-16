@@ -13,12 +13,6 @@
             margin-left: 20px;
             margin-top: 20px;
         }
-        .hallway {
-            background-color: aqua;
-        }
-        .plum {
-            content: "Plum"
-        }
     </style>
 </head>
 <body>
@@ -26,21 +20,20 @@
     <p id="select-character-text">Please select a character.</p>
     <img src="/images/Miss_Scarlet.jpg" class="selectable-image" data-image="0" alt="Miss Scarlet">
     <img src="/images/Colonel_Mustard.jpg" class="selectable-image" data-image="1" alt="Colonel Mustard">
-    <img src="/images/Professor_Plum.jpg" class="selectable-image" data-image="2" alt="Professor Plum">
-    <img src="/images/Mrs_Peacock.jpg" class="selectable-image" data-image="3" alt="Mrs Peacock">
-    <img src="/images/Mr_Green.jpg" class="selectable-image" data-image="4" alt="Mr Green">
-    <img src="/images/Mrs_White.jpg" class="selectable-image" data-image="5" alt="Mrs White">
+    <img src="/images/Mrs_White.jpg" class="selectable-image" data-image="2" alt="Mrs White">
+    <img src="/images/Mr_Green.jpg" class="selectable-image" data-image="3" alt="Mr Green">
+    <img src="/images/Mrs_Peacock.jpg" class="selectable-image" data-image="4" alt="Mrs Peacock">
+    <img src="/images/Professor_Plum.jpg" class="selectable-image" data-image="5" alt="Professor Plum">
 </div>
 
 <div id="startButtonContainer" style="display: none;">
     <button id="startButton" value="START">Start Game</button>
 </div>
 
-<h2 id="display-name"></h2>
-<h2 id="cards">Your Cards: </h2>
 
 <div id="main-content" style="display: none;">
     <h2>Send Message</h2>
+    <h2 id="display-name"></h2>
     <form id="messageForm">
         <input type="radio" id="suggestAction" name="actionChoice" value="SUGGEST"  checked>
         <label for="suggestAction">Suggest</label>
@@ -63,9 +56,6 @@
         <input type="radio" id="diagonalAction" name="actionChoice" value="MOVE">
         <label for="diagonalAction">Move Diagonal</label>
 
-        <input type="radio" id="endTurnAction" name="actionChoice" value="ENDTURN">
-        <label for="endTurnAction">End Turn</label>
-
         <div id="selectOptions" style="display: none; margin-top: 10px">
             <p>
                 The weapon was
@@ -80,47 +70,6 @@
         <button type="submit">Send Message</button>
     </form>
 </div>
-
-<table id="grid" border="1">
-    <caption>Board</caption>
-    <tbody>
-        <tr>
-            <td>Study </td>
-            <td class="hallway"></td>
-            <td>Hall </td>
-            <td class="hallway"></td>
-            <td>Lounge </td>
-        </tr>
-        <tr>
-            <td class="hallway"></td>
-            <td></td>
-            <td class="hallway"></td>
-            <td></td>
-            <td class="hallway"></td>
-        </tr>
-        <tr id="row-2">
-            <td>Library</td>
-            <td class="hallway"></td>
-            <td>Billiard Room </td>
-            <td class="hallway"></td>
-            <td>Dining Room </td>
-        </tr>
-        <tr id="row-3">
-            <td class="hallway"></td>
-            <td></td>
-            <td class="hallway"></td>
-            <td></td>
-            <td class="hallway"></td>
-        </tr>
-        <tr id="row-4">
-            <td>Conservatory </td>
-            <td class="hallway"></td>
-            <td>Ballroom </td>
-            <td class="hallway"></td>
-            <td>Kitchen </td>
-        </tr>
-    </tbody>
-</table>
 
 <div id="message-box"></div>
 

@@ -1,6 +1,7 @@
 package com.awmm.messageserver.board;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -179,8 +180,10 @@ public class Board {
 		//Hallways
 		for (int i = 0; i < ROW_SIZE; ++i) {
 			for (int j = 0; j < COL_SIZE; ++j) {
-				if (grid[i][j] == null) {					
-					grid[i][j] = new Hallway();
+				if (i == 0 || i == 2 || i == 4 || j == 0 || j == 2 || j == 4) {					
+					if (grid[i][j] == null) {					
+						grid[i][j] = new Hallway();
+					}
 				}
 			}
 		}
@@ -213,8 +216,8 @@ public class Board {
 	 *
 	 * @param boardPlayer The BoardPlayer object representing the player to be added.
 	 */
-	private void firstMove(BoardPlayer boardPlayer) {
-		if (started) return;
+	private String firstMove(BoardPlayer boardPlayer) {
+		if (!started) return null;
 		Player player = boardPlayer.player;
 		Position startingPosition;
 		switch(player.getName()) {
@@ -248,12 +251,13 @@ public class Board {
 				startingPosition = new Position(gameId, WhiteUserID, 4, 3);
 				break;
 			}
-			default: {return;}	
+			default: {return null;}	
 		}
 		boardPlayer.setPosition(startingPosition);
 		grid[boardPlayer.position.getRow()][boardPlayer.position.getCol()].setPlayer(player);
+		return boardPlayer.position.getRow() +  " " + boardPlayer.position.getCol();
 	}
-
+	
 	/**
 	 * Moves a player to a specified destination on the board.
 	 *
@@ -261,31 +265,34 @@ public class Board {
 	 * @param destination The direction or room name to move the player to.
 	 * @return true if the player is successfully moved, false otherwise.
 	 */
-	public boolean movePlayer(String playerName, String destination) {
+	public String movePlayer(String playerName, String destination) {
 		BoardPlayer boardPlayer = getBoardPlayerFromName(playerName);
 		
 		if (boardPlayer == null || destination == null) {
 			logger.error("Error: playerName or direction is null");
-			return false;
+//			return false;
+			return null;
 		}
 		
 		if (!boardPlayer.playable) {
 			logger.info("player is not playable");
-			return false;
+//			return false;
+			return null;
 		}
 		
 		if (boardPlayer.position.getRow() == -1 || boardPlayer.position.getCol() == -1) { // if it's player's first move
-			firstMove(boardPlayer);
 			currentPlayerMoved = true;
-			return true;
+			return firstMove(boardPlayer);
+//			return true;
 		}
 		
 		Position oldPosition = boardPlayer.position;
 		String   key         = boardPlayer.player.getName();
-//		Position newPosition = new Position(oldPosition);
 		int row = oldPosition.getRow();
 		int col = oldPosition.getCol();
 		Position newPosition = new Position();
+		newPosition.setRow(row);
+		newPosition.setCol(col);
 		
 		switch (destination) {
 			case Up:
@@ -345,10 +352,15 @@ public class Board {
 			case ConservatoryName: { newPosition = new Position(RoomEnum.Conservatory.position); break; }
 			case     BallroomName: { newPosition = new Position(RoomEnum.Ballroom    .position); break; }
 			case      KitchenName: { newPosition = new Position(RoomEnum.Kitchen     .position); break; }
-			default: {return false;} 
+			default: {return null;} 
 		}
-		
-		return move(key, oldPosition, newPosition);				
+		if (move(key, oldPosition, newPosition)) {
+			return newPosition.getRow() + " " + newPosition.getCol();
+		}
+		else {
+			return null;
+		}
+//		return move(key, oldPosition, newPosition);				
 	}
 
 	/**
@@ -393,7 +405,7 @@ public class Board {
 				oldPosition.setCol(newPosition.getCol());
 				ret = true;
 			}
-		}
+		}	
 		if (ret == true) {currentPlayerMoved = true;}
 
 		return ret;
@@ -427,10 +439,10 @@ public class Board {
 	 * Starts the game by dealing cards to players and setting the solution cards.
 	 * @return
 	 */
-	public void start() {
+	public HashMap<String, ArrayList<String>> start() {
 		started = true; // prevents people from joining
 		logger.info("Dealing cards for new game.");
-		cardsController.dealCards(gameId, players);
+		return cardsController.dealCards(gameId, players);
 	}
 	
 	/**
