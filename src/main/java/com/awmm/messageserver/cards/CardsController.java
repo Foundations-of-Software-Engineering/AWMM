@@ -6,14 +6,21 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.Random;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.awmm.messageserver.board.Board;
 
+import jakarta.transaction.Transactional;
+
 @Component
+@Transactional
 public class CardsController {
 	
+	private final Logger logger = LoggerFactory.getLogger(CardsController.class);
+
 	final private static String[] cardsArray = {
 	//	 6 Suspects
 	Board.ProfessorPlumName,
@@ -85,6 +92,20 @@ public class CardsController {
 		return ret;
 	}
 	
+	public void clearSuggestion(String gameID) {
+		try {
+			Cards cards = repository.getReferenceById(gameID);
+			if (cards != null && cards.getSuggestedRoom() == null && cards.getSuggestedSuspect() == null && cards.getSuggestedWeapon() == null) {				
+				cards.setSuggestedWeapon(null);
+				cards.setSuggestedRoom(null);
+				cards.setSuggestedSuspect(null);
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public boolean setSuggestion(String gameID, String weapon, String suspect, String room) {
 		try {
 			Cards cards = repository.getReferenceById(gameID);
@@ -110,10 +131,12 @@ public class CardsController {
 		Cards cards = new Cards();
 		cards.setGameID(gameID);
 		
-		cardList.remove(rand.nextInt(6)); // suspect
-		cardList.remove(rand.nextInt(6)+5); // weapon
-		cardList.remove(rand.nextInt(9)+10); // room
+		String suspect = cardList.remove(rand.nextInt(6)); // suspect
+		String weapon = cardList.remove(rand.nextInt(6)+5); // weapon
+		String room = cardList.remove(rand.nextInt(9)+10); // room
 
+		logger.info("Game Answers are {}, {}, {}", suspect, weapon, room);
+		
 		shuffleCards(cardList);
 		
 		int playersSize = players.size();

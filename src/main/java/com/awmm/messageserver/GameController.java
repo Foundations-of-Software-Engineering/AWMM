@@ -262,8 +262,12 @@ public class GameController {
 		String weapon = clientMessage.weapon();
 		String suspect = clientMessage.suspect();
 		String room = clientMessage.location();
-		if (isValid(gameID, userID)) {
+		if (isValid(gameID, userID) && cardsController.hasSuggestion(gameID)) {
 			ret = cardsController.checkSuggestion(gameID, weapon, suspect, room, playerNames[userID]);
+			logger.info("Suggestion was {}", ret);
+			if (ret) {
+				cardsController.clearSuggestion(gameID);
+			}
 		}
 		return ret;
 	}
