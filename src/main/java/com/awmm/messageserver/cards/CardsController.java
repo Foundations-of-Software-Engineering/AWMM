@@ -62,7 +62,7 @@ public class CardsController {
 		Optional<Cards> opt = repository.findById(gameID);
 		if (opt.isPresent()) {
 			Cards cards = opt.get();
-			ret = cards.getSuggestedRoom() == null && cards.getSuggestedSuspect() == null && cards.getSuggestedWeapon() == null;
+			ret = cards.getSuggestedRoom() != null || cards.getSuggestedSuspect() != null || cards.getSuggestedWeapon() != null;
 		}
 		return ret;
 	}

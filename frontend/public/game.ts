@@ -44,6 +44,70 @@ function sendLoginMessage(){
     }
 }
 
+function getCharacterFromUserID(userID: number) : Character | null{
+    let character : Character;
+    switch(userID) {
+        case 0: {
+            character = scarlet;
+            break;
+        }
+        case 1: {
+            character = mustard;
+            break;
+        }
+        case 2: {
+            character = white;
+            break;
+        }
+        case 3: {
+            character = green;
+            break;
+        }
+        case 4: {
+            character = peacock;
+            break;
+        }
+        case 5: { 
+            character = plum;
+            break;
+        }
+        default: { return null; }
+    }
+    return character;
+}
+
+function getCharacterFromName(name : string) : Character | null {
+    let character : Character;
+    switch(name) {
+        case "Miss Scarlet": {
+            character = scarlet;
+            break;
+        }
+        case "Col. Mustard": {
+            character = mustard;
+            break;
+        }
+        case "Mrs White": {
+            character = white;
+            break;
+        }
+        case "Mr Green": {
+            character = green;
+            break;
+        }
+        case "Mrs Peacock": {
+            character = peacock;
+            break;
+        }
+        case "Professor Plum": { 
+            character = plum;
+            break;
+        }
+        default: { return null; }
+    }
+    return character;
+}
+
 function movePlayer(character : Character, x : number, y : number) {
     // Clear previous player position\
     let oldElement = document.querySelector(`#grid tbody tr:nth-child(${character.row + 1}) td:nth-child(${character.col + 1})`);
@@ -265,7 +329,18 @@ document.addEventListener("DOMContentLoaded", () => {
             form.style.display = 'block'; // Show the form
             messageBox.innerHTML = message.action;
         } else if (message.type === 'SUGGEST') {
-            messageBox.innerHTML += `${characterNames[message.USERID]} suggests it was ${message.suspect} in the ${message.location} with a ${message.weapon}.<br>`;
+            if (message.action === 'FAIL') {
+                messageBox.innerHTML += `${characterNames[message.USERID]} cannot make suggestion when not in room.`;
+            } else {
+                messageBox.innerHTML += `${characterNames[message.USERID]} suggests it was ${message.suspect} in the ${message.location} with a ${message.weapon}.<br>`;
+                let row = message.action.charAt(0);
+                let col = message.action.charAt(2);
+                let character = getCharacterFromName(message.suspect);
+                if (character !== null) {
+                    movePlayer(character, row, col);
+                }
+                
+            }
         } else if (message.type === 'accusefail') {
             form.style.display = 'none';
         } else if (message.type === 'CARD') {

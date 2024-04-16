@@ -496,12 +496,16 @@ public class Board {
 			logger.info("Player: {} is not playable", playerName);
 			return null;
 		}
-		Location location = getLocation(getBoardPlayerFromName(playerName).position);
+		Position position = boardPlayer.position;
+		Location location = getLocation(position);
 		if (location instanceof Room) {			
 			Room room = (Room) location;
 			movePlayer(suspect, room.getName());
 			currentPlayerSuggested = true;
-			return room.getName();
+			return position.getRow() + " " + position.getCol();
+		}
+		else {
+			logger.info("Player is not in a Room. Instead, he/she is in {}", position.getRow() + " " + position.getCol());
 		}
 		return null;
 	}
