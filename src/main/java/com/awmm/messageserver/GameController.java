@@ -33,20 +33,20 @@ public class GameController {
 	public static final String[] playerNames = {
 			Board.MissScarletName,
 			Board.ColMustardName,
-			Board.ProfessorPlumName,
-			Board.MrsPeacockName,
+			Board.MrsWhiteName,
 			Board.MrGreenName,
-			Board.MrsWhiteName
+			Board.MrsPeacockName,
+			Board.ProfessorPlumName
 	};
-	
+
 	public static final HashMap<String, Integer> PlayerName2UserID = new HashMap<>(){
 		{
 			put(Board.MissScarletName, 0);
-			put(Board.ColMustardName,   1);   
-			put(Board.ProfessorPlumName,2);   
-			put(Board.MrsPeacockName,   3);   
-			put(Board.MrGreenName,      4);   
-			put(Board.MrsWhiteName,      5);   
+			put(Board.ColMustardName,   1);
+			put(Board.MrsWhiteName,      2);
+			put(Board.MrGreenName,      3);
+			put(Board.MrsPeacockName,   4);
+			put(Board.ProfessorPlumName,5);
 		}
 	};
 

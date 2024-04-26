@@ -1,5 +1,7 @@
 import { sendMessage, startGame } from "./sendMessage.js";
 import { wsManager } from './websocketManager.js';
+import { GameMap } from './map.js';
+import { Tokens } from './token.js';
 
 const characterNames: {[key: number]: string } = {
     0: "Miss Scarlet",
@@ -27,6 +29,19 @@ var white = new Character("White", 0, 0);
 var green = new Character("Green", 0, 0);
 var peacock = new Character("Peacock", 0, 0);
 var plum = new Character("Plum", 0, 0);
+
+const layout = [
+    ['Study', 'Hallway', 'Hall', 'Hallway', 'Lounge'],
+    ['Hallway', '', 'Hallway', '', 'Hallway'],
+    ['Library', 'Hallway', 'BilliardRoom', 'Hallway', 'DiningRoom'],
+    ['Hallway', '', 'Hallway', '', 'Hallway'],
+    ['Conservatory', 'Hallway', 'Ballroom', 'Hallway', 'Kitchen']
+];
+
+const roomSize = 200;
+const imageNames = ['Study', 'Hall', 'Lounge', 'Library', 'BilliardRoom', 'DiningRoom', 'Conservatory', 'Ballroom', 'Kitchen', 'Hallway'];
+const gameMap = new GameMap(layout, imageNames, roomSize);
+const charTokens = new Tokens(gameMap.canvas, layout, roomSize);
 
 // Function to get the value of a specific cookie
 function getCookieValue(cookieName: string): string | undefined {
@@ -67,7 +82,7 @@ function getCharacterFromUserID(userID: number) : Character | null{
             character = peacock;
             break;
         }
-        case 5: { 
+        case 5: {
             character = plum;
             break;
         }
@@ -99,7 +114,7 @@ function getCharacterFromName(name : string) : Character | null {
             character = peacock;
             break;
         }
-        case "Professor Plum": { 
+        case "Professor Plum": {
             character = plum;
             break;
         }
@@ -129,13 +144,18 @@ function movePlayer(character : Character, x : number, y : number) {
     character.row = Math.max(0, Math.min(x, 4));
     character.col = Math.max(0, Math.min(y, 4));
 
+    // move token
+    charTokens.updatePostion(character.name, character.row, character.col);
+    gameMap.drawMap();
+    charTokens.drawTokens();
+
     // Set new player position
     let newElement = document.querySelector(`#grid tbody tr:nth-child(${character.row + 1}) td:nth-child(${character.col + 1})`);
     // document.querySelector(`#grid tbody tr:nth-child(${y + 1}) td:nth-child(${x + 1})`).textContent = 'X';
     if (newElement !== null) {
         newElement.textContent += character.name + " ";
     }
-        
+
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -250,7 +270,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 console.log("inner html = " + display.innerHTML)
 
             }
-            
+
         });
     });
 
@@ -308,7 +328,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         character = peacock;
                         break;
                     }
-                    case 5: { 
+                    case 5: {
                         character = plum;
                         break;
                     }
@@ -322,13 +342,16 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 console.log(`Move failed for ${characterName}`)
             }
-        
+
         } else if (message.type === 'start') {
             console.log('Start game message received:', message);
             startButton.style.display = 'none';
             mainContent.style.display = 'block'; // Show the main content
             form.style.display = 'block'; // Show the form
             messageBox.innerHTML = message.action;
+            gameMap.loadImages().then(() => {
+                gameMap.drawMap();
+            });
         } else if (message.type === 'SUGGEST') {
             if (message.action === 'FAIL') {
                 messageBox.innerHTML += `${characterNames[message.USERID]} cannot make suggestion when not in room.`;
@@ -340,7 +363,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (character !== null) {
                     movePlayer(character, row, col);
                 }
-                
             }
         } else if (message.type === 'accusefail') {
             form.style.display = 'none';
@@ -361,7 +383,6 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 messageBox.innerHTML += "Game Over with No Winner :("
             }
-            
         }
     });
 
@@ -385,7 +406,7 @@ document.addEventListener("DOMContentLoaded", () => {
             data.location = (document.getElementById('roomSelect') as HTMLInputElement).value;
             data.weapon = (document.getElementById('weaponSelect') as HTMLInputElement).value;
             data.suspect = (document.getElementById('suspectSelect') as HTMLInputElement).value;
-        } else { 
+        } else {
             if (actionSelected.id === 'leftAction') {
                 data.location = 'left';
             } else if (actionSelected.id === 'rightAction') {
@@ -406,7 +427,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const message = await sendMessage(data);
             // sendMessage() is void and so message will be undefined
-             console.log('Message received: ', message);
+            console.log('Message received: ', message);
             form.reset();
         } catch (error) {
             console.error(`Error sending message: `, error);
