@@ -216,7 +216,7 @@ public class ClientController extends TextWebSocketHandler {
 	 */
 	private void handleAccuse(WebSocketSession session, ExampleMessage clientMessage) {
 		if (gameController.handleAccuse(clientMessage)) {
-			ExampleMessage gameWon = new ExampleMessage(clientMessage.GAMEID(), clientMessage.USERID(), "Game Won", clientMessage.location(), clientMessage.weapon(), clientMessage.location(), null);
+			ExampleMessage gameWon = new ExampleMessage(clientMessage.GAMEID(), clientMessage.USERID(), "Game Won", clientMessage.location(), clientMessage.weapon(), clientMessage.suspect(), "GAMEOVER");
 			broadcastMessage(gameWon, clientMessage.GAMEID());
 		} else if (gameController.activePlayers(clientMessage) <= 0) { // no winners :(		
 			broadcastMessage(new NoWinMessage("Nobody Wins"), clientMessage.GAMEID());

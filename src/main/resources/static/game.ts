@@ -351,10 +351,17 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         } else if (message.type === 'DISPROVE') {
             if (message.action === 'FAIL') {
-                messageBox.innerHTML += `${characterNames[message.USERID]} failed to disprove`;
+                messageBox.innerHTML += `${characterNames[message.USERID]} failed to disprove<br>`;
             } else {
-                messageBox.innerHTML += `${characterNames[message.USERID]} disproved`;
+                messageBox.innerHTML += `${characterNames[message.USERID]} disproved<br>`;
             }
+        } else if (message.type === 'GAMEOVER') {
+            if (message.action === 'Game Won') {
+                messageBox.innerHTML += `Game Over! ${characterNames[message.USERID]} won with answers ${message.weapon}, ${message.suspect}, ${message.room}`
+            } else {
+                messageBox.innerHTML += "Game Over with No Winner :("
+            }
+            
         }
     });
 
