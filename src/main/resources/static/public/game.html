@@ -13,6 +13,12 @@
             margin-left: 20px;
             margin-top: 20px;
         }
+        .hallway {
+            background-color: aqua;
+        }
+        .plum {
+            content: "Plum"
+        }
     </style>
 </head>
 <body>
@@ -30,16 +36,20 @@
     <button id="startButton" value="START">Start Game</button>
 </div>
 
+<h2 id="display-name"></h2>
+<h2 id="cards">Your Cards: </h2>
 
 <div id="main-content" style="display: none;">
     <h2>Send Message</h2>
-    <h2 id="display-name"></h2>
     <form id="messageForm">
         <input type="radio" id="suggestAction" name="actionChoice" value="SUGGEST"  checked>
         <label for="suggestAction">Suggest</label>
 
         <input type="radio" id="accuseAction" name="actionChoice" value="ACCUSE">
         <label style="color:red;" for="accuseAction">Accuse</label>
+
+        <input type="radio" id="disproveAction" name="actionChoice" value="DISPROVE">
+        <label for="disproveAction">Disprove</label>
 
         <input type="radio" id="leftAction" name="actionChoice" value="MOVE">
         <label for="leftAction">Move Left</label>
@@ -56,6 +66,9 @@
         <input type="radio" id="diagonalAction" name="actionChoice" value="MOVE">
         <label for="diagonalAction">Move Diagonal</label>
 
+        <input type="radio" id="endTurnAction" name="actionChoice" value="ENDTURN">
+        <label for="endTurnAction">End Turn</label>
+
         <div id="selectOptions" style="display: none; margin-top: 10px">
             <p>
                 The weapon was
@@ -70,6 +83,49 @@
         <button type="submit">Send Message</button>
     </form>
 </div>
+
+<table id="grid" border="1">
+    <caption>Board</caption>
+    <tbody>
+    <tr>
+        <td>Study </td>
+        <td class="hallway"></td>
+        <td>Hall </td>
+        <td class="hallway"></td>
+        <td>Lounge </td>
+    </tr>
+    <tr>
+        <td class="hallway"></td>
+        <td></td>
+        <td class="hallway"></td>
+        <td></td>
+        <td class="hallway"></td>
+    </tr>
+    <tr id="row-2">
+        <td>Library</td>
+        <td class="hallway"></td>
+        <td>Billiard Room </td>
+        <td class="hallway"></td>
+        <td>Dining Room </td>
+    </tr>
+    <tr id="row-3">
+        <td class="hallway"></td>
+        <td></td>
+        <td class="hallway"></td>
+        <td></td>
+        <td class="hallway"></td>
+    </tr>
+    <tr id="row-4">
+        <td>Conservatory </td>
+        <td class="hallway"></td>
+        <td>Ballroom </td>
+        <td class="hallway"></td>
+        <td>Kitchen </td>
+    </tr>
+    </tbody>
+</table>
+
+<canvas id="mapCanvas"></canvas>
 
 <div id="message-box"></div>
 
