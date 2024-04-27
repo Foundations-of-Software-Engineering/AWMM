@@ -1,6 +1,8 @@
 package com.awmm.messageserver.board;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 
 import org.slf4j.Logger;
@@ -72,6 +74,7 @@ public class Board {
 	private String[] winningCards;
 
 	private int currentPlayer;
+	private ArrayList<Integer> playerIDs;
 	private boolean currentPlayerMoved;
 	private boolean currentPlayerSuggested;
 
@@ -160,6 +163,7 @@ public class Board {
 		this.started = false;
 		this.gameId = gameId;
 		this.players = new ArrayList<>();
+		this.playerIDs = new ArrayList<>();
 		this.positionController = positionController;
 		this.currentPlayer = 0;
 		this.currentPlayerMoved = false;
@@ -206,6 +210,7 @@ public class Board {
 		BoardPlayer boardPlayer = getBoardPlayerFromName(player);
 		if (!boardPlayer.added) {
 			players.add(player);
+			playerIDs.add(boardPlayer.player.getId());
 			boardPlayer.added = true;
 			boardPlayer.playable = true;
 		}
@@ -412,7 +417,9 @@ public class Board {
 	}
 
 	public void switchPlayerTurn() {
-		currentPlayer = (currentPlayer + 1) % players.size();
+		int currentIndex = playerIDs.indexOf(currentPlayer);
+
+		currentPlayer = playerIDs.get((currentIndex + 1) % playerIDs.size());
 		currentPlayerMoved = false;
 		currentPlayerSuggested = false;
 	}
@@ -442,6 +449,8 @@ public class Board {
 	public HashMap<String, ArrayList<String>> start() {
 		started = true; // prevents people from joining
 		logger.info("Dealing cards for new game.");
+		Collections.sort(playerIDs);
+		currentPlayer = playerIDs.get(0);
 		return cardsController.dealCards(gameId, players);
 	}
 	
