@@ -33,7 +33,7 @@ public class Board {
 	public final static String   MissScarletName =  "Miss Scarlet" ;
 	public final static String    ColMustardName =  "Col. Mustard" ;
 	public final static String    MrsPeacockName =  "Mrs. Peacock" ;
-	public final static String       MrGreenName =  "Mrs. Green"   ;
+	public final static String       MrGreenName =  "Mr. Green"   ;
 	public final static String      MrsWhiteName =  "Mrs. White"   ;
 
 	// Constants for weapon names
