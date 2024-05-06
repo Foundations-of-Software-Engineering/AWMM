@@ -74,7 +74,7 @@ const gameMap = new GameMap(layout, imageNames, roomSize);
 const charTokens = new Tokens(gameMap.canvas, layout, roomSize);
 
 var turnOrder: number[] = [];
-
+var playerHand: string[] = [];
 
 function addTurns(){
     let turnOrderDiv = document.getElementById("turn-cards")!;
@@ -220,11 +220,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const disproveAction = document.getElementById('disproveAction') as HTMLInputElement;
 
     const selectOptions = document.getElementById('selectOptions')!;
+    const disproveOptions = document.getElementById("disproveOptions")!;
 
 
     const suspectSelect = document.getElementById('suspectSelect') as HTMLSelectElement;
     const weaponSelect = document.getElementById('weaponSelect') as HTMLSelectElement;
     const roomSelect = document.getElementById('roomSelect') as HTMLSelectElement;
+    const disproveSelect = document.getElementById('disproveSelect') as HTMLSelectElement;
 
     const suspects = ['Professor Plum', 'Miss Scarlet', 'Col. Mustard', 'Mrs. Peacock', 'Mr. Green', 'Mrs. White'];
     const weapons = ["Candlestick", "Revolver", "Ice Pick", "Poison", "Poker", "Shears"];
@@ -256,10 +258,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.querySelectorAll('input[name="actionChoice"]').forEach(input => {
         input.addEventListener('change', function () {
-            if (suggestAction.checked || accuseAction.checked || disproveAction.checked) {
+            if (suggestAction.checked || accuseAction.checked) {
                 selectOptions.style.display = 'block';
+                disproveOptions.style.display = 'none';
+            } else if (disproveAction.checked){
+                selectOptions.style.display = 'none';
+                disproveOptions.style.display = 'block';
             } else {
                 selectOptions.style.display = 'none';
+                disproveOptions.style.display = 'none';
             }
         })
     });
@@ -418,6 +425,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } else if (message.type === 'CARD') {
             let hand = document.getElementById('cards')!;
             const img = document.createElement("img");
+            playerHand.push(message.action);
             if (weapons.indexOf(message.action) > -1){
                 img.src = weaponCards[message.action];
             } else if ((Object as any).values(characterNames).includes(message.action)){
@@ -427,6 +435,10 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             img.width = 100;
             hand.appendChild(img);
+            const option = document.createElement('option');
+            option.value = message.action;
+            option.textContent = message.action;
+            disproveSelect.appendChild(option);
             // if (hand !== null) {
             //     hand.innerHTML += message.action + ", ";
             // }
@@ -468,11 +480,21 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
 
-        if (actionSelected.value === "SUGGEST" || actionSelected.value === "ACCUSE" || actionSelected.value === "DISPROVE") {
+        if (actionSelected.value === "SUGGEST" || actionSelected.value === "ACCUSE") {
             data.location = (document.getElementById('roomSelect') as HTMLInputElement).value;
             data.weapon = (document.getElementById('weaponSelect') as HTMLInputElement).value;
             data.suspect = (document.getElementById('suspectSelect') as HTMLInputElement).value;
-        } else {
+        } else if (actionSelected.value === "DISPROVE") {
+            const choice = (document.getElementById("disproveSelect") as HTMLInputElement).value;
+            if (rooms.indexOf(choice) > -1){
+                data.location = choice;
+            } else if (weapons.indexOf(choice) > -1) {
+                data.weapon = choice;
+            } else if (suspects.indexOf(choice) > -1){
+                data.suspect = choice;
+            }
+        }
+        else {
             if (actionSelected.id === 'leftAction') {
                 data.location = 'left';
             } else if (actionSelected.id === 'rightAction') {
