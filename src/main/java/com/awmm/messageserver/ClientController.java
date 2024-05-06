@@ -145,11 +145,13 @@ public class ClientController extends TextWebSocketHandler {
 
 	private void handleDisprove(WebSocketSession session, ExampleMessage clientMessage) {
 		// TODO Auto-generated method stub
-		ExampleMessage returnMessage = new ExampleMessage(null, null, null, null, null, null, null);
+		ExampleMessage returnMessage;
 		if (gameController.handleDisprove(clientMessage)) {
 			returnMessage = new ExampleMessage(clientMessage.GAMEID(), clientMessage.USERID(), "SUCCESS", null, null, null, "DISPROVE");
 			broadcastMessage(returnMessage, clientMessage.GAMEID());
 			ExampleMessage individualMessage = new ExampleMessage(null, null, null, clientMessage.location(), clientMessage.weapon(), clientMessage.suspect(), "DisproveSuccessful");
+			int currentPlayer = gameController.getCurrentPlayer(clientMessage.GAMEID());
+			sendMessageToClient(gameID2UserID2Session.get(clientMessage.GAMEID()).get(currentPlayer), individualMessage);
 		} else {
 			returnMessage = new ExampleMessage(clientMessage.GAMEID(), clientMessage.USERID(), "FAIL", null, null, null, "DISPROVE");
 			sendMessageToClient(session, returnMessage);
@@ -198,7 +200,6 @@ public class ClientController extends TextWebSocketHandler {
 		ExampleMessage message;
 		if (position != null) {
 			message = new ExampleMessage(clientMessage.GAMEID(), clientMessage.USERID(), position, clientMessage.location(), clientMessage.weapon(), clientMessage.suspect(), "SUGGEST");
-//			sendMessageToClient(session, message);
 		}
 		else {
 			message = new ExampleMessage(clientMessage.GAMEID(), clientMessage.USERID(), "FAIL", clientMessage.location(), clientMessage.weapon(), clientMessage.suspect(), "SUGGEST");

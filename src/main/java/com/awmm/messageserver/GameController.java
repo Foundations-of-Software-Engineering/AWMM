@@ -261,7 +261,17 @@ public class GameController {
 		int userID = clientMessage.USERID();
 		String weapon = clientMessage.weapon();
 		String suspect = clientMessage.suspect();
-		String room = clientMessage.location();
+		String room = clientMessage.location();			
+		logger.info("weapon was {}, suspect was {}, room was {}", weapon, suspect, room);
+		if (weapon != null) {
+			logger.info("weapon length = {}", weapon.length());
+		}
+		if (suspect != null) {
+			logger.info("suspect length = {}", suspect.length());
+		}
+		if (room != null) {
+			logger.info("room length = {}", room.length());
+		}
 		if (isValid(gameID, userID) && cardsController.hasSuggestion(gameID)) {
 			ret = cardsController.checkSuggestion(gameID, weapon, suspect, room, playerNames[userID]);
 			logger.info("Suggestion was {}", ret);
@@ -272,5 +282,11 @@ public class GameController {
 		return ret;
 	}
     
-//	public int getCurrentPlayer(String gameID)
+	public int getCurrentPlayer(String gameID)
+	{
+		if (boardStates.containsKey(gameID)) {
+			return boardStates.get(gameID).getCurrentPlayer();
+		}
+		else return -1;
+	}
 }
