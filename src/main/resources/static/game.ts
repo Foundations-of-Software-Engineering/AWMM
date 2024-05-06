@@ -1,12 +1,14 @@
 import { sendMessage, startGame } from "./sendMessage.js";
 import { wsManager } from './websocketManager.js';
+import { GameMap } from './map.js';
+import { Tokens } from './token.js';
 
 const characterNames: {[key: number]: string } = {
     0: "Miss Scarlet",
-    1: "Colonel Mustard",
-    2: "Mrs White",
-    3: "Mr Green",
-    4: "Mrs Peacock",
+    1: "Col. Mustard",
+    2: "Mrs. White",
+    3: "Mr. Green",
+    4: "Mrs. Peacock",
     5: "Professor Plum"
 }
 
@@ -28,6 +30,63 @@ var green = new Character("Green", 0, 0);
 var peacock = new Character("Peacock", 0, 0);
 var plum = new Character("Plum", 0, 0);
 
+const layout = [
+    ['Study', 'Hallway', 'Hall', 'Hallway', 'Lounge'],
+    ['Hallway', '', 'Hallway', '', 'Hallway'],
+    ['Library', 'Hallway', 'BilliardRoom', 'Hallway', 'DiningRoom'],
+    ['Hallway', '', 'Hallway', '', 'Hallway'],
+    ['Conservatory', 'Hallway', 'Ballroom', 'Hallway', 'Kitchen']
+];
+
+const suspectCards: {[key: string]: string } = {
+    "Miss Scarlet": "/images/cards/suspects/MissScarlet.png",
+    "Col. Mustard": "/images/cards/suspects/ColonelMustard.png",
+    "Mrs. White": "/images/cards/suspects/MrsWhite.png",
+    "Mr. Green": "/images/cards/suspects/MrGreen.png",
+    "Mrs. Peacock": "/images/cards/suspects/MrsPeacock.png",
+    "Professor Plum": "/images/cards/suspects/ProfessorPlum.png"
+}
+
+const weaponCards:{[key: string]: string } = {
+    "Candlestick": "/images/cards/weapons/Candlestick.png",
+    "Revolver": "/images/cards/weapons/Revolver.png",
+    "Ice Pick": "/images/cards/weapons/Ice_Pick.png",
+    "Poison": "/images/cards/weapons/Poison.png",
+    "Poker": "/images/cards/weapons/Poker.png",
+    "Shears": "/images/cards/weapons/Shears.png"
+}
+
+const roomCards:{[key: string]: string } = {
+    "Ballroom": "/images/cards/rooms/Ballroom.png",
+    "Billiard Room": "/images/cards/rooms/BilliardRoom.png",
+    "Conservatory": "/images/cards/rooms/Conservatory.png",
+    "Dining Room": "/images/cards/rooms/DiningRoom.png",
+    "Hall": "/images/cards/rooms/Hall.png",
+    "Kitchen": "/images/cards/rooms/Kitchen.png",
+    "Library": "/images/cards/rooms/Library.png",
+    "Lounge": "/images/cards/rooms/Lounge.png",
+    "Study": "/images/cards/rooms/Study.png",
+}
+
+const roomSize = 200;
+const imageNames = ['Study', 'Hall', 'Lounge', 'Library', 'BilliardRoom', 'DiningRoom', 'Conservatory', 'Ballroom', 'Kitchen', 'Hallway'];
+const gameMap = new GameMap(layout, imageNames, roomSize);
+const charTokens = new Tokens(gameMap.canvas, layout, roomSize);
+
+var turnOrder: number[] = [];
+var playerHand: string[] = [];
+
+function addTurns(){
+    let turnOrderDiv = document.getElementById("turn-cards")!;
+    turnOrderDiv.innerHTML = "";
+    turnOrder.forEach((value) => {
+        const img = document.createElement("img");
+        img.src = suspectCards[characterNames[value]];
+        img.width = 100;
+        img.alt = characterNames[value];
+        turnOrderDiv.appendChild(img);
+    });
+}
 // Function to get the value of a specific cookie
 function getCookieValue(cookieName: string): string | undefined {
     const cookie = document.cookie.split("; ").find((row) => row.startsWith(cookieName));
@@ -67,7 +126,7 @@ function getCharacterFromUserID(userID: number) : Character | null{
             character = peacock;
             break;
         }
-        case 5: { 
+        case 5: {
             character = plum;
             break;
         }
@@ -99,7 +158,7 @@ function getCharacterFromName(name : string) : Character | null {
             character = peacock;
             break;
         }
-        case "Professor Plum": { 
+        case "Professor Plum": {
             character = plum;
             break;
         }
@@ -129,13 +188,18 @@ function movePlayer(character : Character, x : number, y : number) {
     character.row = Math.max(0, Math.min(x, 4));
     character.col = Math.max(0, Math.min(y, 4));
 
+    // move token
+    charTokens.updatePostion(character.name, character.row, character.col);
+    gameMap.drawMap();
+    charTokens.drawTokens();
+
     // Set new player position
     let newElement = document.querySelector(`#grid tbody tr:nth-child(${character.row + 1}) td:nth-child(${character.col + 1})`);
     // document.querySelector(`#grid tbody tr:nth-child(${y + 1}) td:nth-child(${x + 1})`).textContent = 'X';
     if (newElement !== null) {
         newElement.textContent += character.name + " ";
     }
-        
+
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -143,7 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const form = document.getElementById('messageForm') as HTMLFormElement;
     const imageSelection = document.getElementById('image-selection')!;
-    const mainContent = document.getElementById('main-content')!;
+    const mainContent = document.getElementById('game-controls')!;
     const selectableImages = document.querySelectorAll('.selectable-image')!;
     let selectedImageValue: number | null = null; // Variable to store the selected image value
     const messageBox = document.getElementById("message-box")!;
@@ -156,16 +220,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const disproveAction = document.getElementById('disproveAction') as HTMLInputElement;
 
     const selectOptions = document.getElementById('selectOptions')!;
+    const disproveOptions = document.getElementById("disproveOptions")!;
 
 
     const suspectSelect = document.getElementById('suspectSelect') as HTMLSelectElement;
     const weaponSelect = document.getElementById('weaponSelect') as HTMLSelectElement;
     const roomSelect = document.getElementById('roomSelect') as HTMLSelectElement;
+    const disproveSelect = document.getElementById('disproveSelect') as HTMLSelectElement;
 
     const suspects = ['Professor Plum', 'Miss Scarlet', 'Col. Mustard', 'Mrs. Peacock', 'Mr. Green', 'Mrs. White'];
-    const weapons = ['Candlestick', 'Dagger', 'Lead Pipe', 'Revolver', 'Rope', 'Wrench'];
+    const weapons = ["Candlestick", "Revolver", "Ice Pick", "Poison", "Poker", "Shears"];
     const rooms = ['Study', 'Hall', 'Lounge', 'Kitchen', 'Ballroom', 'Conservatory', 'Dining Room', 'Billiard Room', 'Library'];
 
+    messageBox.innerHTML += 'Game ID: ' + getCookieValue('gameId') + '<br>';
 
     suspects.forEach(suspects => {
         const option = document.createElement('option');
@@ -191,10 +258,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.querySelectorAll('input[name="actionChoice"]').forEach(input => {
         input.addEventListener('change', function () {
-            if (suggestAction.checked || accuseAction.checked || disproveAction.checked) {
+            if (suggestAction.checked || accuseAction.checked) {
                 selectOptions.style.display = 'block';
+                disproveOptions.style.display = 'none';
+            } else if (disproveAction.checked){
+                selectOptions.style.display = 'none';
+                disproveOptions.style.display = 'block';
             } else {
                 selectOptions.style.display = 'none';
+                disproveOptions.style.display = 'none';
             }
         })
     });
@@ -250,7 +322,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 console.log("inner html = " + display.innerHTML)
 
             }
-            
+
         });
     });
 
@@ -266,8 +338,9 @@ document.addEventListener("DOMContentLoaded", () => {
             const characterName = characterNames[message.USERID];
             if (message.action !== 'FAIL') {
                 console.log(`Login succeeded for ${characterName}`)
-                messageBox.innerHTML = message.action;
-                // messageBox.innerHTML += `${characterName} has joined the game.<br>`;
+                //messageBox.innerHTML = message.action;
+                turnOrder.push(parseInt(message.USERID));
+                messageBox.innerHTML += `${characterName} has joined the game.<br>`;
             } else {
                 alert("Login Failed!")
                 console.log(`Login failed for ${characterName}`)
@@ -308,7 +381,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         character = peacock;
                         break;
                     }
-                    case 5: { 
+                    case 5: {
                         character = plum;
                         break;
                     }
@@ -322,16 +395,22 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 console.log(`Move failed for ${characterName}`)
             }
-        
+
         } else if (message.type === 'start') {
             console.log('Start game message received:', message);
             startButton.style.display = 'none';
             mainContent.style.display = 'block'; // Show the main content
             form.style.display = 'block'; // Show the form
             messageBox.innerHTML = message.action;
+            turnOrder.sort();
+            console.log(turnOrder);
+            addTurns();
+            gameMap.loadImages().then(() => {
+                gameMap.drawMap();
+            });
         } else if (message.type === 'SUGGEST') {
             if (message.action === 'FAIL') {
-                messageBox.innerHTML += `${characterNames[message.USERID]} cannot make suggestion when not in room.`;
+                messageBox.innerHTML += `${characterNames[message.USERID]} cannot make suggestion when not in room.<br>`;
             } else {
                 messageBox.innerHTML += `${characterNames[message.USERID]} suggests it was ${message.suspect} in the ${message.location} with a ${message.weapon}.<br>`;
                 let row = message.action.charAt(0);
@@ -340,15 +419,26 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (character !== null) {
                     movePlayer(character, row, col);
                 }
-                
             }
         } else if (message.type === 'accusefail') {
             form.style.display = 'none';
         } else if (message.type === 'CARD') {
-            let hand = document.getElementById('cards');
-            if (hand !== null) {
-                hand.innerHTML += message.action + ", ";
+            let hand = document.getElementById('cards')!;
+            const img = document.createElement("img");
+            playerHand.push(message.action);
+            if (weapons.indexOf(message.action) > -1){
+                img.src = weaponCards[message.action];
+            } else if ((Object as any).values(characterNames).includes(message.action)){
+                img.src = suspectCards[message.action];
+            } else {
+                img.src = roomCards[message.action];
             }
+            img.width = 100;
+            hand.appendChild(img);
+            disproveSelect.appendChild(message.action);
+            // if (hand !== null) {
+            //     hand.innerHTML += message.action + ", ";
+            // }
         } else if (message.type === 'DISPROVE') {
             if (message.action === 'FAIL') {
                 messageBox.innerHTML += `${characterNames[message.USERID]} failed to disprove<br>`;
@@ -357,12 +447,16 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         } else if (message.type === 'GAMEOVER') {
             if (message.action === 'Game Won') {
-                messageBox.innerHTML += `Game Over! ${characterNames[message.USERID]} won with answers ${message.weapon}, ${message.suspect}, ${message.room}`
+                messageBox.innerHTML += `Game Over! ${characterNames[message.USERID]} won with answers ${message.weapon}, ${message.suspect}, ${message.location}`
             } else {
                 messageBox.innerHTML += "Game Over with No Winner :("
             }
-            
+        } else if (message.type === 'ENDTURN') {
+            turnOrder.push(turnOrder.shift()!);
+            addTurns();
+            messageBox.innerHTML += `${characterNames[message.USERID]} ends turn.<br>`;
         }
+        
     });
 
     form.addEventListener("submit", async (event) => {
@@ -381,11 +475,21 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
 
-        if (actionSelected.value === "SUGGEST" || actionSelected.value === "ACCUSE" || actionSelected.value === "DISPROVE") {
+        if (actionSelected.value === "SUGGEST" || actionSelected.value === "ACCUSE") {
             data.location = (document.getElementById('roomSelect') as HTMLInputElement).value;
             data.weapon = (document.getElementById('weaponSelect') as HTMLInputElement).value;
             data.suspect = (document.getElementById('suspectSelect') as HTMLInputElement).value;
-        } else { 
+        } else if (actionSelected.value === "DISPROVE") {
+            const choice = (document.getElementById("disproveSelect") as HTMLInputElement).value;
+            if (rooms.indexOf(choice) > -1){
+                data.location = choice;
+            } else if (weapons.indexOf(choice) > -1) {
+                data.weapon = choice;
+            } else if (suspects.indexOf(choice) > -1){
+                data.suspect = choice;
+            }
+        }
+        else {
             if (actionSelected.id === 'leftAction') {
                 data.location = 'left';
             } else if (actionSelected.id === 'rightAction') {
@@ -406,7 +510,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const message = await sendMessage(data);
             // sendMessage() is void and so message will be undefined
-             console.log('Message received: ', message);
+            console.log('Message received: ', message);
             form.reset();
         } catch (error) {
             console.error(`Error sending message: `, error);
