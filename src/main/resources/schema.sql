@@ -19,10 +19,10 @@ create table if not exists cards
     green        varchar(255),
     white        varchar(255),
     
-    rope         varchar(255),
-    pipe         varchar(255),
-    knife        varchar(255),
-    wrench       varchar(255),
+    poison         varchar(255),
+    poker         varchar(255),
+    icepick        varchar(255),
+    shears       varchar(255),
     candlestick  varchar(255),
     revolver     varchar(255),
     

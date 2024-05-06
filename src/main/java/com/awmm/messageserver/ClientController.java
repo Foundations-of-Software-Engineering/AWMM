@@ -410,6 +410,18 @@ public class ClientController extends TextWebSocketHandler {
 			String append = GameController.playerNames[userID] + " has joined game.\n";
 			ExampleMessage successResponseMessage = new ExampleMessage(gameID, userID, chatController.append(gameID, append), null, null, null,"LOGIN");
 			broadcastMessage(successResponseMessage, gameID); // tell all users about new user
+			// Send user all previous logins so they have updated state
+			ArrayList<Integer> previousLogins = new ArrayList();
+			Sessions sessions = gameID2UserID2Session.get(gameID);
+			if (sessions != null){
+				for (int i = 0; i < 6; i++){
+					if (sessions.get(i) != null && i != userID){
+						ExampleMessage prevLoginMessage = new ExampleMessage(gameID, i, "SUCCESS", null, null, null,"LOGIN");
+						sendMessageToClient(session, prevLoginMessage);
+					}
+				}
+			}
+
 			logger.info("Login for GAMEID {} USERID {}", gameID, userID);
 		} else {
 			ExampleMessage failureResponseMessage = new ExampleMessage(gameID, userID, "FAIL", null, null, null, "LOGIN");

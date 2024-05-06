@@ -1,9 +1,36 @@
 <!DOCTYPE html>
-<html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Send Data to Server</title>
+    <title>Clue-Less</title>
     <style>
+        #page-container {
+            display: flex;
+            flex-flow: column nowrap;
+        }
+        #row-1 {
+            flex-flow: row nowrap;
+        }
+        #game-info-head {
+            flex-flow: row nowrap;
+        }
+        #board {
+            flex-flow: row nowrap;
+        }
+        #turn-order {
+            flex-flow: column nowrap;
+        }
+        #select-character-text {
+            text-align: center;
+        }
+        #images {
+            align-items: center;
+        }
+        #startButtonContainer {
+            align-items: center;
+        }
+        #turn-order {
+            flex-flow: column;
+        }
         #message-box {
             width: 800px;
             height: 400px;
@@ -22,113 +49,103 @@
     </style>
 </head>
 <body>
-<div id="image-selection">
-    <p id="select-character-text">Please select a character.</p>
-    <img src="/images/Miss_Scarlet.jpg" class="selectable-image" data-image="0" alt="Miss Scarlet">
-    <img src="/images/Colonel_Mustard.jpg" class="selectable-image" data-image="1" alt="Colonel Mustard">
-    <img src="/images/Mrs_White.jpg" class="selectable-image" data-image="2" alt="Mrs White">
-    <img src="/images/Mr_Green.jpg" class="selectable-image" data-image="3" alt="Mr Green">
-    <img src="/images/Mrs_Peacock.jpg" class="selectable-image" data-image="4" alt="Mrs Peacock">
-    <img src="/images/Professor_Plum.jpg" class="selectable-image" data-image="5" alt="Professor Plum">
-</div>
-
-<div id="startButtonContainer" style="display: none;">
-    <button id="startButton" value="START">Start Game</button>
-</div>
-
-<h2 id="display-name"></h2>
-<h2 id="cards">Your Cards: </h2>
-
-<div id="main-content" style="display: none;">
-    <h2>Send Message</h2>
-    <form id="messageForm">
-        <input type="radio" id="suggestAction" name="actionChoice" value="SUGGEST"  checked>
-        <label for="suggestAction">Suggest</label>
-
-        <input type="radio" id="accuseAction" name="actionChoice" value="ACCUSE">
-        <label style="color:red;" for="accuseAction">Accuse</label>
-
-        <input type="radio" id="disproveAction" name="actionChoice" value="DISPROVE">
-        <label for="disproveAction">Disprove</label>
-
-        <input type="radio" id="leftAction" name="actionChoice" value="MOVE">
-        <label for="leftAction">Move Left</label>
-
-        <input type="radio" id="rightAction" name="actionChoice" value="MOVE">
-        <label for="rightAction">Move Right</label>
-
-        <input type="radio" id="upAction" name="actionChoice" value="MOVE">
-        <label for="upAction">Move Up</label>
-
-        <input type="radio" id="downAction" name="actionChoice" value="MOVE">
-        <label for="downAction">Move Down</label>
-
-        <input type="radio" id="diagonalAction" name="actionChoice" value="MOVE">
-        <label for="diagonalAction">Move Diagonal</label>
-
-        <input type="radio" id="endTurnAction" name="actionChoice" value="ENDTURN">
-        <label for="endTurnAction">End Turn</label>
-
-        <div id="selectOptions" style="display: none; margin-top: 10px">
-            <p>
-                The weapon was
-                <select id="weaponSelect"></select>
-                within the room
-                <select id="roomSelect"></select>
-                by the killer
-                <select id="suspectSelect"></select>
-            </p>
-            <br />
+<div id="page-container">
+    <div id="row-1">
+        <div id="game-start">
+            <div id="image-selection">
+                <p id="select-character-text">Please select a character.</p>
+                <div id="images">
+                    <img src="/images/Miss_Scarlet.jpg" class="selectable-image" data-image="0" alt="Miss Scarlet">
+                    <img src="/images/Colonel_Mustard.jpg" class="selectable-image" data-image="1" alt="Colonel Mustard">
+                    <img src="/images/Mrs_White.jpg" class="selectable-image" data-image="2" alt="Mrs White">
+                    <img src="/images/Mr_Green.jpg" class="selectable-image" data-image="3" alt="Mr Green">
+                    <img src="/images/Mrs_Peacock.jpg" class="selectable-image" data-image="4" alt="Mrs Peacock">
+                    <img src="/images/Professor_Plum.jpg" class="selectable-image" data-image="5" alt="Professor Plum">
+                </div>
+            </div>
+            <div id="startButtonContainer">
+                <div id="empty-col-1">
+                </div>
+                <div id="button-col">
+                    <button id="startButton" value="START">Start Game</button>
+                </div>
+                <div id="empty-col-2">
+                </div>
+            </div>
         </div>
-        <button type="submit">Send Message</button>
-    </form>
+    </div>
+    <div id="game-info-head">
+        <div id="game-info">
+            <div id="game-cards">
+                <div id="cards">
+                </div>
+            </div>
+            <div id="game-controls">
+                <div id="control-form">
+                    <form id="messageForm">
+                        <input type="radio" id="suggestAction" name="actionChoice" value="SUGGEST"  checked>
+                        <label for="suggestAction">Suggest</label>
+
+                        <input type="radio" id="accuseAction" name="actionChoice" value="ACCUSE">
+                        <label style="color:red;" for="accuseAction">Accuse</label>
+
+                        <input type="radio" id="disproveAction" name="actionChoice" value="DISPROVE">
+                        <label for="disproveAction">Disprove</label>
+
+                        <input type="radio" id="leftAction" name="actionChoice" value="MOVE">
+                        <label for="leftAction">Move Left</label>
+
+                        <input type="radio" id="rightAction" name="actionChoice" value="MOVE">
+                        <label for="rightAction">Move Right</label>
+
+                        <input type="radio" id="upAction" name="actionChoice" value="MOVE">
+                        <label for="upAction">Move Up</label>
+
+                        <input type="radio" id="downAction" name="actionChoice" value="MOVE">
+                        <label for="downAction">Move Down</label>
+
+                        <input type="radio" id="diagonalAction" name="actionChoice" value="MOVE">
+                        <label for="diagonalAction">Move Diagonal</label>
+
+                        <input type="radio" id="endTurnAction" name="actionChoice" value="ENDTURN">
+                        <label for="endTurnAction">End Turn</label>
+
+                        <div id="selectOptions" style="display: none; margin-top: 10px">
+                            <p>
+                                The weapon was
+                                <select id="weaponSelect"></select>
+                                within the room
+                                <select id="roomSelect"></select>
+                                by the killer
+                                <select id="suspectSelect"></select>
+                            </p>
+                            <br />
+                        </div>
+                        <button type="submit">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="board">
+        <div id="turn-order">
+            <p>Turn Order</p>
+            <img src="/images/cards/suspects/MissScarlet.png" alt="Miss Scarlet" width="100">
+            <img src="/images/cards/suspects/ColonelMustard.png" alt="Colonel Mustard" width="100">
+            <img src="/images/cards/suspects/MrsWhite.png" alt="Mrs White" width="100">
+            <img src="/images/cards/suspects/MrGreen.png" alt="Mr Green" width="100">
+            <img src="/images/cards/suspects/MrsPeacock.png" alt="Mrs Peacock" width="100">
+            <img src="/images/cards/suspects/ProfessorPlum.png" alt="Professor Plum" width="100">
+        </div>
+        <div id="canvas">
+            <canvas id="mapCanvas"></canvas>
+        </div>
+    </div>
+    <div id="row">
+        <div id="message-box">
+        </div>
+    </div>
 </div>
-
-<table id="grid" border="1">
-    <caption>Board</caption>
-    <tbody>
-    <tr>
-        <td>Study </td>
-        <td class="hallway"></td>
-        <td>Hall </td>
-        <td class="hallway"></td>
-        <td>Lounge </td>
-    </tr>
-    <tr>
-        <td class="hallway"></td>
-        <td></td>
-        <td class="hallway"></td>
-        <td></td>
-        <td class="hallway"></td>
-    </tr>
-    <tr id="row-2">
-        <td>Library</td>
-        <td class="hallway"></td>
-        <td>Billiard Room </td>
-        <td class="hallway"></td>
-        <td>Dining Room </td>
-    </tr>
-    <tr id="row-3">
-        <td class="hallway"></td>
-        <td></td>
-        <td class="hallway"></td>
-        <td></td>
-        <td class="hallway"></td>
-    </tr>
-    <tr id="row-4">
-        <td>Conservatory </td>
-        <td class="hallway"></td>
-        <td>Ballroom </td>
-        <td class="hallway"></td>
-        <td>Kitchen </td>
-    </tr>
-    </tbody>
-</table>
-
-<canvas id="mapCanvas"></canvas>
-
-<div id="message-box"></div>
-
 <script src="game.js" type="module"></script>
 </body>
 </html>
