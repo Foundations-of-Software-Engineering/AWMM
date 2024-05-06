@@ -272,5 +272,5 @@ public class GameController {
 		return ret;
 	}
     
-
+//	public int getCurrentPlayer(String gameID)
 }

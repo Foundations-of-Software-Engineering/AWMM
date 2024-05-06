@@ -149,6 +149,7 @@ public class ClientController extends TextWebSocketHandler {
 		if (gameController.handleDisprove(clientMessage)) {
 			returnMessage = new ExampleMessage(clientMessage.GAMEID(), clientMessage.USERID(), "SUCCESS", null, null, null, "DISPROVE");
 			broadcastMessage(returnMessage, clientMessage.GAMEID());
+			ExampleMessage individualMessage = new ExampleMessage(null, null, null, clientMessage.location(), clientMessage.weapon(), clientMessage.suspect(), "DisproveSuccessful");
 		} else {
 			returnMessage = new ExampleMessage(clientMessage.GAMEID(), clientMessage.USERID(), "FAIL", null, null, null, "DISPROVE");
 			sendMessageToClient(session, returnMessage);
