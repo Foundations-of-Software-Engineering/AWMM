@@ -50,10 +50,22 @@ const suspectCards: {[key: string]: string } = {
 const weaponCards:{[key: string]: string } = {
     "Candlestick": "/images/cards/weapons/Candlestick.png",
     "Revolver": "/images/cards/weapons/Revolver.png",
-    "Knife": "/images/cards/weapons/Ice_Pick.png",
-    "Rope": "/images/cards/weapons/Poison.png",
-    "Lead Pipe": "/images/cards/weapons/Poker.png",
-    "Wrench": "/images/cards/weapons/Shears.png"
+    "Ice Pick": "/images/cards/weapons/Ice_Pick.png",
+    "Poison": "/images/cards/weapons/Poison.png",
+    "Poker": "/images/cards/weapons/Poker.png",
+    "Shears": "/images/cards/weapons/Shears.png"
+}
+
+const roomCards:{[key: string]: string } = {
+    "Ballroom": "/images/cards/rooms/Ballroom.png",
+    "Billiard Room": "/images/cards/rooms/BilliardRoom.png",
+    "Conservatory": "/images/cards/rooms/Conservatory.png",
+    "Dining Room": "/images/cards/rooms/DiningRoom.png",
+    "Hall": "/images/cards/rooms/Hall.png",
+    "Kitchen": "/images/cards/rooms/Kitchen.png",
+    "Library": "/images/cards/rooms/Library.png",
+    "Lounge": "/images/cards/rooms/Lounge.png",
+    "Study": "/images/cards/rooms/Study.png",
 }
 
 const roomSize = 200;
@@ -215,7 +227,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const roomSelect = document.getElementById('roomSelect') as HTMLSelectElement;
 
     const suspects = ['Professor Plum', 'Miss Scarlet', 'Col. Mustard', 'Mrs. Peacock', 'Mr. Green', 'Mrs. White'];
-    const weapons = ["Candlestick", "Gun", "Knife", "Rope", "Lead Pipe", "Wrench"];
+    const weapons = ["Candlestick", "Revolver", "Ice Pick", "Poison", "Poker", "Shears"];
     const rooms = ['Study', 'Hall', 'Lounge', 'Kitchen', 'Ballroom', 'Conservatory', 'Dining Room', 'Billiard Room', 'Library'];
 
     messageBox.innerHTML += 'Game ID: ' + getCookieValue('gameId') + '<br>';
@@ -406,16 +418,12 @@ document.addEventListener("DOMContentLoaded", () => {
         } else if (message.type === 'CARD') {
             let hand = document.getElementById('cards')!;
             const img = document.createElement("img");
-            if(message.action === "Knife") {
-                console.log("---Knife---");
-                console.log(weaponCards["Knife"]);
-                console.log(weaponCards[message.action]);
-                console.log(weapons.indexOf(message.action));
-            }
             if (weapons.indexOf(message.action) > -1){
                 img.src = weaponCards[message.action];
             } else if ((Object as any).values(characterNames).includes(message.action)){
                 img.src = suspectCards[message.action];
+            } else {
+                img.src = roomCards[message.action];
             }
             img.width = 100;
             hand.appendChild(img);
