@@ -383,8 +383,10 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 messageBox.innerHTML += "Game Over with No Winner :("
             }
-        } else if (message.action == 'ENDTURN') {
+        } else if (message.action === 'ENDTURN') {
             messageBox.innerHTML += `${characterNames[message.USERID]} ends turn.<br>`;
+        } else if (message.type === 'DisproveSuccessful') {
+            messageBox.innerHTML += `Suggestion was disproved with ${message.weapon}, ${message.suspect}, ${message.location} <br>`
         }
         
     });
