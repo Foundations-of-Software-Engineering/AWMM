@@ -383,7 +383,10 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 messageBox.innerHTML += "Game Over with No Winner :("
             }
+        } else if (message.action == 'ENDTURN') {
+            messageBox.innerHTML += `${characterNames[message.USERID]} ends turn.<br>`;
         }
+        
     });
 
     form.addEventListener("submit", async (event) => {
