@@ -17,10 +17,10 @@ public class Deck {
 	Board.      MrGreenName,
 	Board.     MrsWhiteName,
 	// 6 Weapons
-	Board.       RopeName,
-	Board.   LeadPipeName,
-	Board.      KnifeName,
-	Board.     WrenchName,
+	Board.     PoisonName,
+	Board.   PokerName,
+	Board.    IcePickName,
+	Board.     ShearsName,
 	Board.CandlestickName,
 	Board.   RevolverName,
 	// 9 Rooms

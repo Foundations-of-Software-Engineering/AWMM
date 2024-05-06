@@ -7,8 +7,8 @@ function checkCookieExists() {
 }
 
 function redirectToPageIfCookieExists() {
-    const checkInterval = 100
-    const maxTries = 50
+    const checkInterval = 200
+    const maxTries = 100
     let tries = 0
 
     const intervalId = setInterval(function () {
