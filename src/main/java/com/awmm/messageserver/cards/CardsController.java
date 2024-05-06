@@ -95,7 +95,7 @@ public class CardsController {
 	public void clearSuggestion(String gameID) {
 		try {
 			Cards cards = repository.getReferenceById(gameID);
-			if (cards != null && cards.getSuggestedRoom() == null && cards.getSuggestedSuspect() == null && cards.getSuggestedWeapon() == null) {				
+			if (cards != null) {				
 				cards.setSuggestedWeapon(null);
 				cards.setSuggestedRoom(null);
 				cards.setSuggestedSuspect(null);

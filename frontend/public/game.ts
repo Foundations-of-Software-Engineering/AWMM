@@ -403,7 +403,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         } else if (message.type === 'SUGGEST') {
             if (message.action === 'FAIL') {
-                messageBox.innerHTML += `${characterNames[message.USERID]} cannot make suggestion when not in room.`;
+                messageBox.innerHTML += `${characterNames[message.USERID]} cannot make suggestion when not in room.<br>`;
             } else {
                 messageBox.innerHTML += `${characterNames[message.USERID]} suggests it was ${message.suspect} in the ${message.location} with a ${message.weapon}.<br>`;
                 let row = message.action.charAt(0);
@@ -445,7 +445,9 @@ document.addEventListener("DOMContentLoaded", () => {
         } else if (message.type === 'ENDTURN') {
             turnOrder.push(turnOrder.shift()!);
             addTurns();
+            messageBox.innerHTML += `${characterNames[message.USERID]} ends turn.<br>`;
         }
+        
     });
 
     form.addEventListener("submit", async (event) => {
