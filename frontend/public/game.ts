@@ -47,8 +47,6 @@ const suspectCards: {[key: string]: string } = {
     "Professor Plum": "/images/cards/suspects/ProfessorPlum.png"
 }
 
-const weapons = ["Candlestick", "Gun", "Knife", "Rope", "Lead Pipe", "Wrench"];
-const rooms = [];
 const weaponCards:{[key: string]: string } = {
     "Candlestick": "/images/cards/weapons/Candlestick.png",
     "Revolver": "/images/cards/weapons/Revolver.png",
@@ -217,7 +215,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const roomSelect = document.getElementById('roomSelect') as HTMLSelectElement;
 
     const suspects = ['Professor Plum', 'Miss Scarlet', 'Col. Mustard', 'Mrs. Peacock', 'Mr. Green', 'Mrs. White'];
-    const weapons = ['Candlestick', 'Dagger', 'Lead Pipe', 'Revolver', 'Rope', 'Wrench'];
+    const weapons = ["Candlestick", "Gun", "Knife", "Rope", "Lead Pipe", "Wrench"];
     const rooms = ['Study', 'Hall', 'Lounge', 'Kitchen', 'Ballroom', 'Conservatory', 'Dining Room', 'Billiard Room', 'Library'];
 
     messageBox.innerHTML += 'Game ID: ' + getCookieValue('gameId') + '<br>';
@@ -408,6 +406,12 @@ document.addEventListener("DOMContentLoaded", () => {
         } else if (message.type === 'CARD') {
             let hand = document.getElementById('cards')!;
             const img = document.createElement("img");
+            if(message.action === "Knife") {
+                console.log("---Knife---");
+                console.log(weaponCards["Knife"]);
+                console.log(weaponCards[message.action]);
+                console.log(weapons.indexOf(message.action));
+            }
             if (weapons.indexOf(message.action) > -1){
                 img.src = weaponCards[message.action];
             } else if ((Object as any).values(characterNames).includes(message.action)){
