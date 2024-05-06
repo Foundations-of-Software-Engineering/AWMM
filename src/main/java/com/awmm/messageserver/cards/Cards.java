@@ -20,10 +20,10 @@ public class Cards {
 	private String green       ;
 	private String white       ;
 	// Weapons
-	private String rope        ;
-	private String pipe        ;
-	private String knife       ;
-	private String wrench      ;
+	private String poison        ;
+	private String poker        ;
+	private String icePick       ;
+	private String shears      ;
 	private String candlestick ;
 	private String revolver    ;
 	// Locations
@@ -50,7 +50,7 @@ public class Cards {
 	}
 
 	public Cards(String gameID, String plum, String scarlet, String mustard, String peacock, String green, String white,
-			String rope, String pipe, String knife, String wrench, String candlestick, String revolver, String study,
+			String poison, String poker, String icePick, String shears, String candlestick, String revolver, String study,
 			String hall, String lounge, String library, String billiard, String dining, String conservatory,
 			String ballroom, String kitchen, String suggestedSuspect, String suggestedWeapon, String suggestedRoom) {
 		super();
@@ -61,10 +61,10 @@ public class Cards {
 		this.peacock = peacock;
 		this.green = green;
 		this.white = white;
-		this.rope = rope;
-		this.pipe = pipe;
-		this.knife = knife;
-		this.wrench = wrench;
+		this.poison = poison;
+		this.poker = poker;
+		this.icePick = icePick;
+		this.shears = shears;
 		this.candlestick = candlestick;
 		this.revolver = revolver;
 		this.study = study;
@@ -161,36 +161,36 @@ public class Cards {
 		this.white = white;
 	}
 
-	public String getRope() {
-		return rope;
+	public String getPoison() {
+		return poison;
 	}
 
-	public void setRope(String rope) {
-		this.rope = rope;
+	public void setPoison(String poison) {
+		this.poison = poison;
 	}
 
-	public String getPipe() {
-		return pipe;
+	public String getPoker() {
+		return poker;
 	}
 
-	public void setPipe(String pipe) {
-		this.pipe = pipe;
+	public void setPoker(String poker) {
+		this.poker = poker;
 	}
 
-	public String getKnife() {
-		return knife;
+	public String getIcePick() {
+		return icePick;
 	}
 
-	public void setKnife(String knife) {
-		this.knife = knife;
+	public void setIcePick(String icePick) {
+		this.icePick = icePick;
 	}
 
-	public String getWrench() {
-		return wrench;
+	public String getShears() {
+		return shears;
 	}
 
-	public void setWrench(String wrench) {
-		this.wrench = wrench;
+	public void setShears(String shears) {
+		this.shears = shears;
 	}
 
 	public String getCandlestick() {
@@ -284,8 +284,8 @@ public class Cards {
 	@Override
 	public String toString() {
 		return "Cards [gameID=" + gameID + ", plum=" + plum + ", scarlet=" + scarlet + ", mustard=" + mustard
-				+ ", peacock=" + peacock + ", green=" + green + ", white=" + white + ", rope=" + rope + ", pipe=" + pipe
-				+ ", knife=" + knife + ", wrench=" + wrench + ", candlestick=" + candlestick + ", revolver=" + revolver
+				+ ", peacock=" + peacock + ", green=" + green + ", white=" + white + ", poison=" + poison + ", poker=" + poker
+				+ ", icePick=" + icePick + ", shears=" + shears + ", candlestick=" + candlestick + ", revolver=" + revolver
 				+ ", study=" + study + ", hall=" + hall + ", lounge=" + lounge + ", library=" + library + ", billiard="
 				+ billiard + ", dining=" + dining + ", conservatory=" + conservatory + ", ballroom=" + ballroom
 				+ ", kitchen=" + kitchen + ", suggestedSuspect=" + suggestedSuspect + ", suggestedWeapon="
@@ -300,10 +300,10 @@ public class Cards {
 		case Board.   MrsPeacockName: { setPeacock(player); return; }
 		case Board.      MrGreenName: { setGreen(player); return; }
 		case Board.     MrsWhiteName: { setWhite(player); return; }
-		case Board.         RopeName: { setRope(player); return; }
-		case Board.     LeadPipeName: { setPipe(player); return; }
-		case Board.        KnifeName: { setKnife(player); return; }
-		case Board.       WrenchName: { setWrench(player); return; }
+		case Board.         PoisonName: { setPoison(player); return; }
+		case Board.     PokerName: { setPoker(player); return; }
+		case Board.        IcePickName: { setIcePick(player); return; }
+		case Board.       ShearsName: { setShears(player); return; }
 		case Board.  CandlestickName: { setCandlestick(player); return; }
 		case Board.     RevolverName: { setRevolver(player); return; }
 		case Board.        StudyName: { setStudy(player); return; }
@@ -327,10 +327,10 @@ public class Cards {
 		case Board.   MrsPeacockName: { return getPeacock();     }
 		case Board.      MrGreenName: { return getGreen();       }
 		case Board.     MrsWhiteName: { return getWhite();       }
-	    case Board.         RopeName: { return getRope();        }
-	    case Board.     LeadPipeName: { return getPipe();        }
-	    case Board.        KnifeName: { return getKnife();       }
-	    case Board.       WrenchName: { return getWrench();      }
+	    case Board.         PoisonName: { return getPoison();        }
+	    case Board.     PokerName: { return getPoker();        }
+	    case Board.      IcePickName: { return getIcePick();       }
+	    case Board.       ShearsName: { return getShears();      }
 	    case Board.  CandlestickName: { return getCandlestick(); }
 	    case Board.     RevolverName: { return getRevolver();    }
 	    case Board.	       StudyName: { return getStudy();       } 

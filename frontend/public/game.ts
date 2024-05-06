@@ -5,10 +5,10 @@ import { Tokens } from './token.js';
 
 const characterNames: {[key: number]: string } = {
     0: "Miss Scarlet",
-    1: "Colonel Mustard",
-    2: "Mrs White",
-    3: "Mr Green",
-    4: "Mrs Peacock",
+    1: "Col. Mustard",
+    2: "Mrs. White",
+    3: "Mr. Green",
+    4: "Mrs. Peacock",
     5: "Professor Plum"
 }
 
@@ -38,11 +38,55 @@ const layout = [
     ['Conservatory', 'Hallway', 'Ballroom', 'Hallway', 'Kitchen']
 ];
 
+const suspectCards: {[key: string]: string } = {
+    "Miss Scarlet": "/images/cards/suspects/MissScarlet.png",
+    "Col. Mustard": "/images/cards/suspects/ColonelMustard.png",
+    "Mrs. White": "/images/cards/suspects/MrsWhite.png",
+    "Mr. Green": "/images/cards/suspects/MrGreen.png",
+    "Mrs. Peacock": "/images/cards/suspects/MrsPeacock.png",
+    "Professor Plum": "/images/cards/suspects/ProfessorPlum.png"
+}
+
+const weaponCards:{[key: string]: string } = {
+    "Candlestick": "/images/cards/weapons/Candlestick.png",
+    "Revolver": "/images/cards/weapons/Revolver.png",
+    "Ice Pick": "/images/cards/weapons/Ice_Pick.png",
+    "Poison": "/images/cards/weapons/Poison.png",
+    "Poker": "/images/cards/weapons/Poker.png",
+    "Shears": "/images/cards/weapons/Shears.png"
+}
+
+const roomCards:{[key: string]: string } = {
+    "Ballroom": "/images/cards/rooms/Ballroom.png",
+    "Billiard Room": "/images/cards/rooms/BilliardRoom.png",
+    "Conservatory": "/images/cards/rooms/Conservatory.png",
+    "Dining Room": "/images/cards/rooms/DiningRoom.png",
+    "Hall": "/images/cards/rooms/Hall.png",
+    "Kitchen": "/images/cards/rooms/Kitchen.png",
+    "Library": "/images/cards/rooms/Library.png",
+    "Lounge": "/images/cards/rooms/Lounge.png",
+    "Study": "/images/cards/rooms/Study.png",
+}
+
 const roomSize = 200;
 const imageNames = ['Study', 'Hall', 'Lounge', 'Library', 'BilliardRoom', 'DiningRoom', 'Conservatory', 'Ballroom', 'Kitchen', 'Hallway'];
 const gameMap = new GameMap(layout, imageNames, roomSize);
 const charTokens = new Tokens(gameMap.canvas, layout, roomSize);
 
+var turnOrder: number[] = [];
+
+
+function addTurns(){
+    let turnOrderDiv = document.getElementById("turn-cards")!;
+    turnOrderDiv.innerHTML = "";
+    turnOrder.forEach((value) => {
+        const img = document.createElement("img");
+        img.src = suspectCards[characterNames[value]];
+        img.width = 100;
+        img.alt = characterNames[value];
+        turnOrderDiv.appendChild(img);
+    });
+}
 // Function to get the value of a specific cookie
 function getCookieValue(cookieName: string): string | undefined {
     const cookie = document.cookie.split("; ").find((row) => row.startsWith(cookieName));
@@ -163,7 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const form = document.getElementById('messageForm') as HTMLFormElement;
     const imageSelection = document.getElementById('image-selection')!;
-    const mainContent = document.getElementById('main-content')!;
+    const mainContent = document.getElementById('game-controls')!;
     const selectableImages = document.querySelectorAll('.selectable-image')!;
     let selectedImageValue: number | null = null; // Variable to store the selected image value
     const messageBox = document.getElementById("message-box")!;
@@ -183,9 +227,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const roomSelect = document.getElementById('roomSelect') as HTMLSelectElement;
 
     const suspects = ['Professor Plum', 'Miss Scarlet', 'Col. Mustard', 'Mrs. Peacock', 'Mr. Green', 'Mrs. White'];
-    const weapons = ['Candlestick', 'Dagger', 'Lead Pipe', 'Revolver', 'Rope', 'Wrench'];
+    const weapons = ["Candlestick", "Revolver", "Ice Pick", "Poison", "Poker", "Shears"];
     const rooms = ['Study', 'Hall', 'Lounge', 'Kitchen', 'Ballroom', 'Conservatory', 'Dining Room', 'Billiard Room', 'Library'];
 
+    messageBox.innerHTML += 'Game ID: ' + getCookieValue('gameId') + '<br>';
 
     suspects.forEach(suspects => {
         const option = document.createElement('option');
@@ -286,8 +331,9 @@ document.addEventListener("DOMContentLoaded", () => {
             const characterName = characterNames[message.USERID];
             if (message.action !== 'FAIL') {
                 console.log(`Login succeeded for ${characterName}`)
-                messageBox.innerHTML = message.action;
-                // messageBox.innerHTML += `${characterName} has joined the game.<br>`;
+                //messageBox.innerHTML = message.action;
+                turnOrder.push(parseInt(message.USERID));
+                messageBox.innerHTML += `${characterName} has joined the game.<br>`;
             } else {
                 alert("Login Failed!")
                 console.log(`Login failed for ${characterName}`)
@@ -349,6 +395,9 @@ document.addEventListener("DOMContentLoaded", () => {
             mainContent.style.display = 'block'; // Show the main content
             form.style.display = 'block'; // Show the form
             messageBox.innerHTML = message.action;
+            turnOrder.sort();
+            console.log(turnOrder);
+            addTurns();
             gameMap.loadImages().then(() => {
                 gameMap.drawMap();
             });
@@ -367,10 +416,20 @@ document.addEventListener("DOMContentLoaded", () => {
         } else if (message.type === 'accusefail') {
             form.style.display = 'none';
         } else if (message.type === 'CARD') {
-            let hand = document.getElementById('cards');
-            if (hand !== null) {
-                hand.innerHTML += message.action + ", ";
+            let hand = document.getElementById('cards')!;
+            const img = document.createElement("img");
+            if (weapons.indexOf(message.action) > -1){
+                img.src = weaponCards[message.action];
+            } else if ((Object as any).values(characterNames).includes(message.action)){
+                img.src = suspectCards[message.action];
+            } else {
+                img.src = roomCards[message.action];
             }
+            img.width = 100;
+            hand.appendChild(img);
+            // if (hand !== null) {
+            //     hand.innerHTML += message.action + ", ";
+            // }
         } else if (message.type === 'DISPROVE') {
             if (message.action === 'FAIL') {
                 messageBox.innerHTML += `${characterNames[message.USERID]} failed to disprove<br>`;
@@ -383,7 +442,9 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 messageBox.innerHTML += "Game Over with No Winner :("
             }
-        } else if (message.action == 'ENDTURN') {
+        } else if (message.type === 'ENDTURN') {
+            turnOrder.push(turnOrder.shift()!);
+            addTurns();
             messageBox.innerHTML += `${characterNames[message.USERID]} ends turn.<br>`;
         }
         
