@@ -225,7 +225,8 @@ public class ClientController extends TextWebSocketHandler {
 			// initiate cleanup
 		}
 		else {
-			sendMessageToClient(session, new AccuseFailMessage("accusefail"));
+			ExampleMessage gameLost = new ExampleMessage(clientMessage.GAMEID(), clientMessage.USERID(), null, null, null, null, "accusefail");
+			broadcastMessage(gameLost, clientMessage.GAMEID());
 		}
 	}
 
