@@ -51,8 +51,14 @@ export class Tokens {
     }
     private drawToken(tokenColor: string, x: number, y: number) {
         const tokenSize = 50; // Adjust the size of the square token as needed
+        const borderWidth = 2;
+        const borderColor = "black";
 
         this.ctx.fillStyle = tokenColor;
         this.ctx.fillRect(x, y, tokenSize, tokenSize);
+
+        this.ctx.strokeStyle = borderColor;
+        this.ctx.lineWidth = borderWidth;
+        this.ctx.strokeRect(x, y, tokenSize, tokenSize);
     }
 }

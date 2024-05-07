@@ -174,9 +174,16 @@ public class GameController {
 
 	}
 
-	public void handleEndTurn(ExampleMessage clientMessage){
-		String gameID = clientMessage.GAMEID();
-		boardStates.get(gameID).switchPlayerTurn();
+	public boolean handleEndTurn(ExampleMessage clientMessage){
+		int userId = clientMessage.USERID();
+		Board board = boardStates.get(clientMessage.GAMEID());
+
+		if (userId == board.getCurrentPlayer()) {
+			board.switchPlayerTurn();
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	public int activePlayers(ExampleMessage clientMessage) {
