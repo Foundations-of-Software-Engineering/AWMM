@@ -38,6 +38,8 @@ const layout = [
     ['Conservatory', 'Hallway', 'Ballroom', 'Hallway', 'Kitchen']
 ];
 
+<<<<<<< HEAD
+=======
 const suspectCards: {[key: string]: string } = {
     "Miss Scarlet": "/images/cards/suspects/MissScarlet.png",
     "Col. Mustard": "/images/cards/suspects/ColonelMustard.png",
@@ -68,11 +70,14 @@ const roomCards:{[key: string]: string } = {
     "Study": "/images/cards/rooms/Study.png",
 }
 
+>>>>>>> b393a86ea56cf1c3271e7001086481c88283287d
 const roomSize = 200;
 const imageNames = ['Study', 'Hall', 'Lounge', 'Library', 'BilliardRoom', 'DiningRoom', 'Conservatory', 'Ballroom', 'Kitchen', 'Hallway'];
 const gameMap = new GameMap(layout, imageNames, roomSize);
 const charTokens = new Tokens(gameMap.canvas, layout, roomSize);
 
+<<<<<<< HEAD
+=======
 var turnOrder: number[] = [];
 var playerHand: string[] = [];
 
@@ -87,6 +92,7 @@ function addTurns(){
         turnOrderDiv.appendChild(img);
     });
 }
+>>>>>>> b393a86ea56cf1c3271e7001086481c88283287d
 // Function to get the value of a specific cookie
 function getCookieValue(cookieName: string): string | undefined {
     const cookie = document.cookie.split("; ").find((row) => row.startsWith(cookieName));
@@ -402,9 +408,12 @@ document.addEventListener("DOMContentLoaded", () => {
             mainContent.style.display = 'block'; // Show the main content
             form.style.display = 'block'; // Show the form
             messageBox.innerHTML = message.action;
+<<<<<<< HEAD
+=======
             turnOrder.sort();
             console.log(turnOrder);
             addTurns();
+>>>>>>> b393a86ea56cf1c3271e7001086481c88283287d
             gameMap.loadImages().then(() => {
                 gameMap.drawMap();
             });
@@ -451,9 +460,13 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 messageBox.innerHTML += "Game Over with No Winner :("
             }
+<<<<<<< HEAD
+        } else if (message.action == 'ENDTURN') {
+=======
         } else if (message.type === 'ENDTURN') {
             turnOrder.push(turnOrder.shift()!);
             addTurns();
+>>>>>>> b393a86ea56cf1c3271e7001086481c88283287d
             messageBox.innerHTML += `${characterNames[message.USERID]} ends turn.<br>`;
         }
         
@@ -479,6 +492,9 @@ document.addEventListener("DOMContentLoaded", () => {
             data.location = (document.getElementById('roomSelect') as HTMLInputElement).value;
             data.weapon = (document.getElementById('weaponSelect') as HTMLInputElement).value;
             data.suspect = (document.getElementById('suspectSelect') as HTMLInputElement).value;
+<<<<<<< HEAD
+        } else {
+=======
         } else if (actionSelected.value === "DISPROVE") {
             const choice = (document.getElementById("disproveSelect") as HTMLInputElement).value;
             if (rooms.indexOf(choice) > -1){
@@ -490,6 +506,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
         else {
+>>>>>>> b393a86ea56cf1c3271e7001086481c88283287d
             if (actionSelected.id === 'leftAction') {
                 data.location = 'left';
             } else if (actionSelected.id === 'rightAction') {

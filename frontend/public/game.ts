@@ -458,6 +458,14 @@ document.addEventListener("DOMContentLoaded", () => {
             turnOrder.push(turnOrder.shift()!);
             addTurns();
             messageBox.innerHTML += `${characterNames[message.USERID]} ends turn.<br>`;
+        } else if (message.type === 'DisproveSuccessful') {
+            if (message.weapon != 'null') 
+                messageBox.innerHTML += `Suggestion was disproved with ${message.weapon}.<br>`
+            else if (message.suspect != 'null') 
+                messageBox.innerHTML += `Suggestion was disproved with ${message.suspect}.<br>`
+            else if (message.location != 'null') 
+                messageBox.innerHTML += `Suggestion was disproved with ${message.location}.<br>`
+
         }
         
     });
