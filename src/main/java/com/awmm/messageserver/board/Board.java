@@ -116,7 +116,7 @@ public class Board {
 		DiningRoom  (2,4,   DiningRoomName),
 		Conservatory(4,0, ConservatoryName),
 		Ballroom    (4,2,     BallroomName), 
-		Kitchen     (4,3,      KitchenName);
+		Kitchen     (4,4,      KitchenName);
 		
 		private final Position position;
 		private final String name;
@@ -511,6 +511,7 @@ public class Board {
 			Room room = (Room) location;
 			movePlayer(suspect, room.getName());
 			currentPlayerSuggested = true;
+			currentPlayerMoved = true;
 			return position.getRow() + " " + position.getCol();
 		}
 		else {

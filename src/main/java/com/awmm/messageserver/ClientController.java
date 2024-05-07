@@ -317,9 +317,11 @@ public class ClientController extends TextWebSocketHandler {
 		String gameID = clientMessage.GAMEID();
 		int userID = clientMessage.USERID();
 
-		gameController.handleEndTurn(clientMessage);
-		Message response = new ExampleMessage(gameID, userID, "ENDTURN", null, null, null, "ENDTURN");
-		broadcastMessage(response, gameID);
+		boolean success = gameController.handleEndTurn(clientMessage);
+		if (success){
+			Message response = new ExampleMessage(gameID, userID, "ENDTURN", null, null, null, "ENDTURN");
+			broadcastMessage(response, gameID);
+		}
 	}
 
 	/**
